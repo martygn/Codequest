@@ -13,13 +13,17 @@ class Evento extends Model
     protected $primaryKey = 'id_evento';
 
     protected $fillable = [
-        'nombre',
-        'descripcion',
-        'fecha_inicio',
-        'fecha_fin',
-        'lugar',
-        'foto'
-    ];
+    'nombre',
+    'descripcion',
+    'reglas',           // Nuevo
+    'premios',          // Nuevo
+    'otra_informacion', // Nuevo
+    'fecha_inicio',
+    'fecha_fin',
+    'lugar',
+    'foto',
+    'estado'
+];
 
     protected $casts = [
         'fecha_inicio' => 'datetime',
