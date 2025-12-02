@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Equipo;
 use App\Models\Evento;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -19,7 +20,7 @@ class EquipoController extends Controller
             ->withCount('participantes')
             ->orderBy('created_at', 'desc')
             ->paginate(12);
-            
+
         return view('equipos.index', compact('equipos'));
     }
 
@@ -28,7 +29,10 @@ class EquipoController extends Controller
      */
     public function create()
     {
-        $eventos = Evento::proximos()->get();
+        $eventos = Evento::where('fecha_inicio', '>=', now())
+            ->orderBy('fecha_inicio', 'asc')
+            ->get();
+
         return view('equipos.create', compact('eventos'));
     }
 
@@ -37,24 +41,66 @@ class EquipoController extends Controller
      */
     public function store(Request $request)
     {
+        // Validar datos del equipo
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'id_evento' => 'required|exists:eventos,id_evento',
+            'integrantes' => 'required|array|min:1',
+            'integrantes.*.correo' => 'required|email',
+            'integrantes.*.cargo' => 'required|string|in:Diseñador,Programador back-end,Programador front-end',
         ]);
 
+        $correoUsuarioActual = Auth::user()->correo;
+        foreach ($request->integrantes as $integrante) {
+            if ($integrante['correo'] == $correoUsuarioActual) {
+                return back()->withErrors(['integrantes' => 'No puedes agregarte a ti mismo como integrante adicional.']);
+            }
+        }
+
+        // Subir banner si existe
         if ($request->hasFile('banner')) {
             $validated['banner'] = $request->file('banner')->store('equipos', 'public');
         }
 
+        // Crear el equipo
         $equipo = Equipo::create($validated);
 
-        // Agregar al usuario actual como miembro del equipo con posición "líder"
+        // Agregar al usuario actual como LÍDER
         $equipo->participantes()->attach(Auth::id(), ['posicion' => 'Líder']);
 
+        // Procesar otros integrantes
+        $invitacionesEnviadas = [];
+        $usuariosNoEncontrados = [];
+
+        foreach ($request->integrantes as $integrante) {
+            // Buscar usuario por correo
+            $usuario = Usuario::where('correo', $integrante['correo'])->first();
+
+            if ($usuario) {
+                // Usuario existe, agregar al equipo
+                if (!$equipo->tieneMiembro($usuario->id)) {
+                    $equipo->participantes()->attach($usuario->id, [
+                        'posicion' => $integrante['cargo'],
+                        'estado_invitacion' => 'aceptada'
+                    ]);
+                }
+            } else {
+                // Usuario no existe, crear invitación
+                $usuariosNoEncontrados[] = $integrante['correo'];
+            }
+        }
+
+        // Mensaje de éxito
+        $mensaje = 'Equipo creado exitosamente. ';
+
+        if (count($usuariosNoEncontrados) > 0) {
+            $mensaje .= 'Invitaciones enviadas a: ' . implode(', ', $usuariosNoEncontrados);
+        }
+
         return redirect()->route('equipos.show', $equipo->id_equipo)
-            ->with('success', 'Equipo creado exitosamente.');
+            ->with('success', $mensaje);
     }
 
     /**
@@ -71,7 +117,6 @@ class EquipoController extends Controller
      */
     public function edit(Equipo $equipo)
     {
-        // Verificar que el usuario sea miembro del equipo o administrador
         if (!$equipo->tieneMiembro(Auth::id()) && !Auth::user()->esAdministrador()) {
             abort(403, 'No tienes permiso para editar este equipo.');
         }
@@ -85,7 +130,6 @@ class EquipoController extends Controller
      */
     public function update(Request $request, Equipo $equipo)
     {
-        // Verificar que el usuario sea miembro del equipo o administrador
         if (!$equipo->tieneMiembro(Auth::id()) && !Auth::user()->esAdministrador()) {
             abort(403, 'No tienes permiso para editar este equipo.');
         }
@@ -98,7 +142,6 @@ class EquipoController extends Controller
         ]);
 
         if ($request->hasFile('banner')) {
-            // Eliminar banner anterior si existe
             if ($equipo->banner) {
                 Storage::disk('public')->delete($equipo->banner);
             }
@@ -116,12 +159,10 @@ class EquipoController extends Controller
      */
     public function destroy(Equipo $equipo)
     {
-        // Verificar que el usuario sea administrador
         if (!Auth::user()->esAdministrador()) {
             abort(403, 'Solo los administradores pueden eliminar equipos.');
         }
 
-        // Eliminar banner si existe
         if ($equipo->banner) {
             Storage::disk('public')->delete($equipo->banner);
         }
@@ -165,5 +206,60 @@ class EquipoController extends Controller
         $equipo->participantes()->detach($usuarioId);
 
         return back()->with('success', 'Participante removido exitosamente.');
+    }
+
+    /**
+     * Abandonar equipo
+     */
+    public function abandonar(Equipo $equipo)
+    {
+        if (!$equipo->tieneMiembro(Auth::id())) {
+            return redirect()->route('equipos.show', $equipo->id_equipo)
+                ->with('error', 'No eres miembro de este equipo.');
+        }
+
+        if ($equipo->participantes()->count() <= 1) {
+            $equipo->delete();
+            return redirect()->route('dashboard')
+                ->with('success', 'Has abandonado el equipo. Como eras el último miembro, el equipo ha sido eliminado.');
+        }
+
+        $equipo->participantes()->detach(Auth::id());
+
+        return redirect()->route('dashboard')
+            ->with('success', 'Has abandonado el equipo exitosamente.');
+    }
+
+    /**
+     * Mostrar formulario para subir proyecto
+     */
+    public function mostrarSubirProyecto(Equipo $equipo)
+    {
+        if (!$equipo->tieneMiembro(Auth::id())) {
+            abort(403, 'No tienes permiso para subir proyectos a este equipo.');
+        }
+
+        return view('equipos.subir-proyecto', compact('equipo'));
+    }
+
+    /**
+     * Procesar subida de proyecto
+     */
+    public function subirProyecto(Request $request, Equipo $equipo)
+    {
+        if (!$equipo->tieneMiembro(Auth::id())) {
+            abort(403, 'No tienes permiso para subir proyectos a este equipo.');
+        }
+
+        $validated = $request->validate([
+            'titulo' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'repositorio_url' => 'nullable|url',
+            'archivo' => 'nullable|file|max:10240',
+            'video_url' => 'nullable|url'
+        ]);
+
+        return redirect()->route('equipos.show', $equipo->id_equipo)
+            ->with('success', 'Proyecto subido exitosamente.');
     }
 }
