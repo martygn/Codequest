@@ -16,7 +16,12 @@ class Equipo extends Model
         'nombre',
         'descripcion',
         'banner',
-        'id_evento'
+        'id_evento',
+        'estado'
+    ];
+
+    protected $attributes = [
+        'estado' => 'activo'
     ];
 
     /**
@@ -35,25 +40,8 @@ class Equipo extends Model
     public function participantes()
     {
         return $this->belongsToMany(Usuario::class, 'participante_equipo', 'equipo_id', 'usuario_id')
-            ->withPivot('posicion')
+            ->withPivot('posicion', 'created_at')
             ->withTimestamps();
-    }
-
-    /**
-     * Obtener el número de miembros del equipo
-     */
-    public function getNumeroMiembrosAttribute()
-    {
-        return $this->participantes()->count();
-    }
-
-    /**
-     * Scope para equipos destacados
-     */
-    public function scopeDestacados($query)
-    {
-        return $query->withCount('participantes')
-            ->orderBy('participantes_count', 'desc');
     }
 
     /**
@@ -65,11 +53,36 @@ class Equipo extends Model
     }
 
     /**
-     * Obtener la posición de un participante en el equipo
+     * Scope para equipos activos
      */
-    public function obtenerPosicion($usuarioId)
+    public function scopeActivos($query)
     {
-        $participante = $this->participantes()->where('usuario_id', $usuarioId)->first();
-        return $participante ? $participante->pivot->posicion : null;
+        return $query->where('estado', 'activo');
+    }
+
+    /**
+     * Scope para equipos inactivos
+     */
+    public function scopeInactivos($query)
+    {
+        return $query->where('estado', 'inactivo');
+    }
+
+    /**
+     * Marcar equipo como activo
+     */
+    public function activar()
+    {
+        $this->update(['estado' => 'activo']);
+        return $this;
+    }
+
+    /**
+     * Marcar equipo como inactivo
+     */
+    public function desactivar()
+    {
+        $this->update(['estado' => 'inactivo']);
+        return $this;
     }
 }

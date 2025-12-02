@@ -106,22 +106,26 @@ class DatabaseSeeder extends Seeder
             'id_evento' => $evento3->id_evento,
         ]);
 
-        // Agregar participantes a los equipos con posiciones
-        $equipo1->participantes()->attach([
-            $participante1->id => ['posicion' => 'Líder'],
-            $participante2->id => ['posicion' => 'Desarrollador'],
-            $participante3->id => ['posicion' => 'Diseñador'],
+        // Crear equipos de ejemplo
+        $equipo1 = Equipo::create([
+            'nombre' => 'Equipo Alpha',
+            'descripcion' => 'Especialistas en algoritmos y estructuras de datos',
+            'id_evento' => $evento1->id_evento,
+            'estado' => 'activo'
         ]);
 
-        $equipo2->participantes()->attach([
-            $participante2->id => ['posicion' => 'Líder'],
-            $participante4->id => ['posicion' => 'Desarrollador'],
+        $equipo2 = Equipo::create([
+            'nombre' => 'Equipo Beta',
+            'descripcion' => 'Enfocados en desarrollo web y aplicaciones',
+            'id_evento' => $evento2->id_evento,
+            'estado' => 'activo'
         ]);
 
-        $equipo3->participantes()->attach([
-            $participante3->id => ['posicion' => 'Líder'],
-            $participante1->id => ['posicion' => 'Investigador'],
-            $participante4->id => ['posicion' => 'Analista'],
+        $equipo3 = Equipo::create([
+            'nombre' => 'Equipo Gamma',
+            'descripcion' => 'Expertos en inteligencia artificial y machine learning',
+            'id_evento' => $evento3->id_evento,
+            'estado' => 'inactivo' // Ejemplo de equipo inactivo
         ]);
 
         $this->command->info('✅ Base de datos poblada con datos de prueba!');
