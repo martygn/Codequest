@@ -21,6 +21,8 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 });
+Route::get('/equipos/crear', [EquipoController::class, 'create'])->name('equipos.create');
+Route::post('/equipos', [EquipoController::class, 'store'])->name('equipos.store');
 
 // Rutas de autenticación OAuth (Google y Facebook)
 Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])
