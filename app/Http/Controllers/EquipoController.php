@@ -108,6 +108,7 @@ class EquipoController extends Controller
             $validated['banner'] = $request->file('banner')->store('equipos/banners', 'public');
         }
 
+        // Crear el equipo
         $equipo = Equipo::create($validated);
 
         return redirect()->route('equipos.show', $equipo->id_equipo)
