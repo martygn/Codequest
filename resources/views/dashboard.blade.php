@@ -74,6 +74,17 @@
                 </div>
                 @endforelse
             </div>
+
+            {{-- Botón para agregar evento --}}
+            <div class="mt-8 text-center">
+                <a href="{{ route('eventos.create') }}"
+                   class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-lg shadow-md transition duration-300 transform hover:scale-105">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Agregar Evento
+                </a>
+            </div>
         </div>
 
         {{-- Equipos Destacados --}}
@@ -126,14 +137,6 @@
                         <p class="mt-4 text-gray-500 dark:text-gray-400 text-lg">No hay equipos destacados disponibles</p>
                     </div>
                     @endforelse
-                </div>
-                {{-- Botón para crear equipo --}}
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 text-center">
-                    <a href="{{ route('equipos.create') }}"
-                    class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                        <i class="fas fa-users mr-3"></i>
-                        <span class="text-lg">Crear Nuevo Equipo</span>
-                    </a>
                 </div>
         </div>
     </div>
