@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserProfileController; // <-- 1. IMPORTANTE: Importamos tu nuevo controlador
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\Usuario;
@@ -69,10 +71,15 @@ Route::middleware(['auth.usuario'])->group(function () {
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])
         ->name('equipos.participantes.remover');
 
-    // Perfil
+// Grupo de rutas que requieren iniciar sesión
+Route::middleware('auth')->group(function () {
+    // --- Rutas por defecto de Laravel (Editar cuenta, borrar, cambiar pass) ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // --- 2. TU NUEVA RUTA (El perfil estilo Dashboard/Minecraft) ---
+    Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('profile.custom');
 });
 
 require __DIR__.'/auth.php';
