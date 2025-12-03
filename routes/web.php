@@ -1,13 +1,12 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\EventoController;
-use App\Http\Controllers\EquipoController;
-use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use App\Models\Usuario;
-
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EquipoController;
+use App\Http\Controllers\EventoController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +18,18 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::middleware(['auth'])->group(function () {
+// Rutas de autenticación (sin middleware de guest)
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+// Rutas públicas
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Rutas protegidas
+Route::middleware(['auth.usuario'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -33,17 +43,15 @@ Route::middleware(['auth'])->group(function () {
         'equipos' => 'equipo:id_equipo'
     ]);
 
-    // Rutas adicionales para equipos
-    Route::post('/equipos/{equipo}/abandonar', [EquipoController::class, 'abandonar'])
-        ->name('equipos.abandonar');
+    // Ruta para unirse a un equipo
+    Route::post('/equipos/{equipo}/unirse', [EquipoController::class, 'unirse'])
+        ->name('equipos.unirse');
 
-    Route::get('/equipos/{equipo}/subir-proyecto', [EquipoController::class, 'mostrarSubirProyecto'])
-        ->name('equipos.subir-proyecto');
+    // Ruta para actualizar estado del equipo
+    Route::patch('/equipos/{equipo}/status', [EquipoController::class, 'updateStatus'])
+        ->name('equipos.update-status');
 
-    Route::post('/equipos/{equipo}/subir-proyecto', [EquipoController::class, 'subirProyecto'])
-        ->name('equipos.subir-proyecto.store');
-
-    // Gestión de participantes en equipos
+    // Gestión de participantes
     Route::post('/equipos/{equipo}/participantes', [EquipoController::class, 'agregarParticipante'])
         ->name('equipos.participantes.agregar');
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])
@@ -53,22 +61,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-    // Buscar usuario
-    Route::get('/buscar-usuario', function (Request $request) {
-    $request->validate([
-        'correo' => 'required|email'
-    ]);
-    $usuario = Usuario::where('correo', $request->correo)->first();
-    return response()->json([
-        'existe' => $usuario !== null,
-        'usuario' => $usuario ? [
-            'id' => $usuario->id,
-            'nombre_completo' => $usuario->nombre_completo,
-            'correo' => $usuario->correo
-        ] : null
-    ]);
 });
 
 require __DIR__.'/auth.php';
