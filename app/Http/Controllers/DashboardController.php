@@ -14,6 +14,13 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        // Obtener usuario autenticado
+        $usuario = AuthController::user();
+
+        if (!$usuario) {
+            return redirect()->route('login');
+        }
+
         // Obtener próximos eventos (ordenados por fecha)
         $proximosEventos = Evento::where('fecha_inicio', '>=', Carbon::now())
             ->orderBy('fecha_inicio', 'asc')

@@ -1,4 +1,8 @@
 <!DOCTYPE html>
+@php
+    use App\Http\Controllers\AuthController;
+    $usuario = AuthController::user();
+@endphp
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
