@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Usuario;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
@@ -22,22 +22,29 @@ class SocialAuthController extends Controller
         try {
             $googleUser = Socialite::driver('google')->user();
 
-            $user = User::updateOrCreate(
-                ['email' => $googleUser->email],
+            // Separar el nombre en partes
+            $nombreCompleto = explode(' ', $googleUser->name);
+            $nombre = $nombreCompleto[0] ?? '';
+            $apellidoPaterno = $nombreCompleto[1] ?? '';
+            $apellidoMaterno = $nombreCompleto[2] ?? '';
+
+            $usuario = Usuario::updateOrCreate(
+                ['correo' => $googleUser->email],
                 [
-                    'name' => $googleUser->name,
-                    'username' => Str::slug($googleUser->name) . rand(1000, 9999),
-                    'password' => Hash::make(Str::random(24)),
-                    'email_verified_at' => now(),
+                    'nombre' => $nombre,
+                    'apellido_paterno' => $apellidoPaterno,
+                    'apellido_materno' => $apellidoMaterno,
+                    'contrasena' => Hash::make(Str::random(24)),
+                    'tipo' => 'participante',
                 ]
             );
 
-            Auth::login($user);
+            Auth::login($usuario);
 
             return redirect()->intended('dashboard');
         } catch (\Exception $e) {
             return redirect()->route('login')
-                ->with('error', 'Error al iniciar sesión con Google');
+                ->with('error', 'Error al iniciar sesión con Google: ' . $e->getMessage());
         }
     }
 
@@ -52,22 +59,29 @@ class SocialAuthController extends Controller
         try {
             $facebookUser = Socialite::driver('facebook')->user();
 
-            $user = User::updateOrCreate(
-                ['email' => $facebookUser->email],
+            // Separar el nombre en partes
+            $nombreCompleto = explode(' ', $facebookUser->name);
+            $nombre = $nombreCompleto[0] ?? '';
+            $apellidoPaterno = $nombreCompleto[1] ?? '';
+            $apellidoMaterno = $nombreCompleto[2] ?? '';
+
+            $usuario = Usuario::updateOrCreate(
+                ['correo' => $facebookUser->email],
                 [
-                    'name' => $facebookUser->name,
-                    'username' => Str::slug($facebookUser->name) . rand(1000, 9999),
-                    'password' => Hash::make(Str::random(24)),
-                    'email_verified_at' => now(),
+                    'nombre' => $nombre,
+                    'apellido_paterno' => $apellidoPaterno,
+                    'apellido_materno' => $apellidoMaterno,
+                    'contrasena' => Hash::make(Str::random(24)),
+                    'tipo' => 'participante',
                 ]
             );
 
-            Auth::login($user);
+            Auth::login($usuario);
 
             return redirect()->intended('dashboard');
         } catch (\Exception $e) {
             return redirect()->route('login')
-                ->with('error', 'Error al iniciar sesión con Facebook');
+                ->with('error', 'Error al iniciar sesión con Facebook: ' . $e->getMessage());
         }
     }
 }

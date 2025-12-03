@@ -42,7 +42,7 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth.usuario'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    });
+
     // Eventos
     Route::resource('eventos', EventoController::class)->parameters([
         'eventos' => 'evento:id_evento'
@@ -66,7 +66,6 @@ Route::middleware(['auth.usuario'])->group(function () {
         ->name('equipos.participantes.agregar');
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])
         ->name('equipos.participantes.remover');
-
 });
 
 // Grupo de rutas que requieren iniciar sesión
