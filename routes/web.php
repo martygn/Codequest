@@ -11,6 +11,7 @@ use App\Http\Controllers\EquipoController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,12 @@ require __DIR__.'/auth.php';
 Route::middleware(['auth.usuario'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Admin routes (requieren además ser admin)
+    Route::get('/admin/eventos', [AdminController::class, 'eventos'])->name('admin.eventos')->middleware('is.admin');
+    Route::get('/admin/equipos', [AdminController::class, 'equipos'])->name('admin.equipos')->middleware('is.admin');
+    Route::get('/admin/perfil', [AdminController::class, 'perfil'])->name('admin.perfil')->middleware('is.admin');
+    Route::get('/admin/configuracion', [AdminController::class, 'configuracion'])->name('admin.configuracion')->middleware('is.admin');
 
     // Eventos
     Route::resource('eventos', EventoController::class)->parameters([

@@ -56,7 +56,7 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-card-light dark:bg-card-dark border-r border-border-light dark:border-border-dark flex flex-col">
         <div class="p-6">
-            <h1 class="text-2xl font-bold text-primary">CodeQuest</h1>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">CodeQuest</h1>
         </div>
         <nav class="flex-grow px-4">
             <ul class="space-y-2">
@@ -67,25 +67,25 @@
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('eventos.index') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.eventos') }}">
                         <span class="material-symbols-outlined">calendar_month</span>
                         <span>Eventos</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('equipos.index') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.equipos') }}">
                         <span class="material-symbols-outlined">groups</span>
                         <span>Equipos</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('profile.edit') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.perfil') }}">
                         <span class="material-symbols-outlined">person</span>
                         <span>Perfil</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="#">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.configuracion') }}">
                         <span class="material-symbols-outlined">settings</span>
                         <span>Configuración</span>
                     </a>
@@ -121,9 +121,7 @@
         <!-- Tab Navigation -->
         <div class="border-b border-border-light dark:border-border-dark mb-6">
             <nav class="flex space-x-8 -mb-px">
-                <a class="py-4 px-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary whitespace-nowrap transition-colors" href="#">Todos</a>
-                <a class="py-4 px-1 text-primary border-b-2 border-primary font-semibold whitespace-nowrap" href="#">Pendientes</a>
-                <a class="py-4 px-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary whitespace-nowrap transition-colors" href="#">Publicados</a>
+                <a class="py-4 px-1 text-primary border-b-2 border-primary font-semibold whitespace-nowrap">Equipos</a>
             </nav>
         </div>
 
@@ -148,21 +146,58 @@
                 <div class="space-y-4">
                     <div class="flex items-center">
                         <span class="w-4 h-4 rounded-sm bg-normal mr-3"></span>
-                        <span class="text-lg">Normal</span>
+                        <span class="text-lg">Aprobados</span>
                     </div>
                     <div class="flex items-center">
                         <span class="w-4 h-4 rounded-sm bg-moderately mr-3"></span>
-                        <span class="text-lg">Moderadamente</span>
+                        <span class="text-lg">Rechazados</span>
                     </div>
                     <div class="flex items-center">
                         <span class="w-4 h-4 rounded-sm bg-severely mr-3"></span>
-                        <span class="text-lg">Severamente</span>
+                        <span class="text-lg">Pendientes</span>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 </div>
+
+</body>
+</html>
+                // Ajustar tamaño del canvas al contenedor
+                ctx.width = ctx.parentElement.clientWidth;
+                ctx.height = ctx.parentElement.clientHeight;
+
+                new Chart(ctx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Aprobados', 'Rechazados', 'Pendientes'],
+                        datasets: [{
+                            data: data,
+                            backgroundColor: [getComputedStyle(document.documentElement).getPropertyValue('--tw-color-normal') || '#3B82F6', '#DC2626', '#84CC16'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+                // Hacer clic en el canvas redirige a la vista de Eventos
+                try {
+                    const redirectUrl = "{{ route('admin.eventos') }}";
+                    ctx.addEventListener('click', function() {
+                        window.location.href = redirectUrl;
+                    });
+                } catch (e) {
+                    // no hacer nada si falla la redirección
+                }
+            }
+        })();
+    </script>
 
 </body>
 </html>

@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Registrar nuestro middleware
         $middleware->alias([
             'auth.usuario' => AuthenticateUsuario::class,
+            'is.admin' => App\Http\Middleware\IsAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
