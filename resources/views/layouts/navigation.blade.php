@@ -54,8 +54,14 @@
                     </x-slot>
 
                     <x-slot name="content">
+                        <!-- CAMBIO 1: Enlace al Perfil Personalizado (Desktop) -->
+                        <x-dropdown-link :href="route('profile.custom')">
+                            {{ __('Mi Perfil') }}
+                        </x-dropdown-link>
+
+                        <!-- Enlace a la Configuración (Opcional, por si quieres cambiar contraseña) -->
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Perfil') }}
+                            {{ __('Configuración') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -106,8 +112,9 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Perfil') }}
+                <!-- CAMBIO 2: Enlace al Perfil Personalizado (Móvil) -->
+                <x-responsive-nav-link :href="route('profile.custom')">
+                    {{ __('Mi Perfil') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
