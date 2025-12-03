@@ -1,17 +1,13 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserProfileController; // <-- 1. IMPORTANTE: Importamos tu nuevo controlador
+use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
-use App\Models\Usuario;
 use App\Http\Controllers\Auth\SocialAuthController;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EquipoController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,10 +34,13 @@ Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFaceb
 // Incluir rutas de autenticación (Laravel Breeze / Auth)
 require __DIR__.'/auth.php';
 
-// Rutas protegidas
+// --- INICIO DEL GRUPO DE RUTAS PROTEGIDAS ---
 Route::middleware(['auth.usuario'])->group(function () {
+    
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // (AQUI estaba el error antes, ya lo quité)
 
     // Eventos
     Route::resource('eventos', EventoController::class)->parameters([
@@ -64,17 +63,21 @@ Route::middleware(['auth.usuario'])->group(function () {
     // Gestión de participantes
     Route::post('/equipos/{equipo}/participantes', [EquipoController::class, 'agregarParticipante'])
         ->name('equipos.participantes.agregar');
+        
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])
         ->name('equipos.participantes.remover');
 });
 
-// Grupo de rutas que requieren iniciar sesión
-Route::middleware('auth')->group(function () {
-    // --- Rutas por defecto de Laravel (Editar cuenta, borrar, cambiar pass) ---
+}); 
+
+// FALTABA ESTA LÍNEA DE APERTURA:
+Route::middleware('auth')->group(function () { 
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // --- 2. TU NUEVA RUTA (El perfil estilo Dashboard/Minecraft) ---
+    // --- Tu nueva ruta de perfil ---
     Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('profile.custom');
-});
+
+}); 
