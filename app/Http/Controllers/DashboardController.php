@@ -15,10 +15,15 @@ class DashboardController extends Controller
     public function index()
     {
         // Obtener usuario autenticado
-        $usuario = AuthController::user();
+        $usuario = auth()->user();
 
         if (!$usuario) {
             return redirect()->route('login');
+        }
+
+        // Si es admin, mostrar panel especial
+        if ($usuario->esAdmin()) {
+            return view('admin.panel');
         }
 
         // Obtener próximos eventos (ordenados por fecha)

@@ -15,6 +15,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Crear usuarios en la tabla users de Laravel
+        $this->call(UserSeeder::class);
+
         // Crear usuarios administradores
         $admin = Usuario::create([
             'nombre' => 'Admin',
