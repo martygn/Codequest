@@ -1,7 +1,11 @@
+@php
+    use App\Http\Controllers\AuthController;
+    $usuario = AuthController::user();
+@endphp
 <nav x-data="{ open: false }" class="bg-gradient-to-br from-gray-900 to-gray-800 border-b border-gray-700">    <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            
+
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
@@ -50,8 +54,14 @@
                     </x-slot>
 
                     <x-slot name="content">
+                        <!-- CAMBIO 1: Enlace al Perfil Personalizado (Desktop) -->
+                        <x-dropdown-link :href="route('profile.custom')">
+                            {{ __('Mi Perfil') }}
+                        </x-dropdown-link>
+
+                        <!-- Enlace a la Configuración (Opcional, por si quieres cambiar contraseña) -->
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Perfil') }}
+                            {{ __('Configuración') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -102,8 +112,9 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Perfil') }}
+                <!-- CAMBIO 2: Enlace al Perfil Personalizado (Móvil) -->
+                <x-responsive-nav-link :href="route('profile.custom')">
+                    {{ __('Mi Perfil') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->

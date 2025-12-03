@@ -22,6 +22,7 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -45,5 +46,28 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Verifica si el usuario es administrador.
+     */
+    public function esAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    // Relación: Un usuario pertenece a muchos equipos
+    public function equipos()
+    {
+        // Asumiendo que es una relación de muchos a muchos
+        // Si te da error, verifica si tu relación es hasMany o belongsToMany
+        return $this->belongsToMany(Equipo::class, 'equipo_user', 'user_id', 'equipo_id')
+                    ->withPivot('rol'); // Si guardas el rol en la tabla intermedia
+    }
+
+    // Relación: Un usuario asiste a muchos eventos
+    public function eventos()
+    {
+        return $this->belongsToMany(Evento::class, 'evento_user', 'user_id', 'evento_id');
     }
 }

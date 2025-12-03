@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Models\Usuario;
 use App\Models\Evento;
 use App\Models\Equipo;
@@ -21,7 +22,7 @@ class DatabaseSeeder extends Seeder
             'apellido_paterno' => 'CodeQuest',
             'apellido_materno' => 'Sistema',
             'correo' => 'admin@codequest.com',
-            'contrasena' => ('password'),
+            'contrasena' => Hash::make('password'),
             'tipo' => 'administrador',
         ]);
 
@@ -87,45 +88,29 @@ class DatabaseSeeder extends Seeder
             'lugar' => 'Instituto Tecnológico',
         ]);
 
-        // Crear equipos de ejemplo
+        // Ejemplo de equipos
         $equipo1 = Equipo::create([
             'nombre' => 'Equipo Alpha',
+            'nombre_proyecto' => 'Proyecto 1',
             'descripcion' => 'Especialistas en algoritmos y estructuras de datos',
+            'estado' => 'aprobado',
             'id_evento' => $evento1->id_evento,
         ]);
 
         $equipo2 = Equipo::create([
             'nombre' => 'Equipo Beta',
+            'nombre_proyecto' => 'Proyecto 2',
             'descripcion' => 'Enfocados en desarrollo web y aplicaciones',
+            'estado' => 'en revisión',
             'id_evento' => $evento2->id_evento,
         ]);
 
         $equipo3 = Equipo::create([
             'nombre' => 'Equipo Gamma',
+            'nombre_proyecto' => 'Proyecto 3',
             'descripcion' => 'Expertos en inteligencia artificial y machine learning',
+            'estado' => 'rechazado',
             'id_evento' => $evento3->id_evento,
-        ]);
-
-        // Crear equipos de ejemplo
-        $equipo1 = Equipo::create([
-            'nombre' => 'Equipo Alpha',
-            'descripcion' => 'Especialistas en algoritmos y estructuras de datos',
-            'id_evento' => $evento1->id_evento,
-            'estado' => 'activo'
-        ]);
-
-        $equipo2 = Equipo::create([
-            'nombre' => 'Equipo Beta',
-            'descripcion' => 'Enfocados en desarrollo web y aplicaciones',
-            'id_evento' => $evento2->id_evento,
-            'estado' => 'activo'
-        ]);
-
-        $equipo3 = Equipo::create([
-            'nombre' => 'Equipo Gamma',
-            'descripcion' => 'Expertos en inteligencia artificial y machine learning',
-            'id_evento' => $evento3->id_evento,
-            'estado' => 'inactivo' // Ejemplo de equipo inactivo
         ]);
 
         $this->command->info('✅ Base de datos poblada con datos de prueba!');

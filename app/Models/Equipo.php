@@ -23,8 +23,8 @@ class Equipo extends Model
     'id_lider'
 ];
 
-    protected $attributes = [
-        'estado' => 'activo'
+    protected $casts = [
+        'estado' => 'string',
     ];
 
     /**
@@ -43,8 +43,16 @@ class Equipo extends Model
     public function participantes()
     {
         return $this->belongsToMany(Usuario::class, 'participante_equipo', 'equipo_id', 'usuario_id')
-            ->withPivot('posicion', 'created_at')
+            ->withPivot('posicion')
             ->withTimestamps();
+    }
+
+    /**
+     * Obtener el número de miembros del equipo
+     */
+    public function getNumeroMiembrosAttribute()
+    {
+        return $this->participantes()->count();
     }
 
     /**
@@ -56,36 +64,95 @@ class Equipo extends Model
     }
 
     /**
-     * Scope para equipos activos
+     * Obtener la posición de un participante en el equipo
      */
-    public function scopeActivos($query)
+    public function obtenerPosicion($usuarioId)
     {
-        return $query->where('estado', 'activo');
+        $participante = $this->participantes()->where('usuario_id', $usuarioId)->first();
+        return $participante ? $participante->pivot->posicion : null;
     }
 
     /**
-     * Scope para equipos inactivos
+     * Verificar si el equipo tiene cupo disponible (máximo 4 miembros)
      */
-    public function scopeInactivos($query)
+    public function tieneCupoDisponible()
     {
-        return $query->where('estado', 'inactivo');
+        return $this->participantes()->count() < 4;
     }
 
     /**
-     * Marcar equipo como activo
+     * Obtener la siguiente posición automática según orden de unión
      */
-    public function activar()
+    public function obtenerSiguientePosicion()
     {
-        $this->update(['estado' => 'activo']);
-        return $this;
+        $numeroMiembros = $this->participantes()->count();
+
+        // Mapa de posiciones según el orden de unión
+        $posiciones = [
+            1 => 'Programador Front-end', // Primer participante (después del líder)
+            2 => 'Programador Back-end',  // Segundo participante
+            3 => 'Diseñador'              // Tercer participante
+        ];
+
+        return $posiciones[$numeroMiembros] ?? 'Miembro';
     }
 
     /**
-     * Marcar equipo como inactivo
+     * Scope para equipos destacados
      */
-    public function desactivar()
+    public function scopeDestacados($query)
     {
-        $this->update(['estado' => 'inactivo']);
-        return $this;
+        return $query->withCount('participantes')
+            ->orderBy('participantes_count', 'desc');
+    }
+
+    /**
+     * Scope para filtrar por estado
+     */
+    public function scopePorEstado($query, $estado)
+    {
+        if ($estado !== 'todos') {
+            return $query->where('estado', $estado);
+        }
+        return $query;
+    }
+
+    /**
+     * Scope para eventos pasados
+     */
+    public function scopeEventosPasados($query)
+    {
+        return $query->whereHas('evento', function ($q) {
+            $q->where('fecha_fin', '<', now());
+        });
+    }
+
+    /**
+     * Scope para mis eventos (eventos donde el usuario es participante)
+     */
+    public function scopeMisEventos($query, $usuarioId)
+    {
+        return $query->whereHas('participantes', function ($q) use ($usuarioId) {
+            $q->where('usuario_id', $usuarioId);
+        });
+    }
+
+    /**
+     * Obtener el líder del equipo
+     */
+    public function lider()
+    {
+        return $this->participantes()->wherePivot('posicion', 'Líder')->first();
+    }
+
+    /**
+     * Verificar si el usuario es el líder del equipo
+     */
+    public function esLider($usuarioId)
+    {
+        return $this->participantes()
+            ->where('usuario_id', $usuarioId)
+            ->wherePivot('posicion', 'Líder')
+            ->exists();
     }
 }

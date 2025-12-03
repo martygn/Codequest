@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 
 class Usuario extends Authenticatable
 {
@@ -31,7 +32,23 @@ class Usuario extends Authenticatable
     ];
 
     /**
-     * Override del método getAuthPassword para usar 'contrasena' en lugar de 'password'
+     * Get the name of the unique identifier for the user.
+     */
+    public function getAuthIdentifierName()
+    {
+        return 'id';
+    }
+
+    /**
+     * Get the unique identifier for the user.
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Get the password for the user.
      */
     public function getAuthPassword()
     {
@@ -39,7 +56,15 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Override del método getEmailForPasswordReset para usar 'correo' en lugar de 'email'
+     * Get the column name for the "remember me" token.
+     */
+    public function getRememberTokenName()
+    {
+        return 'remember_token';
+    }
+
+    /**
+     * Get the e-mail address for password reset.
      */
     public function getEmailForPasswordReset()
     {
@@ -47,15 +72,23 @@ class Usuario extends Authenticatable
     }
 
     /**
+     * Send the password reset notification.
+     */
+    public function sendPasswordResetNotification($token)
+    {
+
+    }
+
+    /**
      * Accessor para obtener el nombre completo
      */
     public function getNombreCompletoAttribute()
     {
-        return "{$this->nombre} {$this->apellido_paterno} {$this->apellido_materno}";
+        return trim("{$this->nombre} {$this->apellido_paterno} {$this->apellido_materno}");
     }
 
     /**
-     * Accessor para name (compatibilidad con Breeze)
+     * Accessor para name
      */
     public function getNameAttribute()
     {
@@ -63,11 +96,27 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Accessor para email (compatibilidad con Breeze)
+     * Accessor para email
      */
     public function getEmailAttribute()
     {
         return $this->correo;
+    }
+
+    /**
+     * Setter para email
+     */
+    public function setEmailAttribute($value)
+    {
+        $this->attributes['correo'] = $value;
+    }
+
+    /**
+     * Setter para password
+     */
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['contrasena'] = Hash::make($value);
     }
 
     /**
@@ -79,6 +128,14 @@ class Usuario extends Authenticatable
     }
 
     /**
+     * Alias para compatibilidad con el modelo User (esAdmin())
+     */
+    public function esAdmin()
+    {
+        return $this->esAdministrador();
+    }
+
+    /**
      * Verificar si el usuario es participante
      */
     public function esParticipante()
@@ -87,8 +144,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Relación con equipos (N:M) - solo para participantes
-     * Un participante puede estar en muchos equipos
+     * Relación con equipos
      */
     public function equipos()
     {
@@ -98,7 +154,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Scope para obtener solo administradores
+     * Scope para administradores
      */
     public function scopeAdministradores($query)
     {
@@ -106,7 +162,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Scope para obtener solo participantes
+     * Scope para participantes
      */
     public function scopeParticipantes($query)
     {
