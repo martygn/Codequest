@@ -13,7 +13,7 @@
                 <p class="text-gray-500">Gestiona los equipos y sus proyectos</p>
             </div>
 
-            {{-- Mostrar botón "Nuevo equipo" SOLO para administradores --}}
+            {{-- Mostrar botón Nuevo equipo solo para administradores --}}
             @if(auth()->user()->tipo === 'administrador')
                 <div class="mb-6 flex justify-end">
                     <a href="{{ route('equipos.create') }}"

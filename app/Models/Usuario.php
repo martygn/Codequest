@@ -88,7 +88,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Accessor para name (compatibilidad)
+     * Accessor para name
      */
     public function getNameAttribute()
     {
@@ -96,7 +96,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Accessor para email (compatibilidad)
+     * Accessor para email
      */
     public function getEmailAttribute()
     {
@@ -104,7 +104,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Setter para email (compatibilidad)
+     * Setter para email
      */
     public function setEmailAttribute($value)
     {
@@ -112,7 +112,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Setter para password (compatibilidad)
+     * Setter para password
      */
     public function setPasswordAttribute($value)
     {
