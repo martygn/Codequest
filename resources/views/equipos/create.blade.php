@@ -40,9 +40,11 @@
                         </div>
 
                         <div class="mb-6">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Descripción del Equipo</label>
-                            <textarea name="descripcion" rows="4" placeholder="Describa el equipo y sus objetivos..."
-                                class="w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"></textarea>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Descripción del Equipo *</label>
+                            <textarea name="descripcion" rows="4" placeholder="Describa el equipo y sus objetivos... (mínimo 10 caracteres)"
+                                class="w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                                required minlength="10"></textarea>
+                            <p class="text-xs text-gray-500 mt-1">* La descripción debe tener al menos 10 caracteres</p>
                         </div>
 
                         <div class="mb-8 border-2 border-dashed border-gray-300 rounded-lg p-10 text-center hover:bg-gray-50 transition-colors relative">
