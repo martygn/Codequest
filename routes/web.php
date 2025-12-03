@@ -1,10 +1,15 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserProfileController; // <-- 1. IMPORTANTE: Importamos tu nuevo controlador
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
+use App\Models\Usuario;
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EquipoController;
 use App\Http\Controllers\EventoController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
@@ -15,8 +20,20 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 });
+
+// Rutas de autenticación OAuth (Google y Facebook)
+Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])
+    ->name('auth.google');
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
+
+Route::get('/auth/facebook', [SocialAuthController::class, 'redirectToFacebook'])
+    ->name('auth.facebook');
+Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
 
 // Rutas de autenticación (sin middleware de guest)
 Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -32,7 +49,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth.usuario'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
+    });
     // Eventos
     Route::resource('eventos', EventoController::class)->parameters([
         'eventos' => 'evento:id_evento'
@@ -57,10 +74,15 @@ Route::middleware(['auth.usuario'])->group(function () {
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])
         ->name('equipos.participantes.remover');
 
-    // Perfil
+// Grupo de rutas que requieren iniciar sesión
+Route::middleware('auth')->group(function () {
+    // --- Rutas por defecto de Laravel (Editar cuenta, borrar, cambiar pass) ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // --- 2. TU NUEVA RUTA (El perfil estilo Dashboard/Minecraft) ---
+    Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('profile.custom');
 });
 
 require __DIR__.'/auth.php';
