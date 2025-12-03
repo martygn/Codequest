@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Models\Usuario;
 use App\Models\Evento;
 use App\Models\Equipo;
@@ -15,7 +16,49 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear usuarios administradores
+        // Crear usuario administrador en la tabla users para autenticación Laravel Breeze
+        User::create([
+            'name' => 'Admin CodeQuest',
+            'username' => 'admin',
+            'email' => 'admin@codequest.com',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        // Crear usuarios participantes en la tabla users para autenticación Laravel Breeze
+        User::create([
+            'name' => 'Juan Pérez García',
+            'username' => 'juan',
+            'email' => 'juan@codequest.com',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        User::create([
+            'name' => 'María López Rodríguez',
+            'username' => 'maria',
+            'email' => 'maria@codequest.com',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        User::create([
+            'name' => 'Carlos Martínez Sánchez',
+            'username' => 'carlos',
+            'email' => 'carlos@codequest.com',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        User::create([
+            'name' => 'Ana González Fernández',
+            'username' => 'ana',
+            'email' => 'ana@codequest.com',
+            'password' => Hash::make('password'),
+            'email_verified_at' => now(),
+        ]);
+
+        // Crear usuarios administradores en tabla usuarios
         $admin = Usuario::create([
             'nombre' => 'Admin',
             'apellido_paterno' => 'CodeQuest',
