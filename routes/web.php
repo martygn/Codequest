@@ -66,6 +66,7 @@ Route::middleware(['auth.usuario'])->group(function () {
         
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])
         ->name('equipos.participantes.remover');
+});
 
 }); 
 
