@@ -16,49 +16,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear usuario administrador en la tabla users para autenticación Laravel Breeze
-        User::create([
-            'name' => 'Admin CodeQuest',
-            'username' => 'admin',
-            'email' => 'admin@codequest.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
+        // Crear usuarios en la tabla users de Laravel
+        $this->call(UserSeeder::class);
 
-        // Crear usuarios participantes en la tabla users para autenticación Laravel Breeze
-        User::create([
-            'name' => 'Juan Pérez García',
-            'username' => 'juan',
-            'email' => 'juan@codequest.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
-
-        User::create([
-            'name' => 'María López Rodríguez',
-            'username' => 'maria',
-            'email' => 'maria@codequest.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
-
-        User::create([
-            'name' => 'Carlos Martínez Sánchez',
-            'username' => 'carlos',
-            'email' => 'carlos@codequest.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
-
-        User::create([
-            'name' => 'Ana González Fernández',
-            'username' => 'ana',
-            'email' => 'ana@codequest.com',
-            'password' => Hash::make('password'),
-            'email_verified_at' => now(),
-        ]);
-
-        // Crear usuarios administradores en tabla usuarios
+        // Crear usuarios administradores
         $admin = Usuario::create([
             'nombre' => 'Admin',
             'apellido_paterno' => 'CodeQuest',

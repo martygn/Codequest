@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Usuario;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -31,21 +32,25 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
         'name' => ['required', 'string', 'max:255'],
-        'username' => ['required', 'string', 'max:255', 'unique:users'],  // ← AGREGAR
-        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:usuarios,correo'],
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
     ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'username' => $request->username,  // ← AGREGAR
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+        // Crear registro en la tabla `usuarios` (sistema legacy del proyecto)
+        $usuario = Usuario::create([
+            'nombre' => $request->name,
+            'apellido_paterno' => '',
+            'apellido_materno' => '',
+            'correo' => $request->email,
+            'contrasena' => Hash::make($request->password),
+            'tipo' => 'participante',
         ]);
 
-        event(new Registered($user));
+        event(new Registered($usuario));
 
-        Auth::login($user);
+        // Loguear usando el modelo Usuario para que el provider 'users' (config/auth.php)
+        // que apunta a App\Models\Usuario pueda recuperar al usuario en siguientes requests.
+        Auth::login($usuario);
 
         return redirect(route('dashboard', absolute: false));
     }

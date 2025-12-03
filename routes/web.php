@@ -35,15 +35,8 @@ Route::get('/auth/facebook', [SocialAuthController::class, 'redirectToFacebook']
     ->name('auth.facebook');
 Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
 
-// Rutas de autenticación (sin middleware de guest)
-Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
-Route::post('/login', [AuthenticatedSessionController::class, 'store']);
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-
-// Rutas públicas
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Incluir rutas de autenticación (Laravel Breeze / Auth)
+require __DIR__.'/auth.php';
 
 // Rutas protegidas
 Route::middleware(['auth.usuario'])->group(function () {
@@ -74,6 +67,8 @@ Route::middleware(['auth.usuario'])->group(function () {
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])
         ->name('equipos.participantes.remover');
 
+});
+
 // Grupo de rutas que requieren iniciar sesión
 Route::middleware('auth')->group(function () {
     // --- Rutas por defecto de Laravel (Editar cuenta, borrar, cambiar pass) ---
@@ -84,5 +79,3 @@ Route::middleware('auth')->group(function () {
     // --- 2. TU NUEVA RUTA (El perfil estilo Dashboard/Minecraft) ---
     Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('profile.custom');
 });
-
-require __DIR__.'/auth.php';
