@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Models\Usuario;
 use App\Models\Evento;
 use App\Models\Equipo;
