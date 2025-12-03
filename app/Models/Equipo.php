@@ -13,12 +13,15 @@ class Equipo extends Model
     protected $primaryKey = 'id_equipo';
 
     protected $fillable = [
-        'nombre',
-        'descripcion',
-        'banner',
-        'id_evento',
-        'estado'
-    ];
+    'nombre',
+    'descripcion',
+    'id_evento',
+    'logo',             // Nuevo
+    'designer_name',    // Nuevo
+    'frontend_name',    // Nuevo
+    'backend_name',     // Nuevo
+    'id_lider'
+];
 
     protected $attributes = [
         'estado' => 'activo'

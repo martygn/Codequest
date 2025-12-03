@@ -18,6 +18,8 @@ use App\Models\Usuario;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/equipos/crear', [EquipoController::class, 'create'])->name('equipos.create');
+Route::post('/equipos', [EquipoController::class, 'store'])->name('equipos.store');
 
 Route::middleware(['auth'])->group(function () {
     // Dashboard
