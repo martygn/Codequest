@@ -128,6 +128,14 @@ class Usuario extends Authenticatable
     }
 
     /**
+     * Alias para compatibilidad con el modelo User (esAdmin())
+     */
+    public function esAdmin()
+    {
+        return $this->esAdministrador();
+    }
+
+    /**
      * Verificar si el usuario es participante
      */
     public function esParticipante()
