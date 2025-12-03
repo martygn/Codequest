@@ -8,6 +8,7 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class EquipoController extends Controller
@@ -302,6 +303,27 @@ class EquipoController extends Controller
         ]);
 
         $equipo->update(['estado' => $request->estado]);
+
+        // Si la petición espera JSON (AJAX), retornar conteos actualizados
+        if ($request->wantsJson() || $request->ajax() || $request->header('Accept') === 'application/json') {
+            $totales = Equipo::selectRaw(
+                "SUM(CASE WHEN LOWER(TRIM(estado)) = 'en revisión' THEN 1 ELSE 0 END) as en_revision,"
+                . " SUM(CASE WHEN LOWER(TRIM(estado)) = 'aprobado' THEN 1 ELSE 0 END) as aprobado,"
+                . " SUM(CASE WHEN LOWER(TRIM(estado)) = 'rechazado' THEN 1 ELSE 0 END) as rechazado"
+            )->first();
+
+            $estadisticas = [
+                'en_revision' => (int)($totales->en_revision ?? 0),
+                'aprobado' => (int)($totales->aprobado ?? 0),
+                'rechazado' => (int)($totales->rechazado ?? 0),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'estado' => $equipo->estado,
+                'estadisticas' => $estadisticas,
+            ]);
+        }
 
         return back()->with('success', '✅ Estado del equipo actualizado a "' . ucfirst($request->estado) . '".');
     }

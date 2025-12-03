@@ -46,6 +46,11 @@ Route::middleware(['auth.usuario'])->group(function () {
     Route::get('/admin/perfil', [AdminController::class, 'perfil'])->name('admin.perfil')->middleware('is.admin');
     Route::get('/admin/configuracion', [AdminController::class, 'configuracion'])->name('admin.configuracion')->middleware('is.admin');
 
+    // Endpoint para estadísticas de equipos (usado por el panel admin)
+    Route::get('/admin/api/equipos/stats', [DashboardController::class, 'equiposStats'])
+        ->name('admin.equipos.stats')
+        ->middleware('is.admin');
+
     // Eventos
     Route::resource('eventos', EventoController::class)->parameters([
         'eventos' => 'evento:id_evento'
