@@ -56,7 +56,7 @@
     <!-- Sidebar -->
     <aside class="w-64 bg-card-light dark:bg-card-dark border-r border-border-light dark:border-border-dark flex flex-col">
         <div class="p-6">
-            <h1 class="text-2xl font-bold text-primary">CodeQuest</h1>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">CodeQuest</h1>
         </div>
         <nav class="flex-grow px-4">
             <ul class="space-y-2">
@@ -67,25 +67,25 @@
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('eventos.index') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.eventos') }}">
                         <span class="material-symbols-outlined">calendar_month</span>
                         <span>Eventos</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('equipos.index') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.equipos') }}">
                         <span class="material-symbols-outlined">groups</span>
                         <span>Equipos</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('profile.edit') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.perfil') }}">
                         <span class="material-symbols-outlined">person</span>
                         <span>Perfil</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="#">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.configuracion') }}">
                         <span class="material-symbols-outlined">settings</span>
                         <span>Configuración</span>
                     </a>
@@ -121,48 +121,195 @@
         <!-- Tab Navigation -->
         <div class="border-b border-border-light dark:border-border-dark mb-6">
             <nav class="flex space-x-8 -mb-px">
-                <a class="py-4 px-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary whitespace-nowrap transition-colors" href="#">Todos</a>
-                <a class="py-4 px-1 text-primary border-b-2 border-primary font-semibold whitespace-nowrap" href="#">Pendientes</a>
-                <a class="py-4 px-1 text-text-secondary-light dark:text-text-secondary-dark hover:text-primary dark:hover:text-primary whitespace-nowrap transition-colors" href="#">Publicados</a>
+                <a class="py-4 px-1 text-primary border-b-2 border-primary font-semibold whitespace-nowrap">Equipos</a>
             </nav>
         </div>
 
-        <!-- Statistics Chart -->
-        <div class="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-sm">
-            <div class="flex flex-col md:flex-row items-center justify-around gap-8">
-                <!-- Chart -->
-                <div class="relative w-64 h-64 md:w-80 md:h-80">
-                    <svg class="transform -rotate-90" viewBox="0 0 100 100">
-                        <circle class="stroke-normal" cx="50" cy="50" fill="transparent" r="45" stroke-width="10"></circle>
-                        <circle class="stroke-moderately" cx="50" cy="50" fill="transparent" r="45" stroke-dasharray="282.74" stroke-dashoffset="152.68" stroke-width="10"></circle> 
-                        <circle class="stroke-severely" cx="50" cy="50" fill="transparent" r="45" stroke-dasharray="282.74" stroke-dashoffset="87.65" stroke-width="10"></circle> 
-                    </svg>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <span class="text-sm font-medium text-white" style="text-shadow: 0 1px 2px rgba(0,0,0,0.4);">46%</span>
-                        <span class="text-sm font-medium text-white absolute" style="transform: translate(60px, -70px); text-shadow: 0 1px 2px rgba(0,0,0,0.4);">31%</span>
-                        <span class="text-sm font-medium text-white absolute" style="transform: translate(-30px, 75px); text-shadow: 0 1px 2px rgba(0,0,0,0.4);">23%</span>
+        <!-- Equipos: gráfico grande a la izquierda, tarjetas a la derecha, tabla debajo del gráfico -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Columna principal: gráfico + tabla -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-sm">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold">Distribución de estados</h3>
+                            <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Visión rápida del estado actual de los equipos</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="relative w-full h-56">
+                            <canvas id="teamsChart" class="w-full h-full"></canvas>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Legend -->
-                <div class="space-y-4">
-                    <div class="flex items-center">
-                        <span class="w-4 h-4 rounded-sm bg-normal mr-3"></span>
-                        <span class="text-lg">Normal</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="w-4 h-4 rounded-sm bg-moderately mr-3"></span>
-                        <span class="text-lg">Moderadamente</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="w-4 h-4 rounded-sm bg-severely mr-3"></span>
-                        <span class="text-lg">Severamente</span>
+                <div class="bg-card-light dark:bg-card-dark p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-4">Equipos recientes</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-border-light dark:divide-border-dark">
+                            <thead>
+                                <tr class="text-left text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                                    <th class="px-4 py-3">Proyecto</th>
+                                    <th class="px-4 py-3">Miembros</th>
+                                    <th class="px-4 py-3">Estado</th>
+                                    <th class="px-4 py-3">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-card-dark divide-y divide-border-light dark:divide-border-dark">
+                                @foreach($equipos ?? [] as $equipo)
+                                <tr class="text-sm text-text-light dark:text-text-dark">
+                                    <td class="px-4 py-4">{{ $equipo->nombre_proyecto ?: $equipo->nombre }}</td>
+                                    <td class="px-4 py-4">{{ $equipo->participantes_count }}</td>
+                                    <td class="px-4 py-4">
+                                        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium "
+                                              style="background: {{ $equipo->estado === 'aprobado' ? '#ECFDF5' : ($equipo->estado === 'rechazado' ? '#FEF2F2' : '#FFFBEB') }}; color: {{ $equipo->estado === 'aprobado' ? '#065F46' : ($equipo->estado === 'rechazado' ? '#991B1B' : '#92400E') }};">
+                                            {{ $equipo->estado }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-4">
+                                        <a href="{{ route('equipos.show', $equipo->id_equipo) }}" class="text-primary mr-4">Ver</a>
+                                        @if(auth()->user() && auth()->user()->esAdmin())
+                                        <form method="POST" action="{{ route('equipos.update-status', $equipo->id_equipo) }}" class="inline-block ajax-status">
+                                            @csrf
+                                            @method('PATCH')
+                                            <select name="estado" class="border px-3 py-1 rounded-full text-sm mr-2">
+                                                <option value="en revisión" {{ $equipo->estado === 'en revisión' ? 'selected' : '' }}>En revisión</option>
+                                                <option value="aprobado" {{ $equipo->estado === 'aprobado' ? 'selected' : '' }}>Aprobado</option>
+                                                <option value="rechazado" {{ $equipo->estado === 'rechazado' ? 'selected' : '' }}>Rechazado</option>
+                                            </select>
+                                            <button type="submit" class="px-3 py-1 bg-primary text-white rounded-full text-sm">Actualizar</button>
+                                        </form>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+
+            <!-- Columna derecha: tarjetas de estado eliminadas (conteos removidos de la vista) -->
         </div>
     </main>
 </div>
 
-</body>
-</html>
+                <!-- Chart.js CDN + panel script -->
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                    (function(){
+                        const statsUrl = "{{ route('admin.equipos.stats') }}";
+                        const initial = { en_revision: 0, aprobado: 0, rechazado: 0 };
+
+                        const ctx = document.getElementById('teamsChart');
+                        let teamsChart = null;
+
+                        function buildChart(data) {
+                            try {
+                                const values = [data.en_revision || 0, data.aprobado || 0, data.rechazado || 0];
+                                if (!teamsChart) {
+                                    const ctx2d = ctx && ctx.getContext ? ctx.getContext('2d') : null;
+                                    if (!ctx2d) return;
+                                    teamsChart = new Chart(ctx2d, {
+                                        type: 'doughnut',
+                                        data: {
+                                            labels: ['En revisión','Aprobados','Rechazados'],
+                                            datasets: [{
+                                                data: values,
+                                                backgroundColor: ['#F59E0B','#10B981','#EF4444']
+                                            }]
+                                        },
+                                        options: { responsive: true, maintainAspectRatio: false }
+                                    });
+                                } else {
+                                    teamsChart.data.datasets[0].data = values;
+                                    teamsChart.update();
+                                }
+                            } catch (err) {
+                                console.error('Error construyendo la gráfica:', err);
+                            }
+                        }
+
+                        // Eliminada: la actualización de conteos numéricos en la vista (las tarjetas fueron removidas)
+
+                        async function fetchStats() {
+                            try {
+                                const res = await fetch(statsUrl, { headers: { 'Accept': 'application/json' } });
+                                if (!res.ok) return;
+                                const json = await res.json();
+                                const data = json.estadisticas || {};
+                                buildChart(data);
+                            } catch (e) {
+                                console.error('Error fetching stats', e);
+                            }
+                        }
+
+                        // Inicializar
+                        if (ctx) {
+                            buildChart(initial);
+                        }
+
+                        // Polling cada 4 segundos
+                        setInterval(fetchStats, 4000);
+
+                        // Interceptar formularios AJAX de cambio de estado
+                        document.addEventListener('submit', async function(e){
+                            const form = e.target;
+                            if (!form.classList || !form.classList.contains('ajax-status')) return;
+                            e.preventDefault();
+                            const action = form.action;
+                            const tokenInput = form.querySelector('input[name="_token"]');
+                            const token = tokenInput ? tokenInput.value : '';
+                            const estado = form.querySelector('select[name="estado"]').value;
+
+                            try {
+                                const res = await fetch(action, {
+                                    method: 'PATCH',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Accept': 'application/json',
+                                        'X-CSRF-TOKEN': token
+                                    },
+                                    body: JSON.stringify({ estado })
+                                });
+                                if (!res.ok) {
+                                    const txt = await res.text();
+                                    alert('Error actualizando estado');
+                                    return;
+                                }
+                                const json = await res.json();
+                                if (json.estadisticas) {
+                                    buildChart(json.estadisticas);
+                                }
+
+                                // Actualizar la celda de estado en la fila donde se envió el formulario
+                                try {
+                                    const nuevoEstado = json.estado || (json.estadisticas && json.estadisticas.estado) || null;
+                                    if (nuevoEstado) {
+                                        const row = form.closest('tr');
+                                        if (row) {
+                                            const tds = row.querySelectorAll('td');
+                                            if (tds && tds.length >= 3) {
+                                                const estadoCell = tds[2];
+                                                const estadoNorm = (nuevoEstado || '').toString().toLowerCase().trim();
+                                                let bg = '#FFFBEB';
+                                                let color = '#92400E';
+                                                if (estadoNorm === 'aprobado') { bg = '#ECFDF5'; color = '#065F46'; }
+                                                if (estadoNorm === 'rechazado') { bg = '#FEF2F2'; color = '#991B1B'; }
+                                                estadoCell.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-xs font-medium" style="background: ${bg}; color: ${color};">${nuevoEstado}</span>`;
+                                            }
+                                        }
+                                    }
+                                } catch (err) {
+                                    console.warn('No fue posible actualizar la celda de estado en la fila:', err);
+                                }
+                            } catch (err) {
+                                console.error(err);
+                                alert('Error al actualizar el estado.');
+                            }
+                        });
+                    })();
+                </script>
+
+            </body>
+            </html>

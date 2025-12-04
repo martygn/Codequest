@@ -8,6 +8,7 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class EquipoController extends Controller
@@ -45,6 +46,7 @@ class EquipoController extends Controller
 
             case 'todos':
             default:
+                // Sin filtro adicional - mostrar todos
                 break;
         }
 
@@ -89,7 +91,7 @@ class EquipoController extends Controller
             'nombre' => 'required|string|max:255|unique:equipos,nombre',
             'nombre_proyecto' => 'required|string|max:255',
             'descripcion' => 'required|string|min:10',
-            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120', // 5MB máximo
             'id_evento' => 'required|exists:eventos,id_evento',
         ], [
             'nombre.required' => 'El nombre del equipo es obligatorio.',
@@ -111,8 +113,14 @@ class EquipoController extends Controller
         // Crear el equipo
         $equipo = Equipo::create($validated);
 
+        // Obtener el usuario actual como instancia de Usuario
+        $usuario = Usuario::find(Auth::id());
+
+        // Agregar al usuario actual como miembro del equipo con posición "líder"
+        $equipo->participantes()->attach($usuario->id, ['posicion' => 'Líder']);
+
         return redirect()->route('equipos.show', $equipo->id_equipo)
-            ->with('success', '🎉 ¡Equipo creado exitosamente! El equipo está ahora en revisión.');
+            ->with('success', '🎉 ¡Equipo creado exitosamente! Tu equipo está ahora en revisión.');
     }
 
     /**
@@ -145,9 +153,9 @@ class EquipoController extends Controller
         // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar que el usuario sea administrador
-        if (!$usuario->esAdministrador()) {
-            abort(403, 'Solo los administradores pueden editar equipos.');
+        // Verificar que el usuario sea miembro del equipo o administrador
+        if (!$equipo->tieneMiembro($usuario->id) && !$usuario->esAdministrador()) {
+            abort(403, 'No tienes permiso para editar este equipo.');
         }
 
         $eventos = Evento::where('fecha_fin', '>=', Carbon::now())
@@ -165,9 +173,9 @@ class EquipoController extends Controller
         // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar que el usuario sea administrador
-        if (!$usuario->esAdministrador()) {
-            abort(403, 'Solo los administradores pueden editar equipos.');
+        // Verificar que el usuario sea miembro del equipo o administrador
+        if (!$equipo->tieneMiembro($usuario->id) && !$usuario->esAdministrador()) {
+            abort(403, 'No tienes permiso para editar este equipo.');
         }
 
         // Validación de datos
@@ -208,9 +216,10 @@ class EquipoController extends Controller
         // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar que el usuario sea administrador
-        if (!$usuario->esAdministrador()) {
-            abort(403, 'Solo los administradores pueden eliminar equipos.');
+        // Verificar que el usuario sea administrador o líder del equipo
+        if (!$usuario->esAdministrador() &&
+            !$equipo->participantes()->where('usuario_id', $usuario->id)->where('posicion', 'Líder')->exists()) {
+            abort(403, 'Solo los administradores o el líder del equipo pueden eliminarlo.');
         }
 
         // Eliminar banner si existe
@@ -218,7 +227,7 @@ class EquipoController extends Controller
             Storage::disk('public')->delete($equipo->banner);
         }
 
-        // Eliminar el equipo
+        // Eliminar el equipo (las relaciones se eliminarán por cascade)
         $equipo->delete();
 
         return redirect()->route('equipos.index')
@@ -248,7 +257,7 @@ class EquipoController extends Controller
             return back()->with('error', '❌ Ya eres miembro de este equipo.');
         }
 
-        // Verificar límite de miembros (máximo 4)
+        // Verificar límite de miembros (máximo 4 incluyendo al líder)
         if ($equipo->participantes()->count() >= 4) {
             return back()->with('error', '❌ El equipo ya tiene el máximo de miembros permitido (4).');
         }
@@ -256,16 +265,16 @@ class EquipoController extends Controller
         // Determinar la posición automática según el orden de unión
         $numeroDeMiembros = $equipo->participantes()->count();
 
-        // Mapa de posiciones según el orden de unión
+        // Mapa de posiciones según el orden de unión (excluyendo al líder)
         $posiciones = [
-            0 => 'Líder',                 // Primer participante en unirse
-            1 => 'Programador Front-end', // Segundo participante en unirse
-            2 => 'Programador Back-end',  // Tercer participante en unirse
-            3 => 'Diseñador'              // Cuarto participante en unirse
+            1 => 'Programador Front-end', // Primer participante en unirse
+            2 => 'Programador Back-end',  // Segundo participante en unirse
+            3 => 'Diseñador'              // Tercer participante en unirse
         ];
 
         // Obtener la posición correspondiente
-        $posicion = $posiciones[$numeroDeMiembros] ?? 'Miembro';
+        $indice = $numeroDeMiembros; // El líder es el miembro 0, el primero en unirse será miembro 1
+        $posicion = $posiciones[$indice] ?? 'Miembro';
 
         // Agregar al usuario como participante con la posición automática
         $equipo->participantes()->attach($usuario->id, [
@@ -295,6 +304,27 @@ class EquipoController extends Controller
 
         $equipo->update(['estado' => $request->estado]);
 
+        // Si la petición espera JSON (AJAX), retornar conteos actualizados
+        if ($request->wantsJson() || $request->ajax() || $request->header('Accept') === 'application/json') {
+            $totales = Equipo::selectRaw(
+                "SUM(CASE WHEN LOWER(TRIM(estado)) = 'en revisión' THEN 1 ELSE 0 END) as en_revision,"
+                . " SUM(CASE WHEN LOWER(TRIM(estado)) = 'aprobado' THEN 1 ELSE 0 END) as aprobado,"
+                . " SUM(CASE WHEN LOWER(TRIM(estado)) = 'rechazado' THEN 1 ELSE 0 END) as rechazado"
+            )->first();
+
+            $estadisticas = [
+                'en_revision' => (int)($totales->en_revision ?? 0),
+                'aprobado' => (int)($totales->aprobado ?? 0),
+                'rechazado' => (int)($totales->rechazado ?? 0),
+            ];
+
+            return response()->json([
+                'success' => true,
+                'estado' => $equipo->estado,
+                'estadisticas' => $estadisticas,
+            ]);
+        }
+
         return back()->with('success', '✅ Estado del equipo actualizado a "' . ucfirst($request->estado) . '".');
     }
 
@@ -321,9 +351,9 @@ class EquipoController extends Controller
             return back()->with('error', '❌ Este usuario ya es miembro del equipo.');
         }
 
-        // Verificar límite de participantes
+        // Verificar límite de participantes (ejemplo: máximo 5)
         if ($equipo->participantes()->count() >= 5) {
-            return back()->with('error', '❌ El equipo ya tiene el máximo de participantes permitido.');
+            return back()->with('error', '❌ El equipo ya tiene el máximo de participantes permitido (5).');
         }
 
         // Agregar participante
