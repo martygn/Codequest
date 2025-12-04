@@ -4,14 +4,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
-use App\Models\Usuario;
 use App\Http\Controllers\Auth\SocialAuthController;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EquipoController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,6 +21,8 @@ Route::get('/', function () {
     }
     return redirect()->route('login');
 });
+Route::get('/equipos/crear', [EquipoController::class, 'create'])->name('equipos.create');
+Route::post('/equipos', [EquipoController::class, 'store'])->name('equipos.store');
 
 // Rutas de autenticación OAuth (Google y Facebook)
 Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])
@@ -38,11 +36,14 @@ Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFaceb
 // Incluir rutas de autenticación (Laravel Breeze / Auth)
 require __DIR__.'/auth.php';
 
-// Rutas protegidas
+// --- INICIO DEL GRUPO DE RUTAS PROTEGIDAS ---
 Route::middleware(['auth.usuario'])->group(function () {
+    
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    });
+
+    // (AQUI estaba el error antes, ya lo quité)
+
     // Eventos
     Route::resource('eventos', EventoController::class)->parameters([
         'eventos' => 'evento:id_evento'
@@ -64,8 +65,10 @@ Route::middleware(['auth.usuario'])->group(function () {
     // Gestión de participantes
     Route::post('/equipos/{equipo}/participantes', [EquipoController::class, 'agregarParticipante'])
         ->name('equipos.participantes.agregar');
+        
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])
         ->name('equipos.participantes.remover');
+});
 
 // Grupo de rutas que requieren iniciar sesión
 Route::middleware('auth')->group(function () {
@@ -75,5 +78,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // --- El perfil estilo Dashboard/Minecraft ---
+    // --- Tu nueva ruta de perfil ---
     Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('profile.custom');
 });

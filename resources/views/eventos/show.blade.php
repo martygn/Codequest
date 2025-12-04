@@ -2,6 +2,7 @@
     <div class="py-12 bg-white min-h-screen">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
 
+            
             <div class="mb-6 text-sm text-gray-500 font-medium">
                 <a href="{{ route('eventos.index') }}" class="hover:text-gray-900 transition-colors">Eventos</a>
                 <span class="mx-2">/</span>
@@ -19,6 +20,7 @@
 
             <div class="space-y-10">
 
+                
                 <section>
                     <h3 class="text-lg font-bold text-gray-900 mb-3">Descripción</h3>
                     <div class="text-gray-700 leading-relaxed text-base whitespace-pre-line">
@@ -46,6 +48,10 @@
                     <div class="border-t border-gray-200 pt-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
 
+                    
+                    <div class="border-t border-gray-200 pt-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
+                            
                             <div>
                                 <span class="block text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">
                                     Registro
@@ -90,6 +96,7 @@
 
             <div class="mt-16 flex justify-end pb-10">
     <a href="{{ route('equipos.create', ['evento_id' => $evento->id_evento]) }}"
+    <a href="{{ route('equipos.create', ['evento_id' => $evento->id_evento]) }}" 
        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition duration-200 text-base">
         Inscribirse
     </a>
@@ -97,4 +104,5 @@
 
         </div>
     </div>
+</x-app-layout>
 </x-app-layout>
