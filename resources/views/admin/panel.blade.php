@@ -135,7 +135,6 @@
                             <h3 class="text-lg font-semibold">Distribución de estados</h3>
                             <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Visión rápida del estado actual de los equipos</p>
                         </div>
-                        <div class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Leyenda: <span class="inline-block w-3 h-3 rounded-sm bg-yellow-400 align-middle mx-1"></span>En revisión <span class="inline-block w-3 h-3 rounded-sm bg-emerald-500 align-middle mx-1"></span>Aprobados <span class="inline-block w-3 h-3 rounded-sm bg-red-500 align-middle mx-1"></span>Rechazados</div>
                     </div>
                     <div class="mt-4">
                         <div class="relative w-full h-56">

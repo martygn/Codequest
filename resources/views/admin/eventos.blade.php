@@ -79,14 +79,18 @@
 <p class="text-slate-500 dark:text-slate-400 mt-1">Gestiona los eventos</p>
 </header>
 <div class="relative mb-6">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-<input class="w-full max-w-sm pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="Buscar eventos" type="text"/>
+<form method="GET" action="{{ route('admin.eventos') }}" class="flex items-center">
+  <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+  <input name="search" value="{{ $search ?? request('search') }}" class="w-full max-w-sm pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="Buscar eventos" type="text"/>
+  <input type="hidden" name="status" value="{{ $status ?? 'pendientes' }}" />
+  <button type="submit" class="ml-3 px-3 py-2 bg-primary text-white rounded-md">Buscar</button>
+</form>
 </div>
 <div class="border-b border-slate-200 dark:border-slate-700 mb-6">
 <nav class="flex space-x-6 -mb-px">
-<a class="py-3 px-1 text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors" href="#">Todos</a>
-<a class="py-3 px-1 text-slate-900 dark:text-white border-b-2 border-slate-900 dark:border-white font-semibold" href="#">Pendientes</a>
-<a class="py-3 px-1 text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors" href="#">Publicados</a>
+<a class="py-3 px-1 {{ ($status ?? 'pendientes') === 'todos' ? 'text-slate-900 dark:text-white border-b-2 border-slate-900 dark:border-white font-semibold' : 'text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary' }}" href="{{ route('admin.eventos', ['status' => 'todos']) }}">Todos</a>
+<a class="py-3 px-1 {{ ($status ?? 'pendientes') === 'pendientes' ? 'text-slate-900 dark:text-white border-b-2 border-slate-900 dark:border-white font-semibold' : 'text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary' }}" href="{{ route('admin.eventos', ['status' => 'pendientes']) }}">Pendientes</a>
+<a class="py-3 px-1 {{ ($status ?? 'pendientes') === 'publicados' ? 'text-slate-900 dark:text-white border-b-2 border-slate-900 dark:border-white font-semibold' : 'text-slate-600 dark:text-slate-400 hover:text-primary dark:hover:text-primary' }}" href="{{ route('admin.eventos', ['status' => 'publicados']) }}">Publicados</a>
 </nav>
 </div>
 <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
@@ -105,15 +109,35 @@
 <td class="p-4 text-slate-800 dark:text-slate-200">{{ $evento->nombre }}</td>
 <td class="p-4 text-slate-500 dark:text-slate-400">{{ $evento->fecha_inicio }}</td>
 <td class="p-4">
-<span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{{ $evento->estado ?? 'Pendiente' }}</span>
+  <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{{ $evento->estado ?? 'pendiente' }}</span>
 </td>
 <td class="p-4">
-<a href="{{ route('eventos.show', $evento->id_evento) }}" class="font-medium text-primary hover:underline">Revisar</a>
+  <a href="{{ route('eventos.show', $evento->id_evento) }}" class="font-medium text-primary hover:underline mr-4">Revisar</a>
+
+  @if(auth()->user() && auth()->user()->esAdmin())
+  <form method="POST" action="{{ route('admin.eventos.update-status', $evento->id_evento) }}" class="inline-block">
+    @csrf
+    @method('PATCH')
+    <select name="estado" class="border px-3 py-1 rounded-full text-sm mr-2">
+      <option value="pendiente" {{ ($evento->estado ?? 'pendiente') === 'pendiente' ? 'selected' : '' }}>Pendiente</option>
+      <option value="publicado" {{ ($evento->estado ?? 'pendiente') === 'publicado' ? 'selected' : '' }}>Publicado</option>
+    </select>
+    <button type="submit" class="px-3 py-1 bg-primary text-white rounded-full text-sm">Actualizar</button>
+  </form>
+  @endif
+
 </td>
 </tr>
 @endforeach
 </tbody>
 </table>
+</div>
+
+          @if(method_exists($eventos, 'links') && $eventos->hasPages())
+          <div class="px-4 py-3 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
+            {{ $eventos->links() }}
+          </div>
+          @endif
 </div>
 </div>
 </main>

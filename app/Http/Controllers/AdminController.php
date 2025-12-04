@@ -17,7 +17,49 @@ class AdminController extends Controller
             abort(403, 'Acceso no autorizado.');
         }
 
-        return view('admin.eventos');
+        // Filtrado por pestañas: 'todos' | 'pendientes' | 'publicados'
+        $status = request()->get('status', 'pendientes');
+        $search = request()->get('search', null);
+
+        $query = \App\Models\Evento::query();
+
+        // Filtrar por estado si aplica
+        if ($status === 'pendientes') {
+            $query->where('estado', 'pendiente');
+        } elseif ($status === 'publicados') {
+            $query->where('estado', 'publicado');
+        }
+
+        // Filtrar por búsqueda en nombre
+        if (!empty($search)) {
+            $query->where('nombre', 'like', '%' . $search . '%');
+        }
+
+        // Usar paginación para la lista de admin
+        $eventos = $query->orderBy('fecha_inicio', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin.eventos', compact('eventos', 'status', 'search'));
+    }
+
+    /**
+     * Actualizar el estado de un evento (acción rápida desde el panel admin).
+     */
+    public function updateEventoStatus(Request $request, \App\Models\Evento $evento)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $data = $request->validate([
+            'estado' => 'required|in:pendiente,publicado'
+        ]);
+
+        $evento->update(['estado' => $data['estado']]);
+
+        return back()->with('success', 'Estado del evento actualizado a "' . $data['estado'] . '".');
     }
 
     /**

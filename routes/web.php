@@ -51,6 +51,11 @@ Route::middleware(['auth.usuario'])->group(function () {
         ->name('admin.equipos.stats')
         ->middleware('is.admin');
 
+    // Ruta para actualizar estado de un evento desde el panel admin
+    Route::patch('/admin/eventos/{evento}/status', [AdminController::class, 'updateEventoStatus'])
+        ->name('admin.eventos.update-status')
+        ->middleware('is.admin');
+
     // Eventos
     Route::resource('eventos', EventoController::class)->parameters([
         'eventos' => 'evento:id_evento'
