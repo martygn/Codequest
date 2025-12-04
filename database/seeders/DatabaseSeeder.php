@@ -90,6 +90,14 @@ class DatabaseSeeder extends Seeder
             'lugar' => 'Instituto Tecnológico',
         ]);
 
+        $evento4 = Evento::create([
+            'nombre' => 'Competencia de Algoritmos Avanzados',
+            'descripcion' => 'Desafíos de algoritmos y estructuras de datos avanzadas',
+            'fecha_inicio' => now(),
+            'fecha_fin' => now()->addDays(92),
+            'lugar' => 'Instituto Tecnológico',
+        ]);
+
         // Ejemplo de equipos
         $equipo1 = Equipo::create([
             'nombre' => 'Equipo Alpha',
@@ -113,6 +121,14 @@ class DatabaseSeeder extends Seeder
             'descripcion' => 'Expertos en inteligencia artificial y machine learning',
             'estado' => 'rechazado',
             'id_evento' => $evento3->id_evento,
+        ]);
+
+        $equipo4 = Equipo::create([
+            'nombre' => 'Angular Create',
+            'nombre_proyecto' => 'Pepepecas',
+            'descripcion' => 'Creacion de una aplicacion web',
+            'estado' => 'Rechazado',
+            'id_evento' => $evento4->id_evento,
         ]);
 
         $this->command->info('✅ Base de datos poblada con datos de prueba!');
