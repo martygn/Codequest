@@ -55,7 +55,7 @@
 <span>Equipos</span>
 </a>
 <a class="flex items-center space-x-3 p-3 rounded-lg text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-700 font-semibold" href="{{ route('admin.perfil') }}">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">account_circle</span>
+<span class="material-symbols-outlined">person</span>
 <span>Perfil</span>
 </a>
 <a class="flex items-center space-x-3 p-3 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.configuracion') }}">

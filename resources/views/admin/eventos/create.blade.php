@@ -36,7 +36,7 @@
                         <span>Panel de control</span>
                     </a>
                     <a class="flex items-center gap-3 px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 rounded font-semibold" href="{{ route('admin.eventos') }}">
-                        <span class="material-symbols-outlined filled">calendar_today</span>
+                        <span class="material-symbols-outlined">calendar_today</span>
                         <span>Eventos</span>
                     </a>
                     <a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('admin.equipos') }}">

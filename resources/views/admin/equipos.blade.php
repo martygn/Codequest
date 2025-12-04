@@ -44,7 +44,7 @@
 <span class="font-medium">Panel De Control</span>
 </a>
 <a class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800" href="{{ route('admin.eventos') }}">
-<span class="material-symbols-outlined text-xl">calendar_month</span>
+<span class="material-symbols-outlined text-xl">calendar_today</span>
 <span class="font-medium">Eventos</span>
 </a>
 <a class="flex items-center gap-3 rounded-lg bg-gray-200 dark:bg-gray-800 px-4 py-2.5 text-gray-900 dark:text-white" href="{{ route('admin.equipos') }}">
@@ -57,6 +57,16 @@
 </a>
 </nav>
 </div>
+
+<div class="p-4 border-t border-border-light dark:border-border-dark">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Cerrar sesión</span>
+                </button>
+            </form>
+        </div>
 
 </aside>
 <main class="flex-1 overflow-y-auto bg-white dark:bg-zinc-900 p-8">
