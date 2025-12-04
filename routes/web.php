@@ -70,7 +70,7 @@ Route::middleware(['auth.usuario'])->group(function () {
         ->name('equipos.participantes.remover');
 });
 
-}); 
+
 
 // FALTABA ESTA LÍNEA DE APERTURA:
 Route::middleware('auth')->group(function () { 
