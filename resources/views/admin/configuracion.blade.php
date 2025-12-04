@@ -56,12 +56,7 @@
 <span>Panel de control</span>
 </a>
 </li>
-<li>
-<a class="flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="{{ route('admin.perfil') }}">
-<span class="material-symbols-outlined">search</span>
-<span>Personal</span>
-</a>
-</li>
+
 <li>
 <a class="flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="{{ route('admin.eventos') }}">
 <span class="material-symbols-outlined">calendar_month</span>
@@ -74,12 +69,7 @@
 <span>Equipos</span>
 </a>
 </li>
-<li>
-<a class="flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="{{ route('admin.perfil') }}">
-<span class="material-symbols-outlined">account_circle</span>
-<span>Perfil</span>
-</a>
-</li>
+
 <li>
 <a class="flex items-center gap-3 px-4 py-2 rounded bg-surface-light dark:bg-surface-dark font-semibold text-text-light-primary dark:text-text-dark-primary transition-colors" href="{{ route('admin.configuracion') }}">
 <span class="material-symbols-outlined">settings</span>

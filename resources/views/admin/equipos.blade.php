@@ -51,10 +51,7 @@
 <span class="material-symbols-outlined text-xl">groups</span>
 <span class="font-medium">Equipos</span>
 </a>
-<a class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800" href="{{ route('admin.perfil') }}">
-<span class="material-symbols-outlined text-xl">person</span>
-<span class="font-medium">Perfil</span>
-</a>
+
 <a class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800" href="{{ route('admin.configuracion') }}">
 <span class="material-symbols-outlined text-xl">settings</span>
 <span class="font-medium">Configuración</span>

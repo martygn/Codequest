@@ -61,10 +61,7 @@
 <span class="material-symbols-outlined">groups</span>
 <span>Equipos</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('admin.perfil') }}">
-<span class="material-symbols-outlined">person</span>
-<span>Perfil</span>
-</a>
+
   <a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('admin.configuracion') }}">
     <span class="material-symbols-outlined">settings</span>
     <span>Configuración</span>
