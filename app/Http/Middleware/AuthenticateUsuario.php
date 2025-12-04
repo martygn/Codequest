@@ -13,7 +13,7 @@ class AuthenticateUsuario
      */
     public function handle(Request $request, Closure $next)
     {
-        // Verificar autenticación usando nuestro AuthController
+        // Verificar autenticación usando AuthController
         if (!AuthController::check()) {
             return redirect()->route('login')->withErrors([
                 'message' => 'Por favor, inicia sesión para acceder.'

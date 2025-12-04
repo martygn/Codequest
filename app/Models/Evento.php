@@ -12,19 +12,26 @@ class Evento extends Model
     protected $table = 'eventos';
     protected $primaryKey = 'id_evento';
 
+    /**
+     * Los atributos que son asignables masivamente.
+     * Estos coinciden con los inputs de tu formulario "Registro de Evento".
+     */
     protected $fillable = [
-    'nombre',
-    'descripcion',
-    'reglas',           // Nuevo
-    'premios',          // Nuevo
-    'otra_informacion', // Nuevo
-    'fecha_inicio',
-    'fecha_fin',
-    'lugar',
-    'foto',
-    'estado'
-];
+        'nombre',
+        'descripcion',
+        'fecha_inicio',
+        'fecha_fin',
+        'reglas',           // Campo del formulario
+        'premios',          // Campo del formulario
+        'otra_informacion', // Campo del formulario
+        'lugar',            // (Opcional si decides agregarlo después)
+        'foto',
+        'estado'
+    ];
 
+    /**
+     * Los atributos que deben ser convertidos a tipos nativos.
+     */
     protected $casts = [
         'fecha_inicio' => 'datetime',
         'fecha_fin' => 'datetime',
@@ -32,42 +39,33 @@ class Evento extends Model
 
     /**
      * Relación con equipos (1:N)
-     * Un evento tiene muchos equipos
      */
     public function equipos()
     {
         return $this->hasMany(Equipo::class, 'id_evento', 'id_evento');
     }
 
-    /**
-     * Scope para eventos próximos
-     */
+    // --- Scopes (Filtros) ---
+
     public function scopeProximos($query)
     {
         return $query->where('fecha_inicio', '>=', now())
             ->orderBy('fecha_inicio', 'asc');
     }
 
-    /**
-     * Scope para eventos activos (en curso)
-     */
     public function scopeActivos($query)
     {
         return $query->where('fecha_inicio', '<=', now())
             ->where('fecha_fin', '>=', now());
     }
 
-    /**
-     * Verificar si el evento está activo
-     */
+    // --- Funciones de Ayuda ---
+
     public function estaActivo()
     {
         return now()->between($this->fecha_inicio, $this->fecha_fin);
     }
 
-    /**
-     * Verificar si el evento ya finalizó
-     */
     public function haFinalizado()
     {
         return now()->greaterThan($this->fecha_fin);

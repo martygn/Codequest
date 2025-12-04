@@ -39,9 +39,20 @@
                 </a>
             @endif
 
+
             <x-primary-button class="ms-3">
                 {{ __('Iniciar sesion') }}
             </x-primary-button>
         </div>
     </form>
+
+    <!-- Register Link -->
+    <div class="mt-6 text-center">
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+            ¿No tienes una cuenta?
+            <a href="{{ route('register') }}" class="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                Regístrate aquí
+            </a>
+        </p>
+    </div>
 </x-guest-layout>
