@@ -60,6 +60,11 @@ Route::middleware(['auth.usuario'])->group(function () {
         ->name('admin.eventos.update-status')
         ->middleware('is.admin');
 
+    // Ruta para actualizar estado de un equipo desde el panel admin
+    Route::patch('/equipos/{equipo}/status', [AdminController::class, 'updateEquipoStatus'])
+        ->name('equipos.update-status')
+        ->middleware('is.admin');
+
     // Eventos
     Route::resource('eventos', EventoController::class)->parameters([
         'eventos' => 'evento:id_evento'
@@ -74,9 +79,10 @@ Route::middleware(['auth.usuario'])->group(function () {
     Route::post('/equipos/{equipo}/unirse', [EquipoController::class, 'unirse'])
         ->name('equipos.unirse');
 
-    // Ruta para actualizar estado del equipo
-    Route::patch('/equipos/{equipo}/status', [EquipoController::class, 'updateStatus'])
-        ->name('equipos.update-status');
+    // Endpoint para estadísticas de equipos (usado por el panel admin)
+    Route::get('/admin/api/equipos/stats', [DashboardController::class, 'equiposStats'])
+        ->name('admin.equipos.stats')
+        ->middleware('is.admin');
 
     // Gestión de participantes
     Route::post('/equipos/{equipo}/participantes', [EquipoController::class, 'agregarParticipante'])
@@ -86,9 +92,10 @@ Route::middleware(['auth.usuario'])->group(function () {
         ->name('equipos.participantes.remover');
 });
 
-// Grupo de rutas que requieren iniciar sesión
-Route::middleware('auth')->group(function () {
-    // --- Rutas por defecto de Laravel (Editar cuenta, borrar, cambiar pass) ---
+
+// FALTABA ESTA LÍNEA DE APERTURA:
+Route::middleware('auth')->group(function () { 
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

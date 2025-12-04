@@ -58,7 +58,7 @@
                                 </p>
                             </div>
                             <div class="md:col-span-2 text-right">
-                                <a href="{{ route('equipos.show', $equipo) }}" class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 font-bold">
+                                <a href="{{ route('equipos.show', $equipo->id_equipo) }}" class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 font-bold">
                                     Ver Mi Equipo
                                 </a>
                             </div>
