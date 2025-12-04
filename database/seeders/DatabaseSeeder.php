@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use App\Models\Usuario;
 use App\Models\Evento;
 use App\Models\Equipo;
@@ -15,9 +16,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear usuarios en la tabla users de Laravel
-        $this->call(UserSeeder::class);
-
         // Crear usuarios administradores
         $admin = Usuario::create([
             'nombre' => 'Admin',

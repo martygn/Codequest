@@ -88,7 +88,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Accessor para name (compatibilidad)
+     * Accessor para name
      */
     public function getNameAttribute()
     {
@@ -96,7 +96,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Accessor para email (compatibilidad)
+     * Accessor para email
      */
     public function getEmailAttribute()
     {
@@ -104,7 +104,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Setter para email (compatibilidad)
+     * Setter para email
      */
     public function setEmailAttribute($value)
     {
@@ -112,7 +112,7 @@ class Usuario extends Authenticatable
     }
 
     /**
-     * Setter para password (compatibilidad)
+     * Setter para password
      */
     public function setPasswordAttribute($value)
     {
@@ -151,6 +151,21 @@ class Usuario extends Authenticatable
         return $this->belongsToMany(Equipo::class, 'participante_equipo', 'usuario_id', 'equipo_id')
             ->withPivot('posicion')
             ->withTimestamps();
+    }
+
+    /**
+     * Relación con eventos (a través de equipos)
+     * Un usuario puede participar en varios eventos a través de sus equipos
+     */
+    public function eventos()
+    {
+        // Obtener los eventos de los equipos en los que participa el usuario
+        return Evento::query()
+            ->join('equipos', 'eventos.id_evento', '=', 'equipos.id_evento')
+            ->join('participante_equipo', 'equipos.id_equipo', '=', 'participante_equipo.equipo_id')
+            ->where('participante_equipo.usuario_id', $this->id)
+            ->select('eventos.*')
+            ->distinct();
     }
 
     /**

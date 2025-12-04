@@ -1,9 +1,12 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use App\Http\Middleware\AuthenticateUsuario;
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\AuthenticateUsuario;
+use Illuminate\Routing\Middleware\ValidateSignature;
+use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
