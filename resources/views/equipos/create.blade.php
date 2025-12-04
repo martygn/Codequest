@@ -25,19 +25,7 @@
                                 required>
                         </div>
 
-                        <div class="mb-6">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Evento *</label>
-                            <select name="id_evento"
-                                class="w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                required>
-                                <option value="">Selecciona un evento</option>
-                                @foreach($eventos as $evento)
-                                    <option value="{{ $evento->id_evento }}">
-                                        {{ $evento->nombre }} - {{ $evento->fecha_inicio->format('d/m/Y') }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                        
 
                         <div class="mb-6">
                             <label class="block text-sm font-bold text-gray-700 mb-2">Descripción del Equipo *</label>
