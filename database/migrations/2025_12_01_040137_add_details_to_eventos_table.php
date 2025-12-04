@@ -15,6 +15,8 @@ return new class extends Migration
         $table->text('reglas')->nullable()->after('descripcion');
         $table->text('premios')->nullable()->after('reglas');
         $table->text('otra_informacion')->nullable()->after('premios');
+        // Si no tenías estado, agrégalo también:
+        // $table->enum('estado', ['pendiente', 'publicado'])->default('pendiente');
     });
 }
 

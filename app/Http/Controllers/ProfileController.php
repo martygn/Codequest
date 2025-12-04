@@ -42,11 +42,18 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
+        $validated = $request->validateWithBag('userDeletion', [
+            'password' => ['required'],
         ]);
 
         $user = $request->user();
+
+        // Verificar que la contraseña sea correcta
+        if (!\Illuminate\Support\Facades\Hash::check($validated['password'], $user->contrasena)) {
+            throw \Illuminate\Validation\ValidationException::withMessages([
+                'password' => ['La contraseña es incorrecta.'],
+            ])->errorBag('userDeletion');
+        }
 
         Auth::logout();
 
