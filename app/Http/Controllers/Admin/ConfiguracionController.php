@@ -41,7 +41,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Actualizar el estado de un evento.
+     * Actualizar el estado de un evento (acción rápida desde el panel admin).
      */
     public function updateEventoStatus(Request $request, \App\Models\Evento $evento)
     {
@@ -60,7 +60,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Mostrar la vista de gestión de equipos.
+     * Mostrar la vista de gestión de equipos para administradores.
      */
     public function equipos()
     {
@@ -74,7 +74,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Mostrar la vista de perfil.
+     * Mostrar la vista de perfil del administrador.
      */
     public function perfil()
     {
@@ -88,7 +88,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Mostrar la vista de configuración.
+     * Mostrar la vista de configuración del administrador.
      */
     public function configuracion()
     {
@@ -102,7 +102,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Actualizar el estado de un equipo.
+     * Actualizar el estado de un equipo (acción rápida desde el panel admin).
      */
     public function updateEquipoStatus(Request $request, \App\Models\Equipo $equipo)
     {
@@ -136,7 +136,7 @@ class AdminController extends Controller
         return back()->with('success', 'Estado del equipo actualizado a "' . $data['estado'] . '".');
     }
 
-    // --- AQUÍ ESTÁN LAS FUNCIONES DE CONFIGURACIÓN ---
+    // --- NUEVAS FUNCIONES PARA LA CONFIGURACIÓN ---
 
     /**
      * 1. Guardar Información Personal (Nombre y Correo).
@@ -145,10 +145,12 @@ class AdminController extends Controller
     {
         $user = Auth::user();
 
+        // Verificación de seguridad
         if (!$user || !method_exists($user, 'esAdmin') || !$user->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
 
+        // Validación
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
@@ -156,19 +158,22 @@ class AdminController extends Controller
             'email.unique' => 'Este correo electrónico ya está registrado por otro usuario.',
         ]);
 
-        // Método estándar de actualización
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-        ]);
+        // Guardado de datos
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        
+        // Si el usuario cambia su email, podrías querer invalidar la verificación de email:
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
 
         return back()->with('success', 'Información personal actualizada correctamente.');
     }
 
     /**
      * 2. Guardar Nueva Contraseña.
-     * Esta versión pasa la contraseña SIN usar Hash::make() aquí, 
-     * confiando en que tu modelo User se encarga del hash (evita doble encriptación).
      */
     public function updatePassword(Request $request)
     {
@@ -178,6 +183,7 @@ class AdminController extends Controller
             abort(403, 'Acceso no autorizado.');
         }
 
+        // Validación
         $validated = $request->validate([
             'current_password' => ['required', 'current_password'],
             'password' => ['required', 'confirmed', Password::defaults()],
@@ -186,8 +192,9 @@ class AdminController extends Controller
             'password.confirmed' => 'La confirmación de la nueva contraseña no coincide.',
         ]);
 
-        // Asignación directa sin Hash::make (para evitar doble hash si tu modelo ya lo hace)
-        $user->password = $validated['password'];
+        // Actualización de contraseña (Encriptada)
+        // Usamos Hash::make para asegurar que se guarde encriptada en la BD.
+        $user->password = Hash::make($validated['password']);
         $user->save();
 
         return back()->with('success', 'Contraseña actualizada correctamente.');

@@ -2,33 +2,33 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Nombre de la tabla en la base de datos.
+     */
+    protected $table = 'usuarios';
+
+    /**
+     * Los atributos que se pueden llenar masivamente.
+     * Usamos SOLO los nombres reales de la BD.
      */
     protected $fillable = [
-        'name',
+        'nombre',   // Columna Real
         'username',
-        'email',
+        'correo',   // Columna Real
         'password',
         'role',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Atributos ocultos.
      */
     protected $hidden = [
         'password',
@@ -36,38 +36,65 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Casts de atributos.
      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
         ];
     }
 
-    /**
-     * Verifica si el usuario es administrador.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | COMPATIBILIDAD DE LECTURA (Solo Getters)
+    |--------------------------------------------------------------------------
+    | Mantenemos esto para que Auth::user()->name y Auth::user()->email
+    | sigan funcionando en tus Vistas HTML.
+    |
+    | HEMOS ELIMINADO LOS "SETTERS" para obligar a que el guardado sea
+    | directo a las columnas 'nombre' y 'correo', evitando duplicaciones.
+    */
+
+    // Permite leer $user->name (devuelve 'nombre' de la BD)
+    public function getNameAttribute()
+    {
+        return $this->attributes['nombre'] ?? null;
+    }
+
+    // Permite leer $user->email (devuelve 'correo' de la BD)
+    public function getEmailAttribute()
+    {
+        return $this->attributes['correo'] ?? null;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+    */
+
+    public function equipos()
+    {
+        return $this->belongsToMany(Equipo::class, 'participante_equipo', 'usuario_id', 'equipo_id')
+                    ->withPivot('rol', 'posicion')
+                    ->withTimestamps();
+    }
+
+    public function eventos()
+    {
+        return $this->belongsToMany(Evento::class, 'evento_user', 'user_id', 'evento_id')
+                    ->withTimestamps();
+    }
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Funciones Auxiliares
+    |--------------------------------------------------------------------------
+    */
+
     public function esAdmin(): bool
     {
         return $this->role === 'admin';
-    }
-
-    // Relación: Un usuario pertenece a muchos equipos
-    public function equipos()
-    {
-        // Asumiendo que es una relación de muchos a muchos
-        // Si te da error, verifica si tu relación es hasMany o belongsToMany
-        return $this->belongsToMany(Equipo::class, 'equipo_user', 'user_id', 'equipo_id')
-                    ->withPivot('rol'); // Si guardas el rol en la tabla intermedia
-    }
-
-    // Relación: Un usuario asiste a muchos eventos
-    public function eventos()
-    {
-        return $this->belongsToMany(Evento::class, 'evento_user', 'user_id', 'evento_id');
     }
 }
