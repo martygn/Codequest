@@ -46,7 +46,13 @@ Route::middleware(['auth.usuario'])->group(function () {
 
     // Admin routes (requieren además ser admin)
     Route::get('/admin/eventos', [AdminController::class, 'eventos'])->name('admin.eventos')->middleware('is.admin');
+    Route::get('/admin/eventos/crear', [AdminController::class, 'crearEvento'])->name('admin.eventos.create')->middleware('is.admin');
+    Route::post('/admin/eventos', [AdminController::class, 'guardarEvento'])->name('admin.eventos.store')->middleware('is.admin');
+    Route::get('/admin/eventos/{evento}/detalles', [AdminController::class, 'verEvento'])->name('admin.eventos.show')->middleware('is.admin');
     Route::get('/admin/equipos', [AdminController::class, 'equipos'])->name('admin.equipos')->middleware('is.admin');
+    Route::get('/admin/equipos/crear', [AdminController::class, 'crearEquipo'])->name('admin.equipos.create')->middleware('is.admin');
+    Route::post('/admin/equipos', [AdminController::class, 'guardarEquipo'])->name('admin.equipos.store')->middleware('is.admin');
+    Route::get('/admin/equipos/{equipo}/detalles', [AdminController::class, 'verEquipo'])->name('admin.equipos.show')->middleware('is.admin');
     Route::get('/admin/perfil', [AdminController::class, 'perfil'])->name('admin.perfil')->middleware('is.admin');
     Route::get('/admin/configuracion', [AdminController::class, 'configuracion'])->name('admin.configuracion')->middleware('is.admin');
 

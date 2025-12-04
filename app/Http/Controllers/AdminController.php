@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Evento;
+use App\Models\Equipo;
 
 class AdminController extends Controller
 {
@@ -67,7 +70,9 @@ class AdminController extends Controller
             abort(403, 'Acceso no autorizado.');
         }
 
-        return view('admin.equipos');
+        $equipos = Equipo::with('evento')->orderBy('created_at', 'desc')->paginate(10);
+
+        return view('admin.equipos', compact('equipos'));
     }
 
     /**
@@ -131,5 +136,119 @@ class AdminController extends Controller
         }
 
         return back()->with('success', 'Estado del equipo actualizado a "' . $data['estado'] . '".');
+    }
+
+    /**
+     * Mostrar formulario para crear un nuevo evento desde el admin.
+     */
+    public function crearEvento()
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        return view('admin.eventos.create');
+    }
+
+    /**
+     * Guardar un nuevo evento desde el admin.
+     */
+    public function guardarEvento(Request $request)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'reglas' => 'nullable|string',
+            'premios' => 'nullable|string',
+            'otra_informacion' => 'nullable|string',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'estado' => 'required|in:pendiente,publicado',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('eventos', 'public');
+        }
+
+        Evento::create($validated);
+
+        return redirect()->route('admin.eventos')->with('success', 'Evento creado exitosamente.');
+    }
+
+    /**
+     * Ver detalles de un evento desde el panel admin.
+     */
+    public function verEvento(Evento $evento)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $evento->load('equipos.participantes');
+        return view('admin.eventos.show', compact('evento'));
+    }
+
+    /**
+     * Mostrar formulario para crear un nuevo equipo desde el admin.
+     */
+    public function crearEquipo()
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $eventos = Evento::orderBy('nombre')->get();
+        return view('admin.equipos.create', compact('eventos'));
+    }
+
+    /**
+     * Guardar un nuevo equipo desde el admin.
+     */
+    public function guardarEquipo(Request $request)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'nombre_proyecto' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'id_evento' => 'required|exists:eventos,id_evento',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'estado' => 'required|in:en revisión,aprobado,rechazado',
+        ]);
+
+        if ($request->hasFile('banner')) {
+            $validated['banner'] = $request->file('banner')->store('equipos', 'public');
+        }
+
+        Equipo::create($validated);
+
+        return redirect()->route('admin.equipos')->with('success', 'Equipo creado exitosamente.');
+    }
+
+    /**
+     * Ver detalles de un equipo desde el panel admin.
+     */
+    public function verEquipo(Equipo $equipo)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $equipo->load('evento', 'participantes');
+        return view('admin.equipos.show', compact('equipo'));
     }
 }

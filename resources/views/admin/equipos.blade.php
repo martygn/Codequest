@@ -51,22 +51,21 @@
 <span class="material-symbols-outlined text-xl">groups</span>
 <span class="font-medium">Equipos</span>
 </a>
-<a class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800" href="{{ route('admin.perfil') }}">
-<span class="material-symbols-outlined text-xl">person</span>
-<span class="font-medium">Perfil</span>
-</a>
 <a class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800" href="{{ route('admin.configuracion') }}">
 <span class="material-symbols-outlined text-xl">settings</span>
 <span class="font-medium">Configuración</span>
 </a>
 </nav>
 </div>
-<button class="w-full rounded-lg bg-primary py-3 text-center font-semibold text-white hover:opacity-90 transition-opacity">Nuevo equipo</button>
+
 </aside>
 <main class="flex-1 overflow-y-auto bg-white dark:bg-zinc-900 p-8">
-<header class="mb-8">
+<header class="mb-8 flex items-center justify-between">
+<div>
 <h2 class="text-4xl font-bold text-gray-900 dark:text-white">Equipos</h2>
 <p class="mt-2 text-gray-500 dark:text-gray-400">Gestiona los equipos y sus proyectos</p>
+</div>
+<a href="{{ route('admin.equipos.create') }}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-semibold">Nuevo equipo</a>
 </header>
 <div class="mb-6 flex items-center justify-between">
 <div class="relative w-1/3">
@@ -76,8 +75,6 @@
 </div>
 <div class="mb-6 flex items-center gap-2 border-b border-gray-200 dark:border-zinc-700">
 <button class="px-4 py-2 text-sm font-medium border-b-2 border-primary text-primary">Todos los eventos</button>
-<button class="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-b-2 border-transparent">Mis eventos</button>
-<button class="px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-b-2 border-transparent">Eventos pasados</button>
 </div>
 <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-zinc-800">
 <table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-800">
@@ -92,56 +89,28 @@
 </tr>
 </thead>
 <tbody class="divide-y divide-gray-200 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
+@forelse($equipos ?? [] as $equipo)
 <tr>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Equipo Alfa</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">Proyecto 1</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">Evento de Programación 2024</td>
+<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{{ $equipo->nombre }}</td>
+<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $equipo->nombre_proyecto }}</td>
+<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $equipo->evento->nombre ?? 'Sin evento' }}</td>
 <td class="whitespace-nowrap px-6 py-4 text-sm">
-<span class="inline-flex items-center rounded-md bg-yellow-100 px-2.5 py-0.5 text-sm font-medium text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300">En revisión</span>
+<span class="inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium
+{{ $equipo->estado === 'aprobado' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 
+   ($equipo->estado === 'rechazado' ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' : 
+   'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300') }}">
+{{ ucfirst($equipo->estado) }}</span>
 </td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">15 de mayo de 2024</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-primary hover:underline cursor-pointer">Ver</td>
+<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $equipo->created_at->translatedFormat('d \d\e M \d\e Y') }}</td>
+<td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
+<a href="{{ route('admin.equipos.show', $equipo->id_equipo) }}" class="text-primary hover:underline">Ver</a>
+</td>
 </tr>
+@empty
 <tr>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Equipo Beta</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">Proyecto 2</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">Hackathon de Verano</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm">
-<span class="inline-flex items-center rounded-md bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900/50 dark:text-green-300">Aprobado</span>
-</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">20 de mayo de 2024</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-primary hover:underline cursor-pointer">Ver</td>
+<td colspan="6" class="text-center px-6 py-8 text-gray-500 dark:text-gray-400">No hay equipos disponibles</td>
 </tr>
-<tr>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Equipo Gamma</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">Proyecto 3</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">Evento de Programación 2024</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm">
-<span class="inline-flex items-center rounded-md bg-red-100 px-2.5 py-0.5 text-sm font-medium text-red-800 dark:bg-red-900/50 dark:text-red-300">Rechazado</span>
-</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">25 de mayo de 2024</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-primary hover:underline cursor-pointer">Ver</td>
-</tr>
-<tr>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Equipo Delta</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">Proyecto 4</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">Hackathon de Verano</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm">
-<span class="inline-flex items-center rounded-md bg-yellow-100 px-2.5 py-0.5 text-sm font-medium text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300">En revisión</span>
-</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">30 de mayo de 2024</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-primary hover:underline cursor-pointer">Ver</td>
-</tr>
-<tr>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">Equipo Epsilon</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">Proyecto 5</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">Evento de Programación 2024</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm">
-<span class="inline-flex items-center rounded-md bg-green-100 px-2.5 py-0.5 text-sm font-medium text-green-800 dark:bg-green-900/50 dark:text-green-300">Aprobado</span>
-</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">5 de junio de 2024</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-primary hover:underline cursor-pointer">Ver</td>
-</tr>
+@endforelse
 </tbody>
 </table>
 </div>
