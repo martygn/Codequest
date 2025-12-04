@@ -154,6 +154,21 @@ class Usuario extends Authenticatable
     }
 
     /**
+     * Relación con eventos (a través de equipos)
+     * Un usuario puede participar en varios eventos a través de sus equipos
+     */
+    public function eventos()
+    {
+        // Obtener los eventos de los equipos en los que participa el usuario
+        return Evento::query()
+            ->join('equipos', 'eventos.id_evento', '=', 'equipos.id_evento')
+            ->join('participante_equipo', 'equipos.id_equipo', '=', 'participante_equipo.equipo_id')
+            ->where('participante_equipo.usuario_id', $this->id)
+            ->select('eventos.*')
+            ->distinct();
+    }
+
+    /**
      * Scope para administradores
      */
     public function scopeAdministradores($query)

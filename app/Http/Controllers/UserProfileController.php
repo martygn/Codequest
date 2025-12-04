@@ -9,10 +9,14 @@ class UserProfileController extends Controller
 {
     public function show()
     {
-        // Obtener el usuario logueado
+        // Obtener el usuario logueado con sus equipos
         $user = Auth::user();
+        $user->load('equipos'); // Cargar la relación de equipos
 
-        // Retornar la vista pasando la variable $user
-        return view('profile.custom-show', compact('user'));
+        // Obtener los eventos del usuario a través de sus equipos
+        $eventos = $user->eventos()->get();
+
+        // Retornar la vista pasando las variables
+        return view('profile.custom-show', compact('user', 'eventos'));
     }
 }
