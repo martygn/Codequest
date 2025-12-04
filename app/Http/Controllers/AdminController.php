@@ -115,7 +115,7 @@ class AdminController extends Controller
         $equipo->update(['estado' => $data['estado']]);
 
         // Obtener las estadísticas actualizadas
-        $estadisticas = \DB::table('equipos')
+        $estadisticas = DB::table('equipos')
             ->selectRaw("
                 SUM(CASE WHEN LOWER(TRIM(estado)) = 'en revisión' THEN 1 ELSE 0 END) as en_revision,
                 SUM(CASE WHEN LOWER(TRIM(estado)) = 'aprobado' THEN 1 ELSE 0 END) as aprobado,
