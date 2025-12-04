@@ -8,6 +8,8 @@ use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\EquipoController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\AdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +44,21 @@ Route::middleware(['auth.usuario'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // (AQUI estaba el error antes, ya lo quité)
+    // Admin routes (requieren además ser admin)
+    Route::get('/admin/eventos', [AdminController::class, 'eventos'])->name('admin.eventos')->middleware('is.admin');
+    Route::get('/admin/equipos', [AdminController::class, 'equipos'])->name('admin.equipos')->middleware('is.admin');
+    Route::get('/admin/perfil', [AdminController::class, 'perfil'])->name('admin.perfil')->middleware('is.admin');
+    Route::get('/admin/configuracion', [AdminController::class, 'configuracion'])->name('admin.configuracion')->middleware('is.admin');
+
+    // Endpoint para estadísticas de equipos (usado por el panel admin)
+    Route::get('/admin/api/equipos/stats', [DashboardController::class, 'equiposStats'])
+        ->name('admin.equipos.stats')
+        ->middleware('is.admin');
+
+    // Ruta para actualizar estado de un evento desde el panel admin
+    Route::patch('/admin/eventos/{evento}/status', [AdminController::class, 'updateEventoStatus'])
+        ->name('admin.eventos.update-status')
+        ->middleware('is.admin');
 
     // Eventos
     Route::resource('eventos', EventoController::class)->parameters([
