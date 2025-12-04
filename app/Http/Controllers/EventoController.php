@@ -36,7 +36,8 @@ class EventoController extends Controller
                      ->withQueryString(); // Mantiene los filtros al cambiar de página
 
     // 5. Retornar vista con los datos y el estado actual para marcar la pestaña activa
-    return view('eventos.index', compact('eventos', 'status'));
+    $currentStatus = $status; // Alias para compatibilidad con la vista
+    return view('eventos.index', compact('eventos', 'currentStatus'));
 }
 
     /**

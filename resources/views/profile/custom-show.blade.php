@@ -89,7 +89,7 @@
                     <h3 class="text-lg font-bold text-gray-800">Mis Eventos:</h3>
                 </div>
 
-                @forelse ($user->eventos ?? [] as $evento)
+                @forelse ($eventos as $evento)
                     <div class="bg-white border border-gray-100 p-4 rounded-lg shadow-sm mb-4 hover:shadow-md transition">
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
                             <div>
