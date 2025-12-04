@@ -58,7 +58,7 @@
                                 </p>
                             </div>
                             <div class="md:col-span-2 text-right">
-                                <a href="{{ route('equipos.show', $equipo->id) }}" class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 font-bold">
+                                <a href="{{ route('equipos.show', $equipo) }}" class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 font-bold">
                                     Ver Mi Equipo
                                 </a>
                             </div>
@@ -105,7 +105,7 @@
                                 <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">Inscrito</span>
                             </div>
                             <div class="text-right">
-                                <a href="{{ route('eventos.show', $evento->id) }}" class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 font-bold">
+                                <a href="{{ route('eventos.show', $evento) }}" class="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700 font-bold">
                                     Ver Detalles
                                 </a>
                             </div>

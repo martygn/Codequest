@@ -70,16 +70,13 @@ Route::middleware(['auth.usuario'])->group(function () {
         ->name('equipos.participantes.remover');
 });
 
-}); 
-
-// FALTABA ESTA LÍNEA DE APERTURA:
-Route::middleware('auth')->group(function () { 
-
+// Grupo de rutas que requieren iniciar sesión
+Route::middleware('auth')->group(function () {
+    // --- Rutas por defecto de Laravel (Editar cuenta, borrar, cambiar pass) ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // --- Tu nueva ruta de perfil ---
     Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('profile.custom');
-
-}); 
+});
