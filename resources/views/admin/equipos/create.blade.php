@@ -94,16 +94,10 @@
                                 class="w-full px-4 py-2 border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition text-gray-900 dark:text-white">{{ old('descripcion') }}</textarea>
                         </div>
 
-                        <div class="mb-6">
-                            <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Evento</label>
-                            <select name="id_evento" class="w-full px-4 py-2 border border-gray-300 dark:border-zinc-600 bg-white dark:bg-zinc-700 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition text-gray-900 dark:text-white" required>
-                                <option value="">Selecciona un evento</option>
-                                @foreach($eventos as $evento)
-                                    <option value="{{ $evento->id_evento }}" {{ old('id_evento') == $evento->id_evento ? 'selected' : '' }}>
-                                        {{ $evento->nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
+                            <p class="text-blue-800 dark:text-blue-300 text-sm">
+                                <strong>ℹ️ Nota:</strong> Los equipos se crean independientemente de los eventos. Los participantes se inscribirán manualmente a los eventos después.
+                            </p>
                         </div>
 
                         <div class="mb-6">

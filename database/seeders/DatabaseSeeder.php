@@ -144,13 +144,12 @@ class DatabaseSeeder extends Seeder
             'lugar' => 'Zona de Innovación Digital',
         ]);
 
-        // Ejemplo de equipos
+        // Ejemplo de equipos (sin evento asignado, como si fueran creados por participantes)
         $equipo1 = Equipo::create([
             'nombre' => 'Equipo Alpha',
             'nombre_proyecto' => 'Proyecto 1',
             'descripcion' => 'Especialistas en algoritmos y estructuras de datos',
             'estado' => 'aprobado',
-            'id_evento' => $evento1->id_evento,
         ]);
 
         $equipo2 = Equipo::create([
@@ -158,7 +157,6 @@ class DatabaseSeeder extends Seeder
             'nombre_proyecto' => 'Proyecto 2',
             'descripcion' => 'Enfocados en desarrollo web y aplicaciones',
             'estado' => 'en revisión',
-            'id_evento' => $evento2->id_evento,
         ]);
 
         $equipo3 = Equipo::create([
@@ -166,7 +164,6 @@ class DatabaseSeeder extends Seeder
             'nombre_proyecto' => 'Proyecto 3',
             'descripcion' => 'Expertos en inteligencia artificial y machine learning',
             'estado' => 'rechazado',
-            'id_evento' => $evento3->id_evento,
         ]);
 
         $equipo4 = Equipo::create([
@@ -174,7 +171,6 @@ class DatabaseSeeder extends Seeder
             'nombre_proyecto' => 'Solución Disruptiva',
             'descripcion' => 'Creación de soluciones innovadoras con IA',
             'estado' => 'aprobado',
-            'id_evento' => $evento4->id_evento,
         ]);
 
         $equipo5 = Equipo::create([
@@ -182,7 +178,6 @@ class DatabaseSeeder extends Seeder
             'nombre_proyecto' => 'Plataforma Web',
             'descripcion' => 'Desarrollo de aplicaciones web de alto rendimiento',
             'estado' => 'aprobado',
-            'id_evento' => $evento5->id_evento,
         ]);
 
         $equipo6 = Equipo::create([
@@ -190,7 +185,6 @@ class DatabaseSeeder extends Seeder
             'nombre_proyecto' => 'Sistema de Seguridad',
             'descripcion' => 'Especialistas en ciberseguridad y protección de datos',
             'estado' => 'en revisión',
-            'id_evento' => $evento6->id_evento,
         ]);
 
         $equipo7 = Equipo::create([
@@ -198,7 +192,6 @@ class DatabaseSeeder extends Seeder
             'nombre_proyecto' => 'Análisis Predictivo',
             'descripcion' => 'Análisis de datos e inteligencia artificial avanzada',
             'estado' => 'aprobado',
-            'id_evento' => $evento7->id_evento,
         ]);
 
         $equipo8 = Equipo::create([
@@ -206,7 +199,6 @@ class DatabaseSeeder extends Seeder
             'nombre_proyecto' => 'Soluciones Algorítmicas',
             'descripcion' => 'Expertos en resolución de problemas algorítmicos complejos',
             'estado' => 'aprobado',
-            'id_evento' => $evento8->id_evento,
         ]);
 
         $equipo9 = Equipo::create([
@@ -214,7 +206,6 @@ class DatabaseSeeder extends Seeder
             'nombre_proyecto' => 'Arquitectura de Servicios',
             'descripcion' => 'Desarrollo de APIs y arquitectura backend escalable',
             'estado' => 'en revisión',
-            'id_evento' => $evento9->id_evento,
         ]);
 
         $equipo10 = Equipo::create([
@@ -222,8 +213,19 @@ class DatabaseSeeder extends Seeder
             'nombre_proyecto' => 'Juego Interactivo',
             'descripcion' => 'Desarrollo de videojuegos con características avanzadas',
             'estado' => 'aprobado',
-            'id_evento' => $evento10->id_evento,
         ]);
+
+        // Agregar participantes a los equipos
+        $equipo1->participantes()->attach($participante1->id, ['posicion' => 'Líder']);
+        $equipo2->participantes()->attach($participante2->id, ['posicion' => 'Líder']);
+        $equipo3->participantes()->attach($participante3->id, ['posicion' => 'Líder']);
+        $equipo4->participantes()->attach($participante4->id, ['posicion' => 'Líder']);
+        $equipo5->participantes()->attach($participante1->id, ['posicion' => 'Líder']);
+        $equipo6->participantes()->attach($participante2->id, ['posicion' => 'Líder']);
+        $equipo7->participantes()->attach($participante3->id, ['posicion' => 'Líder']);
+        $equipo8->participantes()->attach($participante4->id, ['posicion' => 'Líder']);
+        $equipo9->participantes()->attach($participante1->id, ['posicion' => 'Líder']);
+        $equipo10->participantes()->attach($participante2->id, ['posicion' => 'Líder']);
 
         $this->command->info('✅ Base de datos poblada con datos de prueba!');
         $this->command->info('');

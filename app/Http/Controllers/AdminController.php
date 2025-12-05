@@ -206,8 +206,7 @@ class AdminController extends Controller
             abort(403, 'Acceso no autorizado.');
         }
 
-        $eventos = Evento::orderBy('nombre')->get();
-        return view('admin.equipos.create', compact('eventos'));
+        return view('admin.equipos.create');
     }
 
     /**
@@ -224,7 +223,6 @@ class AdminController extends Controller
             'nombre' => 'required|string|max:255',
             'nombre_proyecto' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'id_evento' => 'required|exists:eventos,id_evento',
             'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'estado' => 'required|in:en revisión,aprobado,rechazado',
         ]);

@@ -76,6 +76,10 @@ Route::middleware(['auth.usuario'])->group(function () {
         'eventos' => 'evento:id_evento'
     ]);
 
+    // Unirse a un evento
+    Route::post('/eventos/{evento}/unirse', [EventoController::class, 'unirse'])
+        ->name('eventos.unirse');
+
     // Equipos
     Route::resource('equipos', EquipoController::class)->parameters([
         'equipos' => 'equipo:id_equipo'

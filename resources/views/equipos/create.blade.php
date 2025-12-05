@@ -26,20 +26,6 @@
                         </div>
 
                         <div class="mb-6">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Evento *</label>
-                            <select name="id_evento"
-                                class="w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                required>
-                                <option value="">Selecciona un evento</option>
-                                @foreach($eventos as $evento)
-                                    <option value="{{ $evento->id_evento }}">
-                                        {{ $evento->nombre }} - {{ $evento->fecha_inicio->format('d/m/Y') }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="mb-6">
                             <label class="block text-sm font-bold text-gray-700 mb-2">Descripción del Equipo *</label>
                             <textarea name="descripcion" rows="4" placeholder="Descripción"
                                 class="w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"></textarea>
@@ -60,6 +46,13 @@
                                     Seleccionar Archivo
                                 </span>
                             </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+                            <p class="text-blue-800 text-sm">
+                                <strong>ℹ️ Nota:</strong> Tu equipo será sometido a revisión por los administradores. 
+                                Una vez aprobado, podrás unirte a los eventos que desees.
+                            </p>
                         </div>
 
                         <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">

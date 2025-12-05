@@ -73,12 +73,7 @@ class EquipoController extends Controller
      */
     public function create()
     {
-        // Obtener solo eventos próximos o activos para crear equipos
-        $eventos = Evento::where('fecha_fin', '>=', Carbon::now())
-            ->orderBy('fecha_inicio', 'asc')
-            ->get();
-
-        return view('equipos.create', compact('eventos'));
+        return view('equipos.create');
     }
 
     /**
@@ -92,14 +87,12 @@ class EquipoController extends Controller
             'nombre_proyecto' => 'required|string|max:255',
             'descripcion' => 'required|string|min:10',
             'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120', // 5MB máximo
-            'id_evento' => 'required|exists:eventos,id_evento',
         ], [
             'nombre.required' => 'El nombre del equipo es obligatorio.',
             'nombre.unique' => 'Ya existe un equipo con ese nombre.',
             'nombre_proyecto.required' => 'El nombre del proyecto es obligatorio.',
             'descripcion.required' => 'La descripción del equipo es obligatoria.',
             'descripcion.min' => 'La descripción debe tener al menos 10 caracteres.',
-            'id_evento.required' => 'Debes seleccionar un evento para el equipo.',
         ]);
 
         // Establecer estado inicial
@@ -110,7 +103,7 @@ class EquipoController extends Controller
             $validated['banner'] = $request->file('banner')->store('equipos/banners', 'public');
         }
 
-        // Crear el equipo
+        // Crear el equipo (sin evento asignado)
         $equipo = Equipo::create($validated);
 
         // Obtener el usuario actual como instancia de Usuario
