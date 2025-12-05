@@ -25,6 +25,8 @@
                                 required>
                         </div>
 
+                        
+
                         <div class="mb-6">
                             <label class="block text-sm font-bold text-gray-700 mb-2">Descripción del Equipo *</label>
                             <textarea name="descripcion" rows="4" placeholder="Descripción"
