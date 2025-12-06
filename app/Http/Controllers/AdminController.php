@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Evento;
+use App\Models\Equipo;
 
 class AdminController extends Controller
 {
@@ -70,7 +70,9 @@ class AdminController extends Controller
             abort(403, 'Acceso no autorizado.');
         }
 
-        return view('admin.equipos');
+        $equipos = Equipo::with('evento')->orderBy('created_at', 'desc')->paginate(10);
+
+        return view('admin.equipos', compact('equipos'));
     }
 
     /**
@@ -118,7 +120,7 @@ class AdminController extends Controller
         $equipo->update(['estado' => $data['estado']]);
 
         // Obtener las estadísticas actualizadas
-        $estadisticas = \DB::table('equipos')
+        $estadisticas = DB::table('equipos')
             ->selectRaw("
                 SUM(CASE WHEN LOWER(TRIM(estado)) = 'en revisión' THEN 1 ELSE 0 END) as en_revision,
                 SUM(CASE WHEN LOWER(TRIM(estado)) = 'aprobado' THEN 1 ELSE 0 END) as aprobado,
@@ -136,60 +138,115 @@ class AdminController extends Controller
         return back()->with('success', 'Estado del equipo actualizado a "' . $data['estado'] . '".');
     }
 
-    // --- AQUÍ ESTÁN LAS FUNCIONES DE CONFIGURACIÓN ---
-
     /**
-     * 1. Guardar Información Personal (Nombre y Correo).
+     * Mostrar formulario para crear un nuevo evento desde el admin.
      */
-    public function updateInfo(Request $request)
+    public function crearEvento()
     {
-        $user = Auth::user();
-
-        if (!$user || !method_exists($user, 'esAdmin') || !$user->esAdmin()) {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
-        ], [
-            'email.unique' => 'Este correo electrónico ya está registrado por otro usuario.',
-        ]);
-
-        // Método estándar de actualización
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-        ]);
-
-        return back()->with('success', 'Información personal actualizada correctamente.');
+        return view('admin.eventos.create');
     }
 
     /**
-     * 2. Guardar Nueva Contraseña.
-     * Esta versión pasa la contraseña SIN usar Hash::make() aquí, 
-     * confiando en que tu modelo User se encarga del hash (evita doble encriptación).
+     * Guardar un nuevo evento desde el admin.
      */
-    public function updatePassword(Request $request)
+    public function guardarEvento(Request $request)
     {
-        $user = Auth::user();
-
-        if (!$user || !method_exists($user, 'esAdmin') || !$user->esAdmin()) {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
 
         $validated = $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'confirmed', Password::defaults()],
-        ], [
-            'current_password.current_password' => 'La contraseña actual es incorrecta.',
-            'password.confirmed' => 'La confirmación de la nueva contraseña no coincide.',
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'reglas' => 'nullable|string',
+            'premios' => 'nullable|string',
+            'otra_informacion' => 'nullable|string',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'estado' => 'required|in:pendiente,publicado',
         ]);
 
-        // Asignación directa sin Hash::make (para evitar doble hash si tu modelo ya lo hace)
-        $user->password = $validated['password'];
-        $user->save();
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('eventos', 'public');
+        }
 
-        return back()->with('success', 'Contraseña actualizada correctamente.');
+        Evento::create($validated);
+
+        return redirect()->route('admin.eventos')->with('success', 'Evento creado exitosamente.');
+    }
+
+    /**
+     * Ver detalles de un evento desde el panel admin.
+     */
+    public function verEvento(Evento $evento)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $evento->load('equipos.participantes');
+        return view('admin.eventos.show', compact('evento'));
+    }
+
+    /**
+     * Mostrar formulario para crear un nuevo equipo desde el admin.
+     */
+    public function crearEquipo()
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        return view('admin.equipos.create');
+    }
+
+    /**
+     * Guardar un nuevo equipo desde el admin.
+     */
+    public function guardarEquipo(Request $request)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'nombre_proyecto' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'estado' => 'required|in:en revisión,aprobado,rechazado',
+        ]);
+
+        if ($request->hasFile('banner')) {
+            $validated['banner'] = $request->file('banner')->store('equipos', 'public');
+        }
+
+        Equipo::create($validated);
+
+        return redirect()->route('admin.equipos')->with('success', 'Equipo creado exitosamente.');
+    }
+
+    /**
+     * Ver detalles de un equipo desde el panel admin.
+     */
+    public function verEquipo(Equipo $equipo)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $equipo->load('evento', 'participantes');
+        return view('admin.equipos.show', compact('equipo'));
     }
 }

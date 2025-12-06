@@ -68,7 +68,7 @@
                 </li>
                 <li>
                     <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.eventos') }}">
-                        <span class="material-symbols-outlined">calendar_month</span>
+                        <span class="material-symbols-outlined">calendar_today</span>
                         <span>Eventos</span>
                     </a>
                 </li>
@@ -79,11 +79,6 @@
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.perfil') }}">
-                        <span class="material-symbols-outlined">person</span>
-                        <span>Perfil</span>
-                    </a>
-                </li>
                 <li>
                     <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.configuracion') }}">
                         <span class="material-symbols-outlined">settings</span>
@@ -110,13 +105,6 @@
             <h2 class="text-4xl font-bold text-text-light dark:text-text-dark">Panel de control</h2>
         </header>
 
-        <!-- Search Bar -->
-        <div class="mb-6">
-            <div class="relative">
-                <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark">search</span>
-                <input class="w-full pl-12 pr-4 py-3 bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent placeholder-text-secondary-light dark:placeholder-text-secondary-dark" placeholder="Buscar eventos" type="text"/>
-            </div>
-        </div>
 
         <!-- Tab Navigation -->
         <div class="border-b border-border-light dark:border-border-dark mb-6">
@@ -149,6 +137,7 @@
                         <table class="min-w-full divide-y divide-border-light dark:divide-border-dark">
                             <thead>
                                 <tr class="text-left text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                                    <th class="px-4 py-3">Nombre del Equipo</th>
                                     <th class="px-4 py-3">Proyecto</th>
                                     <th class="px-4 py-3">Miembros</th>
                                     <th class="px-4 py-3">Estado</th>
@@ -158,6 +147,7 @@
                             <tbody class="bg-white dark:bg-card-dark divide-y divide-border-light dark:divide-border-dark">
                                 @foreach($equipos ?? [] as $equipo)
                                 <tr class="text-sm text-text-light dark:text-text-dark">
+                                    <td class="px-4 py-4">{{ $equipo->nombre }}</td>
                                     <td class="px-4 py-4">{{ $equipo->nombre_proyecto ?: $equipo->nombre }}</td>
                                     <td class="px-4 py-4">{{ $equipo->participantes_count }}</td>
                                     <td class="px-4 py-4">
@@ -167,7 +157,7 @@
                                         </span>
                                     </td>
                                     <td class="px-4 py-4">
-                                        <a href="{{ route('equipos.show', $equipo->id_equipo) }}" class="text-primary mr-4">Ver</a>
+                                        <a href="{{ route('admin.equipos.show', $equipo->id_equipo) }}" class="text-primary mr-4">Ver</a>
                                         @if(auth()->user() && auth()->user()->esAdmin())
                                         <form method="POST" action="{{ route('equipos.update-status', $equipo->id_equipo) }}" class="inline-block ajax-status">
                                             @csrf
@@ -289,8 +279,8 @@
                                         const row = form.closest('tr');
                                         if (row) {
                                             const tds = row.querySelectorAll('td');
-                                            if (tds && tds.length >= 3) {
-                                                const estadoCell = tds[2];
+                                            if (tds && tds.length >= 4) {
+                                                const estadoCell = tds[3];
                                                 const estadoNorm = (nuevoEstado || '').toString().toLowerCase().trim();
                                                 let bg = '#FFFBEB';
                                                 let color = '#92400E';

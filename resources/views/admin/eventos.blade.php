@@ -54,29 +54,39 @@
 <span>Panel de control</span>
 </a>
 <a class="flex items-center gap-3 px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 rounded font-semibold" href="{{ route('admin.eventos') }}">
-<span class="material-symbols-outlined filled">calendar_today</span>
+<span class="material-symbols-outlined">calendar_today</span>
 <span>Eventos</span>
 </a>
 <a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('admin.equipos') }}">
 <span class="material-symbols-outlined">groups</span>
 <span>Equipos</span>
 </a>
-<a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('admin.perfil') }}">
-<span class="material-symbols-outlined">person</span>
-<span>Perfil</span>
-</a>
+
   <a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('admin.configuracion') }}">
     <span class="material-symbols-outlined">settings</span>
     <span>Configuración</span>
   </a>
 </nav>
 </div>
+
+<div class="p-4 border-t border-border-light dark:border-border-dark">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Cerrar sesión</span>
+                </button>
+            </form>
+        </div>
 </aside>
 <main class="flex-1 p-8 overflow-y-auto">
 <div class="max-w-7xl mx-auto">
-<header class="mb-8">
+<header class="mb-8 flex items-center justify-between">
+<div>
 <h2 class="text-4xl font-bold text-slate-900 dark:text-white">Eventos</h2>
 <p class="text-slate-500 dark:text-slate-400 mt-1">Gestiona los eventos</p>
+</div>
+<a href="{{ route('admin.eventos.create') }}" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition font-semibold">Nuevo evento</a>
 </header>
 <div class="relative mb-6">
 <form method="GET" action="{{ route('admin.eventos') }}" class="flex items-center">
@@ -112,7 +122,7 @@
   <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{{ $evento->estado ?? 'pendiente' }}</span>
 </td>
 <td class="p-4">
-  <a href="{{ route('eventos.show', $evento->id_evento) }}" class="font-medium text-primary hover:underline mr-4">Revisar</a>
+  <a href="{{ route('admin.eventos.show', $evento->id_evento) }}" class="font-medium text-primary hover:underline mr-4">Revisar</a>
 
   @if(auth()->user() && auth()->user()->esAdmin())
   <form method="POST" action="{{ route('admin.eventos.update-status', $evento->id_evento) }}" class="inline-block">
