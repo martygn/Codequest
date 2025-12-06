@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
+
 class UserSeeder extends Seeder
 {
     /**
@@ -18,7 +19,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin CodeQuest',
             'username' => 'admin',
             'email' => 'admin@codequest.com',
-            'password' => Hash::make('password'),
+            'password' => 'password',
             'role' => 'admin',
         ]);
 
@@ -27,7 +28,7 @@ class UserSeeder extends Seeder
             'name' => 'Juan Pérez',
             'username' => 'juan',
             'email' => 'juan@codequest.com',
-            'password' => Hash::make('password'),
+            'password' => 'password',
             'role' => 'user',
         ]);
 
@@ -35,7 +36,7 @@ class UserSeeder extends Seeder
             'name' => 'María López',
             'username' => 'maria',
             'email' => 'maria@codequest.com',
-            'password' => Hash::make('password'),
+            'password' => 'password',
             'role' => 'user',
         ]);
 
@@ -43,7 +44,7 @@ class UserSeeder extends Seeder
             'name' => 'Carlos Martínez',
             'username' => 'carlos',
             'email' => 'carlos@codequest.com',
-            'password' => Hash::make('password'),
+            'password' => 'password',
             'role' => 'user',
         ]);
 
@@ -51,7 +52,7 @@ class UserSeeder extends Seeder
             'name' => 'Ana García',
             'username' => 'ana',
             'email' => 'ana@codequest.com',
-            'password' => Hash::make('password'),
+            'password' => 'password',
             'role' => 'user',
         ]);
 
