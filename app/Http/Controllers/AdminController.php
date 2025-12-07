@@ -170,8 +170,10 @@ class AdminController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        // IMPORTANTE: Usamos Hash::make para encriptar la contraseña antes de guardar.
-        $user->password = Hash::make($validated['password']);
+        // Guardar la nueva contraseña. El modelo `Usuario` tiene un mutator
+        // `setPasswordAttribute` que hace el hash, por eso aquí asignamos
+        // la contraseña en texto plano y dejamos que el modelo la encripte.
+        $user->password = $validated['password'];
         $user->save();
 
         return back()->with('success', 'Contraseña actualizada correctamente.');
