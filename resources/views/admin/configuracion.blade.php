@@ -79,34 +79,20 @@
                 </ul>
             </nav>
 
-            {{-- BOTÓN CERRAR SESIÓN (AL FINAL DE LA BARRA) --}}
-            <div class="mt-auto border-t border-border-light dark:border-border-dark pt-4">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
-                        <span class="material-symbols-outlined">logout</span>
-                        <span>Cerrar sesión</span>
-                    </button>
-                </form>
-            </div>
-        </aside>
 
-        {{-- MAIN CONTENT --}}
-        {{-- Agregamos 'md:ml-64' para dejar espacio a la sidebar fija --}}
-        <main class="flex-1 p-10 md:ml-64">
-            <div class="max-w-3xl mx-auto">
-                <h2 class="text-4xl font-bold mb-10 text-text-light-primary dark:text-text-dark-primary">Configuración</h2>
-
-                {{-- MENSAJE DE ÉXITO --}}
-                @if(session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-8 shadow-sm flex items-center gap-3" role="alert">
-                        <span class="material-symbols-outlined">check_circle</span>
-                        <div>
-                            <strong class="font-bold">¡Éxito!</strong>
-                            <span class="block sm:inline">{{ session('success') }}</span>
-                        </div>
-                    </div>
-                @endif
+</aside>
+<main class="flex-1 p-10">
+<div class="max-w-3xl">
+            {{-- Mensaje de Éxito --}}
+            @if(session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-8 shadow-sm" role="alert">
+                    <strong class="font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">check_circle</span>
+                        ¡Éxito!
+                    </strong>
+                    <span class="block sm:inline ml-7">{{ session('success') }}</span>
+                </div>
+            @endif
 
                 {{-- FORMULARIO DE INFORMACIÓN PERSONAL --}}
                 <section class="mb-12 bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-sm">

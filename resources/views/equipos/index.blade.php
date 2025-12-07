@@ -8,10 +8,12 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            <div class="mb-6">
-                <h2 class="text-3xl font-bold text-gray-900">Equipos</h2>
-                <p class="text-gray-500">Gestiona los equipos y sus proyectos</p>
-            </div>
+            {{-- Título y botón en la misma línea --}}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h2 class="text-3xl font-bold text-gray-900">Equipos</h2>
+        <p class="text-gray-500">Gestiona los equipos y sus proyectos</p>
+    </div>
 
             {{-- Botón para agregar equipo para participantes y administradores --}}
             <div class="mb-6 flex justify-end">
@@ -143,18 +145,23 @@
                                             </a>
                                         </div>
                                         <div class="flex space-x-3">
-                                            {{-- Botón Unirse solo para participantes y si no son miembros y hay cupo --}}
-                                            @if(auth()->user()->tipo === 'participante' &&
-                                                !$equipo->tieneMiembro(auth()->id()) &&
-                                                $equipo->participantes()->count() < 4)
-                                                <form action="{{ route('equipos.unirse', $equipo->id_equipo) }}" method="POST" class="inline">
-                                                    @csrf
-                                                    <button type="submit"
-                                                            class="text-green-600 hover:text-green-900 font-bold transition-colors">
-                                                        Unirse
-                                                    </button>
-                                                </form>
-                                            @endif
+                                            {{-- Botón Solicitar Unirse solo para participantes y si no son miembros y hay cupo --}}
+@if(auth()->user()->tipo === 'participante' &&
+    !$equipo->tieneMiembro(auth()->id()) &&
+    !$equipo->tieneSolicitudPendiente(auth()->id()) &&
+    $equipo->participantes()->count() < 4 &&
+    $equipo->estaAprobado())
+    <form action="{{ route('equipos.solicitar-unirse', $equipo->id_equipo) }}" method="POST" class="inline">
+        @csrf
+        <button type="submit"
+                class="text-green-600 hover:text-green-900 font-bold transition-colors">
+            Solicitar unirse
+        </button>
+    </form>
+@elseif(auth()->user()->tipo === 'participante' &&
+        $equipo->tieneSolicitudPendiente(auth()->id()))
+    <span class="text-yellow-600 text-sm">Solicitud enviada</span>
+@endif
                                         </div>
                                     </td>
                                 </tr>

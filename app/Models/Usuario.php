@@ -177,6 +177,37 @@ class Usuario extends Authenticatable
     }
 
     /**
+     * Verificar si el usuario tiene un equipo aprobado para un evento
+     */
+    public function tieneEquipoAprobado()
+    {
+        return $this->equipos()
+            ->where('aprobado', true)
+            ->exists();
+    }
+
+    /**
+     * Verificar si el usuario tiene equipo aprobado en un evento específico
+     */
+    public function tieneEquipoAprobadoEnEvento($eventoId)
+    {
+        return $this->equipos()
+            ->where('aprobado', true)
+            ->where('id_evento', $eventoId)
+            ->exists();
+    }
+
+    /**
+     * Obtener equipos aprobados del usuario
+     */
+    public function equiposAprobados()
+    {
+        return $this->equipos()
+            ->where('aprobado', true)
+            ->get();
+    }
+
+    /**
      * Scope para administradores
      */
     public function scopeAdministradores($query)

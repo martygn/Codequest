@@ -14,20 +14,69 @@ class Equipo extends Model
 
     protected $fillable = [
         'nombre',
-        'nombre_proyecto',
         'descripcion',
-        'banner',
         'id_evento',
-        'estado'
+        'id_lider',
+        'estado',
+        'aprobado',
+        'solicitudes_pendientes',
+        'nombre_proyecto',
+        'banner'
     ];
 
     protected $casts = [
-        'estado' => 'string',
+        'aprobado' => 'boolean',
     ];
 
     /**
+     * Mutator para estado: sincronizar con aprobado
+     */
+    public function setEstadoAttribute($value)
+    {
+        $this->attributes['estado'] = $value;
+
+        // Sincronizar aprobado basado en estado
+        if ($value === 'aprobado') {
+            $this->attributes['aprobado'] = true;
+        } elseif (in_array($value, ['en revisión', 'rechazado'])) {
+            $this->attributes['aprobado'] = false;
+        }
+    }
+
+    /**
+     * Mutator para aprobado: sincronizar con estado
+     */
+    public function setAprobadoAttribute($value)
+    {
+        $this->attributes['aprobado'] = $value;
+
+        // Sincronizar estado basado en aprobado
+        if ($value === true || $value === 1) {
+            $this->attributes['estado'] = 'aprobado';
+        } elseif (($value === false || $value === 0) && $this->attributes['estado'] === 'aprobado') {
+            // Solo cambiar estado si actualmente es "aprobado"
+            $this->attributes['estado'] = 'en revisión';
+        }
+    }
+
+    /**
+     * Obtener solicitudes pendientes como array
+     */
+    public function getSolicitudesPendientesAttribute($value)
+    {
+        return $value ? json_decode($value, true) : [];
+    }
+
+    /**
+     * Establecer solicitudes pendientes
+     */
+    public function setSolicitudesPendientesAttribute($value)
+    {
+        $this->attributes['solicitudes_pendientes'] = json_encode($value);
+    }
+
+    /**
      * Relación con evento (N:1)
-     * Un equipo pertenece a un evento
      */
     public function evento()
     {
@@ -36,7 +85,6 @@ class Equipo extends Model
 
     /**
      * Relación con participantes (N:M)
-     * Un equipo tiene muchos participantes
      */
     public function participantes()
     {
@@ -46,11 +94,11 @@ class Equipo extends Model
     }
 
     /**
-     * Obtener el número de miembros del equipo
+     * Relación con el líder del equipo
      */
-    public function getNumeroMiembrosAttribute()
+    public function lider()
     {
-        return $this->participantes()->count();
+        return $this->belongsTo(Usuario::class, 'id_lider');
     }
 
     /**
@@ -62,16 +110,70 @@ class Equipo extends Model
     }
 
     /**
-     * Obtener la posición de un participante en el equipo
+     * Verificar si el usuario es el líder
      */
-    public function obtenerPosicion($usuarioId)
+    public function esLider($usuarioId)
     {
-        $participante = $this->participantes()->where('usuario_id', $usuarioId)->first();
-        return $participante ? $participante->pivot->posicion : null;
+        return $this->id_lider == $usuarioId;
     }
 
     /**
-     * Verificar si el equipo tiene cupo disponible (máximo 4 miembros)
+     * Agregar solicitud de unión
+     */
+    public function agregarSolicitud($usuarioId)
+    {
+        $solicitudes = $this->solicitudes_pendientes;
+        if (!in_array($usuarioId, $solicitudes)) {
+            $solicitudes[] = $usuarioId;
+            $this->solicitudes_pendientes = $solicitudes;
+            return $this->save();
+        }
+        return false;
+    }
+
+    /**
+     * Aceptar solicitud de unión
+     */
+    public function aceptarSolicitud($usuarioId)
+    {
+        $solicitudes = $this->solicitudes_pendientes;
+        $index = array_search($usuarioId, $solicitudes);
+
+        if ($index !== false) {
+            unset($solicitudes[$index]);
+            $this->solicitudes_pendientes = array_values($solicitudes);
+            return $this->save();
+        }
+        return false;
+    }
+
+    /**
+     * Rechazar solicitud de unión
+     */
+    public function rechazarSolicitud($usuarioId)
+    {
+        return $this->aceptarSolicitud($usuarioId);
+    }
+
+    /**
+     * Verificar si el usuario tiene solicitud pendiente
+     */
+    public function tieneSolicitudPendiente($usuarioId)
+    {
+        $solicitudes = $this->solicitudes_pendientes;
+        return in_array($usuarioId, $solicitudes);
+    }
+
+    /**
+     * Verificar si el equipo está aprobado
+     */
+    public function estaAprobado()
+    {
+        return $this->aprobado == true || $this->aprobado == 1;
+    }
+
+    /**
+     * Verificar si el equipo tiene cupo disponible
      */
     public function tieneCupoDisponible()
     {
@@ -79,78 +181,89 @@ class Equipo extends Model
     }
 
     /**
-     * Obtener la siguiente posición automática según orden de unión
+     * Aprobar equipo
      */
-    public function obtenerSiguientePosicion()
+    public function aprobar()
     {
-        $numeroMiembros = $this->participantes()->count();
-
-        // Mapa de posiciones según el orden de unión
-        $posiciones = [
-            1 => 'Programador Front-end', // Primer participante (después del líder)
-            2 => 'Programador Back-end',  // Segundo participante
-            3 => 'Diseñador'              // Tercer participante
-        ];
-
-        return $posiciones[$numeroMiembros] ?? 'Miembro';
+        $this->aprobado = true;
+        $this->estado = 'aprobado';
+        return $this->save();
     }
 
     /**
-     * Scope para equipos destacados
+     * Rechazar equipo
      */
-    public function scopeDestacados($query)
+    public function rechazar()
     {
-        return $query->withCount('participantes')
-            ->orderBy('participantes_count', 'desc');
+        $this->aprobado = false;
+        $this->estado = 'rechazado';
+        return $this->save();
     }
 
     /**
-     * Scope para filtrar por estado
+     * Verificar si el equipo está en un evento activo
      */
-    public function scopePorEstado($query, $estado)
+    public function estaEnEventoActivo()
     {
-        if ($estado !== 'todos') {
-            return $query->where('estado', $estado);
+        if (!$this->evento) {
+            return false;
         }
-        return $query;
+
+        $now = now();
+        return $now->between($this->evento->fecha_inicio, $this->evento->fecha_fin);
     }
 
     /**
-     * Scope para eventos pasados
+     * Verificar si el usuario puede unirse al equipo
      */
-    public function scopeEventosPasados($query)
+    public function puedeUnirse($usuarioId)
     {
-        return $query->whereHas('evento', function ($q) {
-            $q->where('fecha_fin', '<', now());
-        });
+        if ($this->tieneMiembro($usuarioId)) {
+            return false;
+        }
+
+        if ($this->tieneSolicitudPendiente($usuarioId)) {
+            return false;
+        }
+
+        return $this->tieneCupoDisponible();
     }
 
     /**
-     * Scope para mis eventos (eventos donde el usuario es participante)
+     * Obtener la vista simplificada para admin
      */
-    public function scopeMisEventos($query, $usuarioId)
+    public function getInfoParaAdmin()
     {
-        return $query->whereHas('participantes', function ($q) use ($usuarioId) {
-            $q->where('usuario_id', $usuarioId);
-        });
+        return [
+            'id' => $this->id_equipo,
+            'nombre' => $this->nombre,
+            'nombre_proyecto' => $this->nombre_proyecto,
+            'estado' => $this->estado,
+            'lider' => $this->lider ? $this->lider->nombre_completo : 'Sin líder',
+            'num_miembros' => $this->participantes()->count(),
+            'evento' => $this->evento ? $this->evento->nombre : 'Sin evento',
+            'fecha_creacion' => $this->created_at->format('d/m/Y'),
+        ];
     }
 
     /**
-     * Obtener el líder del equipo
+     * Obtener miembros ordenados por fecha de unión (más antiguo primero)
      */
-    public function lider()
-    {
-        return $this->participantes()->wherePivot('posicion', 'Líder')->first();
-    }
-
-    /**
-     * Verificar si el usuario es el líder del equipo
-     */
-    public function esLider($usuarioId)
+    public function miembrosOrdenados()
     {
         return $this->participantes()
-            ->where('usuario_id', $usuarioId)
-            ->wherePivot('posicion', 'Líder')
-            ->exists();
+            ->orderBy('participante_equipo.created_at')
+            ->get();
+    }
+
+    /**
+     * Obtener el siguiente en línea para liderazgo (excluyendo al líder actual)
+     */
+    public function obtenerSiguienteLider($excluirId)
+    {
+        return $this->participantes()
+            ->where('usuario_id', '!=', $excluirId)
+            ->orderBy('participante_equipo.created_at')
+            ->first();
     }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
             $table->string('nombre_proyecto')->nullable();
             $table->text('descripcion')->nullable();
             $table->string('banner')->nullable();
-            $table->enum('estado', ['en revisión', 'aprobado', 'rechazado'])->default('en revisión'); // Nuevo
+            $table->enum('estado', ['en revisión', 'aprobado', 'rechazado'])->default('en revisión');
             $table->foreignId('id_evento')->constrained('eventos', 'id_evento')->onDelete('cascade');
             $table->timestamps();
 
