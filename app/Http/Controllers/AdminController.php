@@ -4,250 +4,140 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use App\Models\Evento;
 use App\Models\Equipo;
+use App\Models\User; // Asegúrate de importar tu modelo de usuario
 
 class AdminController extends Controller
 {
-    /**
-     * Mostrar la vista de gestión de eventos para administradores.
-     */
+    // --- MÉTODOS DE VISTAS ---
+
     public function eventos()
     {
-        $usuario = Auth::user();
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
 
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
-        // Filtrado por pestañas: 'todos' | 'pendientes' | 'publicados'
         $status = request()->get('status', 'pendientes');
+        $query = Evento::query();
 
-        $query = \App\Models\Evento::query();
+        if ($status === 'pendientes') { $query->where('estado', 'pendiente'); } 
+        elseif ($status === 'publicados') { $query->where('estado', 'publicado'); }
 
-        if ($status === 'pendientes') {
-            $query->where('estado', 'pendiente');
-        } elseif ($status === 'publicados') {
-            $query->where('estado', 'publicado');
-        }
-
-        // Usar paginación para la lista de admin
-        $eventos = $query->orderBy('fecha_inicio', 'desc')
-            ->paginate(10)
-            ->withQueryString();
-
+        $eventos = $query->orderBy('fecha_inicio', 'desc')->paginate(10)->withQueryString();
         return view('admin.eventos', compact('eventos', 'status'));
     }
 
-    /**
-     * Actualizar el estado de un evento (acción rápida desde el panel admin).
-     */
-    public function updateEventoStatus(Request $request, \App\Models\Evento $evento)
+    public function updateEventoStatus(Request $request, Evento $evento)
     {
-        $usuario = Auth::user();
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
-        $data = $request->validate([
-            'estado' => 'required|in:pendiente,publicado'
-        ]);
-
-        $evento->update(['estado' => $data['estado']]);
-
-        return back()->with('success', 'Estado del evento actualizado a "' . $data['estado'] . '".');
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
+        
+        $request->validate(['estado' => 'required|in:pendiente,publicado']);
+        $evento->update(['estado' => $request->estado]);
+        
+        return back()->with('success', 'Estado del evento actualizado.');
     }
 
-    /**
-     * Mostrar la vista de gestión de equipos para administradores.
-     */
     public function equipos()
     {
-        $usuario = Auth::user();
-
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
-        $equipos = Equipo::with('evento')->orderBy('created_at', 'desc')->paginate(10);
-
-        return view('admin.equipos', compact('equipos'));
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
+        return view('admin.equipos');
     }
 
-    /**
-     * Mostrar la vista de perfil del administrador.
-     */
     public function perfil()
     {
-        $usuario = Auth::user();
-
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
         return view('admin.perfil');
     }
 
-    /**
-     * Mostrar la vista de configuración del administrador.
-     */
     public function configuracion()
     {
-        $usuario = Auth::user();
-
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
         return view('admin.configuracion');
     }
 
-    /**
-     * Actualizar el estado de un equipo (acción rápida desde el panel admin).
-     */
-    public function updateEquipoStatus(Request $request, \App\Models\Equipo $equipo)
+    public function updateEquipoStatus(Request $request, Equipo $equipo)
     {
-        $usuario = Auth::user();
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
-        $data = $request->validate([
-            'estado' => 'required|in:en revisión,aprobado,rechazado'
-        ]);
-
-        $equipo->update(['estado' => $data['estado']]);
-
-        // Obtener las estadísticas actualizadas
-        $estadisticas = DB::table('equipos')
-            ->selectRaw("
-                SUM(CASE WHEN LOWER(TRIM(estado)) = 'en revisión' THEN 1 ELSE 0 END) as en_revision,
-                SUM(CASE WHEN LOWER(TRIM(estado)) = 'aprobado' THEN 1 ELSE 0 END) as aprobado,
-                SUM(CASE WHEN LOWER(TRIM(estado)) = 'rechazado' THEN 1 ELSE 0 END) as rechazado
-            ")
-            ->first();
-
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
+        
+        $request->validate(['estado' => 'required|in:en revisión,aprobado,rechazado']);
+        $equipo->update(['estado' => $request->estado]);
+        
         if ($request->expectsJson()) {
-            return response()->json([
-                'estado' => $data['estado'],
-                'estadisticas' => $estadisticas
-            ]);
+            return response()->json(['success' => true]);
         }
-
-        return back()->with('success', 'Estado del equipo actualizado a "' . $data['estado'] . '".');
+        return back()->with('success', 'Estado del equipo actualizado.');
     }
-
-    /**
-     * Mostrar formulario para crear un nuevo evento desde el admin.
-     */
-    public function crearEvento()
-    {
-        $usuario = Auth::user();
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
-        return view('admin.eventos.create');
-    }
-
-    /**
-     * Guardar un nuevo evento desde el admin.
-     */
-    public function guardarEvento(Request $request)
-    {
-        $usuario = Auth::user();
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'reglas' => 'nullable|string',
-            'premios' => 'nullable|string',
-            'otra_informacion' => 'nullable|string',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'estado' => 'required|in:pendiente,publicado',
-        ]);
-
-        if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('eventos', 'public');
-        }
-
-        Evento::create($validated);
-
-        return redirect()->route('admin.eventos')->with('success', 'Evento creado exitosamente.');
-    }
-
-    /**
-     * Ver detalles de un evento desde el panel admin.
-     */
-    public function verEvento(Evento $evento)
-    {
-        $usuario = Auth::user();
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
-        $evento->load('equipos.participantes');
-        return view('admin.eventos.show', compact('evento'));
-    }
-
-    /**
-     * Mostrar formulario para crear un nuevo equipo desde el admin.
-     */
-    public function crearEquipo()
-    {
-        $usuario = Auth::user();
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
-        return view('admin.equipos.create');
-    }
-
-    /**
-     * Guardar un nuevo equipo desde el admin.
-     */
-    public function guardarEquipo(Request $request)
-    {
-        $usuario = Auth::user();
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
-
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'nombre_proyecto' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'estado' => 'required|in:en revisión,aprobado,rechazado',
-        ]);
-
-        if ($request->hasFile('banner')) {
-            $validated['banner'] = $request->file('banner')->store('equipos', 'public');
-        }
-
-        Equipo::create($validated);
-
-        return redirect()->route('admin.equipos')->with('success', 'Equipo creado exitosamente.');
-    }
-
-    /**
-     * Ver detalles de un equipo desde el panel admin.
+        /**
+     * Mostrar detalles de un equipo específico
      */
     public function verEquipo(Equipo $equipo)
     {
-        $usuario = Auth::user();
+        $usuario = auth()->user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
 
+        // Cargar relaciones necesarias
         $equipo->load('evento', 'participantes');
+
         return view('admin.equipos.show', compact('equipo'));
+    }
+
+    // --- MÉTODOS DE ACTUALIZACIÓN DE PERFIL Y CONTRASEÑA ---
+
+    /**
+     * 1. Guardar Información Personal (Nombre y Correo).
+     */
+    public function updateInfo(Request $request)
+    {
+        $user = auth()->user();
+
+        // 1. Validamos los 3 campos de nombre + el email
+        $validated = $request->validate([
+            'nombre' => ['required', 'string', 'max:255'],
+            'apellido_paterno' => ['required', 'string', 'max:255'],
+            'apellido_materno' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:usuarios,correo,' . $user->id],
+        ]);
+
+        // 2. Guardamos cada dato en su columna correcta de la BD
+        $user->forceFill([
+            'nombre' => $validated['nombre'],
+            'apellido_paterno' => $validated['apellido_paterno'],
+            'apellido_materno' => $validated['apellido_materno'],
+            'correo' => $validated['email'], // El input 'email' va a la columna 'correo'
+        ])->save();
+
+        return back()->with('success', 'Información personal actualizada correctamente.');
+    }
+    /**
+     * 2. Guardar Nueva Contraseña.
+     */
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user || !method_exists($user, 'esAdmin') || !$user->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $validated = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+        ]);
+
+        // IMPORTANTE: Usamos Hash::make para encriptar la contraseña antes de guardar.
+        $user->password = Hash::make($validated['password']);
+        $user->save();
+
+        return back()->with('success', 'Contraseña actualizada correctamente.');
     }
 }

@@ -8,18 +8,16 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            {{-- Título y botón en la misma línea --}}
-<div class="flex justify-between items-center mb-6">
-    <div>
-        <h2 class="text-3xl font-bold text-gray-900">Equipos</h2>
-        <p class="text-gray-500">Gestiona los equipos y sus proyectos</p>
-    </div>
+            {{-- Título y botón en la misma línea (responsive) --}}
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900">Equipos</h2>
+                    <p class="text-gray-600 mt-1">Gestiona los equipos y sus proyectos</p>
+                </div>
 
-            {{-- Botón para agregar equipo para participantes y administradores --}}
-            <div class="mb-6 flex justify-end">
                 <a href="{{ route('equipos.create') }}"
-                   class="inline-flex items-center px-6 py-3 bg-blue-600 border border-transparent rounded-md font-bold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-md transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     Crear Nuevo Equipo
@@ -27,10 +25,11 @@
             </div>
 
             {{-- Filtros y búsqueda --}}
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 border border-gray-200">
-                <div class="p-6 bg-white">
+            <div class="bg-white shadow-sm sm:rounded-lg mb-8 border border-gray-200">
+                <div class="p-6">
 
-                    <form method="GET" action="{{ route('equipos.index') }}" class="mb-6 relative">
+                    {{-- Buscador --}}
+                    <form method="GET" action="{{ route('equipos.index') }}" class="mb-8">
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,41 +37,41 @@
                                 </svg>
                             </div>
                             <input type="text" name="search" value="{{ request('search') }}"
-                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                placeholder="Buscar equipos o proyectos">
+                                   class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
+                                   placeholder="Buscar equipos o proyectos">
                         </div>
                     </form>
 
+                    {{-- Pestañas de filtro --}}
                     <div class="flex space-x-8 border-b border-gray-200">
                         @php
                             $currentFilter = request('filtro', 'todos');
                         @endphp
 
                         <a href="{{ route('equipos.index', ['filtro' => 'todos']) }}"
-                           class="pb-3 px-1 border-b-2 font-medium text-sm transition-colors duration-200
-                           {{ $currentFilter == 'todos' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                           class="pb-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200
+                           {{ $currentFilter === 'todos' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             Todos los equipos
                         </a>
                         <a href="{{ route('equipos.index', ['filtro' => 'mis_eventos']) }}"
-                           class="pb-3 px-1 border-b-2 font-medium text-sm transition-colors duration-200
-                           {{ $currentFilter == 'mis_eventos' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                           class="pb-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200
+                           {{ $currentFilter === 'mis_eventos' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             Mis equipos
                         </a>
                         <a href="{{ route('equipos.index', ['filtro' => 'eventos_pasados']) }}"
-                           class="pb-3 px-1 border-b-2 font-medium text-sm transition-colors duration-200
-                           {{ $currentFilter == 'eventos_pasados' ? 'border-black text-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                           class="pb-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200
+                           {{ $currentFilter === 'eventos_pasados' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
                             Equipos pasados
                         </a>
                     </div>
-
                 </div>
             </div>
 
             {{-- Tabla de equipos --}}
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
+            <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200 overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-white">
+                        <thead class="bg-gray-50">
                             <tr>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
                                     Nombre del equipo
@@ -107,29 +106,28 @@
                                         {{ $equipo->nombre_proyecto ?? 'Sin proyecto' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $equipo->evento->nombre ?? 'Sin evento' }}
+                                        {{ $equipo->evento?->nombre ?? 'Sin evento' }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
                                         @php
                                             $estadoColors = [
                                                 'en revisión' => 'bg-yellow-100 text-yellow-800',
-                                                'aprobado' => 'bg-green-100 text-green-800',
-                                                'rechazado' => 'bg-red-100 text-red-800',
+                                                'aprobado'    => 'bg-green-100 text-green-800',
+                                                'rechazado'   => 'bg-red-100 text-red-800',
                                             ];
                                         @endphp
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full
-                                            {{ $estadoColors[$equipo->estado] ?? 'bg-gray-100 text-gray-800' }}">
-                                            {{ ucfirst($equipo->estado) }}
+                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $estadoColors[$equipo->estado] ?? 'bg-gray-100 text-gray-800' }}">
+                                            {{ ucfirst(str_replace('_', ' ', $equipo->estado)) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                                         @php
                                             $totalMiembros = $equipo->participantes()->count();
                                         @endphp
                                         <span class="inline-flex items-center">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <svg class="w-5 h-5 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9A6.5 6.5 0 0112 3.5 6.5 6.5 0 0118.5 10z"></path>
+                                                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9A6.5 6.5 0 0112 3.5 6.5 6.5 0 0118.5 10z"/>
                                             </svg>
                                             {{ $totalMiembros }} / 4
                                         </span>
@@ -137,37 +135,35 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {{ $equipo->created_at->format('d/m/Y') }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <div class="flex space-x-3">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-y-2">
+                                        <div>
                                             <a href="{{ route('equipos.show', $equipo->id_equipo) }}"
                                                class="text-blue-600 hover:text-blue-900 font-bold transition-colors">
                                                 Ver
                                             </a>
                                         </div>
-                                        <div class="flex space-x-3">
-                                            {{-- Botón Solicitar Unirse solo para participantes y si no son miembros y hay cupo --}}
-@if(auth()->user()->tipo === 'participante' &&
-    !$equipo->tieneMiembro(auth()->id()) &&
-    !$equipo->tieneSolicitudPendiente(auth()->id()) &&
-    $equipo->participantes()->count() < 4 &&
-    $equipo->estaAprobado())
-    <form action="{{ route('equipos.solicitar-unirse', $equipo->id_equipo) }}" method="POST" class="inline">
-        @csrf
-        <button type="submit"
-                class="text-green-600 hover:text-green-900 font-bold transition-colors">
-            Solicitar unirse
-        </button>
-    </form>
-@elseif(auth()->user()->tipo === 'participante' &&
-        $equipo->tieneSolicitudPendiente(auth()->id()))
-    <span class="text-yellow-600 text-sm">Solicitud enviada</span>
-@endif
-                                        </div>
+
+                                        {{-- Solicitar unirse --}}
+                                        @if(auth()->user()->tipo === 'participante' &&
+                                            !$equipo->tieneMiembro(auth()->id()) &&
+                                            !$equipo->tieneSolicitudPendiente(auth()->id()) &&
+                                            $equipo->participantes()->count() < 4 &&
+                                            $equipo->estaAprobado())
+                                            <form action="{{ route('equipos.solicitar-unirse', $equipo->id_equipo) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit"
+                                                        class="text-green-600 hover:text-green-900 font-bold transition-colors">
+                                                    Solicitar unirse
+                                                </button>
+                                            </form>
+                                        @elseif(auth()->user()->tipo === 'participante' && $equipo->tieneSolicitudPendiente(auth()->id()))
+                                            <span class="text-yellow-600 text-sm font-medium">Solicitud enviada</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-10 text-center text-gray-500">
+                                    <td colspan="7" class="px-6 py-16 text-center text-gray-500">
                                         No se encontraron equipos en esta sección.
                                     </td>
                                 </tr>
@@ -176,7 +172,8 @@
                     </table>
                 </div>
 
-                <div class="px-6 py-4 border-t border-gray-200">
+                {{-- Paginación --}}
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
                     {{ $equipos->links() }}
                 </div>
             </div>

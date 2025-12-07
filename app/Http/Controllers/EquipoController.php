@@ -728,7 +728,7 @@ public function aprobar(Equipo $equipo)
     /**
      * Permite al usuario salir de su equipo.
      */
-    public function salir(Request $request)
+    public function abandonarEquipo(Request $request)
     {
         /** @var \App\Models\Usuario $user */
         $user = Auth::user();

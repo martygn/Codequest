@@ -289,4 +289,32 @@ class EventoController extends Controller
 
         return back()->with('success', '¡Tu equipo se ha inscrito exitosamente en el evento!');
     }
+    /**
+     * Muestra los eventos donde participa el usuario.
+     */
+    public function misEventos()
+    {
+        $usuario = Auth::user();
+
+        // 1. Obtener los eventos (Esto ya lo tenías)
+        $misEventos = Evento::whereHas('equipos.participantes', function($query) use ($usuario) {
+            $query->where('usuario_id', $usuario->id);
+        })->get();
+
+        // 2. Obtener el equipo del usuario (Para corregir el error Undefined variable $miEquipo)
+        // Buscamos el primer equipo donde esté el usuario
+        $miEquipo = Equipo::whereHas('participantes', function($q) use ($usuario) {
+            $q->where('usuario_id', $usuario->id);
+        })->first();
+
+        // 3. Determinar si es líder (Para la variable $soyLider que también pide la vista)
+        $soyLider = false;
+        if ($miEquipo) {
+            // Asumiendo que usas 'id_lider' en la tabla equipos
+            $soyLider = $miEquipo->id_lider === $usuario->id;
+        }
+
+        // 4. Enviamos las TRES variables a la vista
+        return view('player.eventos', compact('misEventos', 'miEquipo', 'soyLider'));
+    }
 }
