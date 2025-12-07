@@ -62,13 +62,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/equipos/{equipo}/expulsar/{usuario}', [EquipoController::class, 'expulsarMiembro'])->name('equipos.expulsar-miembro');
     
     // Ruta auxiliar para buscar equipos
-    Route::get('/equipos/buscar', [EquipoController::class, 'index'])->name('equipos.index'); 
+    Route::get('/equipos/buscar', [EquipoController::class, 'index'])->name('equipos.buscar'); 
 
     // C. MIS EVENTOS (Usando EventoController)
     Route::get('/mis-eventos', [EventoController::class, 'misEventos'])->name('player.eventos');
     
     // Ruta auxiliar para ver eventos disponibles
-    Route::get('/eventos/disponibles', [EventoController::class, 'index'])->name('eventos.index');
+    Route::get('/eventos/disponibles', [EventoController::class, 'disponibles'])->name('eventos.disponibles');
 
     // ==========================================
     //       RUTAS DE RECURSOS (CRUDs)

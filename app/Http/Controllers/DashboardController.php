@@ -6,6 +6,7 @@ use App\Models\Evento;
 use App\Models\Equipo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -16,7 +17,7 @@ class DashboardController extends Controller
     public function index()
     {
         // Obtener usuario autenticado
-        $usuario = auth()->user();
+        $usuario = Auth::user();
 
         if (!$usuario) {
             return redirect()->route('login');

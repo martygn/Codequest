@@ -49,11 +49,19 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('web')->logout();
+        try {
+            Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-        return redirect('/');
+            return redirect('/')->with('status', 'Sesión cerrada correctamente.');
+        } catch (\Exception $e) {
+            Log::error('Error al cerrar sesión: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect('/')->withErrors('Error al cerrar sesión.');
+        }
     }
 }

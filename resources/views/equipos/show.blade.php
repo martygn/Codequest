@@ -13,7 +13,11 @@
                 @if($equipo->banner)
                     <img src="{{ asset('storage/' . $equipo->banner) }}"
                          alt="Banner del equipo {{ $equipo->nombre }}"
-                         class="w-full h-64 object-cover">
+                         class="w-full h-64 object-cover"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="w-full h-64 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center hidden">
+                        <h1 class="text-4xl font-bold text-white">{{ $equipo->nombre }}</h1>
+                    </div>
                 @else
                     <div class="w-full h-64 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                         <h1 class="text-4xl font-bold text-white">{{ $equipo->nombre }}</h1>

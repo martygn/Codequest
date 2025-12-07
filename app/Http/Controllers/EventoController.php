@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Evento;
 use App\Models\Equipo; // Necesario para la función misEventos
+use App\Models\Usuario; // Necesario para obtener el usuario actual
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth; // Necesario para obtener el usuario actual
@@ -189,7 +190,7 @@ class EventoController extends Controller
         }
 
         // Obtener el usuario actual
-        $usuario = Usuario::find(Auth::id());
+        $usuario = Auth::user();
 
         // Verificar si el usuario tiene un equipo
         $equipoUsuario = Equipo::whereHas('participantes', function ($q) use ($usuario) {

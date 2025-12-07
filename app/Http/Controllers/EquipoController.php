@@ -104,7 +104,9 @@ class EquipoController extends Controller
         // 1. Es administrador
         // 2. Es miembro del equipo
         // 3. El equipo está aprobado (cualquiera puede verlo)
-        $puedeVer = $usuario->esAdministrador() || $equipo->tieneMiembro($usuario->id) || $equipo->estado === 'aprobado';
+        // 4. Es un participante que quiere unirse (puede ver incluso si no está aprobado)
+        $esParticipante = $usuario->esParticipante();
+        $puedeVer = $usuario->esAdministrador() || $equipo->tieneMiembro($usuario->id) || $equipo->estado === 'aprobado' || $esParticipante;
 
         if (!$puedeVer) {
             abort(403, 'No tienes permiso para ver este equipo.');

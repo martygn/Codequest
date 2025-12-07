@@ -127,12 +127,32 @@
                 @endforelse
 
                 <div class="mt-10 flex justify-end">
-                    <form method="POST" action="{{ route('profile.destroy') }}" onsubmit="return confirm('¿Seguro? Esta acción es irreversible.');">
-                        @csrf @method('delete')
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded shadow">
-                            Eliminar Cuenta
-                        </button>
-                    </form>
+                    <button type="button" onclick="openConfirmModal('eliminarCuenta')" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded shadow">
+                        Eliminar Cuenta
+                    </button>
+
+                    <!-- Modal de Confirmación -->
+                    <div id="eliminarCuenta" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="if(event.target === this) closeConfirmModal('eliminarCuenta')">
+                        <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4" onclick="event.stopPropagation()">
+                            <div class="px-6 py-4 border-b border-gray-200">
+                                <h3 class="text-lg font-bold text-gray-900">Eliminar Cuenta</h3>
+                            </div>
+                            <div class="px-6 py-4">
+                                <p class="text-gray-700">¿Seguro de que deseas eliminar tu cuenta? Esta acción es irreversible y se perderán todos tus datos.</p>
+                            </div>
+                            <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                                <button type="button" onclick="closeConfirmModal('eliminarCuenta')" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 font-semibold transition">
+                                    Cancelar
+                                </button>
+                                <form method="POST" action="{{ route('profile.destroy') }}" class="inline">
+                                    @csrf @method('delete')
+                                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold transition">
+                                        Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Evento;
 use App\Models\Equipo;
 
@@ -15,7 +16,7 @@ class AdminController extends Controller
      */
     public function eventos()
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
 
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
@@ -45,7 +46,7 @@ class AdminController extends Controller
      */
     public function updateEventoStatus(Request $request, \App\Models\Evento $evento)
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
@@ -64,7 +65,7 @@ class AdminController extends Controller
      */
     public function equipos()
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
 
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
@@ -80,7 +81,7 @@ class AdminController extends Controller
      */
     public function perfil()
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
 
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
@@ -94,7 +95,7 @@ class AdminController extends Controller
      */
     public function configuracion()
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
 
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
@@ -108,7 +109,7 @@ class AdminController extends Controller
      */
     public function updateEquipoStatus(Request $request, \App\Models\Equipo $equipo)
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
@@ -143,7 +144,7 @@ class AdminController extends Controller
      */
     public function crearEvento()
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
@@ -156,7 +157,7 @@ class AdminController extends Controller
      */
     public function guardarEvento(Request $request)
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
@@ -187,7 +188,7 @@ class AdminController extends Controller
      */
     public function verEvento(Evento $evento)
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
@@ -201,7 +202,7 @@ class AdminController extends Controller
      */
     public function crearEquipo()
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
@@ -214,7 +215,7 @@ class AdminController extends Controller
      */
     public function guardarEquipo(Request $request)
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
@@ -241,7 +242,7 @@ class AdminController extends Controller
      */
     public function verEquipo(Equipo $equipo)
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
             abort(403, 'Acceso no autorizado.');
         }
