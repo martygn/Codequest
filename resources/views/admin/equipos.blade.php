@@ -75,7 +75,7 @@
 <h2 class="text-4xl font-bold text-gray-900 dark:text-white">Equipos</h2>
 <p class="mt-2 text-gray-500 dark:text-gray-400">Gestiona los equipos y sus proyectos</p>
 </div>
-<a href="{{ route('admin.equipos.create') }}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-semibold">Nuevo equipo</a>
+<!-- <a href="{{ route('admin.equipos.create') }}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-semibold">Nuevo equipo</a> -->
 </header>
 <div class="mb-6 flex items-center justify-between">
 <div class="relative w-1/3">

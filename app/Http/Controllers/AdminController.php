@@ -43,9 +43,29 @@ class AdminController extends Controller
 
     public function equipos()
     {
-        $usuario = auth()->user();
-        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
-        return view('admin.equipos');
+    $usuario = auth()->user();
+    if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+        abort(403, 'Acceso no autorizado.');
+    }
+
+    $query = \App\Models\Equipo::with('evento');
+
+    // Búsqueda
+    if ($search = request('search')) {
+        $query->where(function($q) use ($search) {
+            $q->where('nombre', 'like', "%{$search}%")
+              ->orWhere('nombre_proyecto', 'like', "%{$search}%");
+        });
+    }
+
+    // Filtro por estado
+    if ($estado = request('estado')) {
+        $query->where('estado', $estado);
+    }
+
+    $equipos = $query->orderBy('created_at', 'desc')->paginate(15)->withQueryString();
+
+    return view('admin.equipos', compact('equipos'));
     }
 
     public function perfil()
