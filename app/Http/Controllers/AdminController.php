@@ -111,6 +111,22 @@ class AdminController extends Controller
         return view('admin.equipos.show', compact('equipo'));
     }
 
+    /**
+     * Mostrar detalles de un evento específico (panel admin).
+     */
+    public function verEvento(Evento $evento)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        // Cargar relaciones necesarias: equipos y sus participantes
+        $evento->load('equipos.participantes');
+
+        return view('admin.eventos.show', compact('evento'));
+    }
+
     // --- MÉTODOS DE ACTUALIZACIÓN DE PERFIL Y CONTRASEÑA ---
 
     /**

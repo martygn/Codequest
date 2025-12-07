@@ -102,12 +102,17 @@
                             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
                                 <p class="font-bold">✅ Ya tienes un equipo inscrito en este evento.</p>
                             </div>
-                        @elseif($tieneEquipoAprobado)
-                            {{-- Tiene equipo aprobado pero no en este evento --}}
+                        @elseif($tieneEquipoAprobado && $evento->estado === 'publicado')
+                            {{-- Tiene equipo aprobado pero no en este evento y el evento está publicado --}}
                             <a href="{{ route('eventos.inscribir-equipo', $evento->id_evento) }}"
                             class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-200">
                                 Inscribir mi equipo en este evento
                             </a>
+                        @elseif($tieneEquipoAprobado && $evento->estado !== 'publicado')
+                            {{-- Evento pendiente: no se puede inscribir aún --}}
+                            <div class="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded">
+                                <p class="font-bold">⚠️ Este evento aún no ha sido publicado. Solo podrás inscribir equipos cuando se publique.</p>
+                            </div>
                         @else
                             {{-- No tiene ningún equipo aprobado --}}
                             <div class="flex flex-col items-end">

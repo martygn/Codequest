@@ -73,6 +73,15 @@
                                             <a href="{{ route('eventos.show', $evento->id_evento) }}" class="block w-full text-center bg-gray-50 hover:bg-indigo-600 hover:text-white text-indigo-700 font-bold py-2 rounded-lg border border-gray-200 hover:border-indigo-600 transition-all duration-200">
                                                 Ver Detalles
                                             </a>
+                                            @if(isset($equiposPorEvento) && isset($equiposPorEvento[$evento->id_evento]) && $equiposPorEvento[$evento->id_evento]->id_lider == auth()->id())
+                                                @php $equipoInscrito = $equiposPorEvento[$evento->id_evento]; @endphp
+                                                <form action="{{ route('equipos.quitar-evento', $equipoInscrito) }}" method="POST" class="mt-2">
+                                                    @csrf
+                                                    <button type="submit" class="w-full text-center bg-red-50 hover:bg-red-600 hover:text-white text-red-700 font-bold py-2 rounded-lg border border-red-200 hover:border-red-600 transition-all duration-200">
+                                                        Salir del evento
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

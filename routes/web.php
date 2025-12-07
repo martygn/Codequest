@@ -99,6 +99,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/equipos/{equipo}/aceptar-solicitud/{usuario}', [EquipoController::class, 'aceptarSolicitudLider'])->name('equipos.aceptar-solicitud-lider');
     Route::post('/equipos/{equipo}/rechazar-solicitud/{usuario}', [EquipoController::class, 'rechazarSolicitudLider'])->name('equipos.rechazar-solicitud-lider');
     Route::post('/equipos/{equipo}/salir', [EquipoController::class, 'salir'])->name('equipos.salir');
+    // Ruta para que el líder desasocie el equipo del evento (Mis Eventos -> Salir del evento)
+    Route::post('/equipos/{equipo}/quitar-evento', [EquipoController::class, 'quitarEvento'])->name('equipos.quitar-evento');
 
     // ==========================================
     //      PERFIL DE LARAVEL (Breeze)
