@@ -6,6 +6,7 @@ use App\Models\Evento;
 use App\Models\Equipo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth; // Necesario para obtener el usuario actual
 
 class EventoController extends Controller
 {
@@ -13,14 +14,14 @@ class EventoController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    // 1. Iniciar la consulta
-    $query = Evento::query();
+    {
+        // 1. Iniciar la consulta
+        $query = Evento::query();
 
-    // 2. Lógica del Buscador (Si el usuario escribió algo)
-    if ($request->filled('search')) {
-        $query->where('nombre', 'like', '%' . $request->search . '%');
-    }
+        // 2. Lógica del Buscador (Si el usuario escribió algo)
+        if ($request->filled('search')) {
+            $query->where('nombre', 'like', '%' . $request->search . '%');
+        }
 
     // 3. Lógica de Pestañas (Estado)
     // Recibimos 'status' de la URL, si no existe, por defecto es 'todos'
@@ -31,15 +32,15 @@ class EventoController extends Controller
         $query->where('estado', $status);
     }
 
-    // 4. Obtener resultados (Ordenados por fecha de inicio)
-    $eventos = $query->orderBy('fecha_inicio', 'desc')
-                     ->paginate(10) // 10 ítems por página se ve mejor en tablas
-                     ->withQueryString(); // Mantiene los filtros al cambiar de página
+        // 4. Obtener resultados (Ordenados por fecha de inicio)
+        $eventos = $query->orderBy('fecha_inicio', 'desc')
+                        ->paginate(10) // 10 ítems por página
+                        ->withQueryString(); // Mantiene los filtros al cambiar de página
 
-    // 5. Retornar vista con los datos y el estado actual para marcar la pestaña activa
-    $currentStatus = $status; // Alias para compatibilidad con la vista
-    return view('eventos.index', compact('eventos', 'currentStatus'));
-}
+        // 5. Retornar vista con los datos y el estado actual para marcar la pestaña activa
+        $currentStatus = $status;
+        return view('eventos.index', compact('eventos', 'currentStatus'));
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -70,14 +71,19 @@ class EventoController extends Controller
         $validated['estado'] = 'pendiente';
     }
 
-    if ($request->hasFile('foto')) {
-        $validated['foto'] = $request->file('foto')->store('eventos', 'public');
+        // Si no viene estado en el request, forzamos 'pendiente'
+        if (empty($validated['estado'])) {
+            $validated['estado'] = 'pendiente';
+        }
+
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('eventos', 'public');
+        }
+
+        Evento::create($validated);
+
+        return redirect()->route('eventos.index')->with('success', 'Evento creado exitosamente.');
     }
-
-    Evento::create($validated);
-
-    return redirect()->route('eventos.index')->with('success', 'Evento creado exitosamente.');
-}
 
     /**
      * Display the specified resource.

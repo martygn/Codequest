@@ -16,7 +16,8 @@ use App\Http\Controllers\AdminController;
 |--------------------------------------------------------------------------
 */
 
-// Redirección inicial
+// --- RUTAS PÚBLICAS / INICIALES ---
+
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -24,10 +25,10 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Rutas de autenticación (Breeze/Default)
+// Rutas de autenticación predeterminadas (Breeze)
 require __DIR__.'/auth.php';
 
-// Rutas de autenticación OAuth (Social)
+// Rutas de autenticación Social (Google/Facebook)
 Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 Route::get('/auth/facebook', [SocialAuthController::class, 'redirectToFacebook'])->name('auth.facebook');
@@ -91,9 +92,15 @@ Route::middleware(['auth'])->group(function () {
     // Salir del equipo
     Route::post('/equipos/{equipo}/salir', [EquipoController::class, 'salir'])->name('equipos.salir');
 
-    // ===============================================
-    //      RUTAS DE ADMINISTRADOR
-    // ===============================================
+    // Perfil estándar de Laravel
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+    // ==========================================
+    //          RUTAS DE ADMINISTRADOR
+    // ==========================================
     Route::middleware(['is.admin'])->group(function () {
         // Vistas principales Admin
         Route::get('/admin/eventos', [AdminController::class, 'eventos'])->name('admin.eventos');

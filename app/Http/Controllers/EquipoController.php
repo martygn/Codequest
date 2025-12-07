@@ -32,7 +32,6 @@ class EquipoController extends Controller
         $query->where('aprobado', true);
     }
 
-        // Filtros basados en las pestañas
         $filtro = $request->get('filtro', 'todos');
 
         switch ($filtro) {
@@ -67,9 +66,6 @@ class EquipoController extends Controller
         return view('equipos.index', compact('equipos', 'filtro'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         // No mostrar eventos en el formulario de creación
@@ -452,15 +448,10 @@ public function aprobar(Equipo $equipo)
         return back()->with('success', '✅ Evento asignado al equipo exitosamente.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Equipo $equipo)
     {
-        // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar que el usuario sea miembro del equipo o administrador
         if (!$equipo->tieneMiembro($usuario->id) && !$usuario->esAdministrador()) {
             abort(403, 'No tienes permiso para editar este equipo.');
         }
@@ -472,20 +463,14 @@ public function aprobar(Equipo $equipo)
         return view('equipos.edit', compact('equipo', 'eventos'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Equipo $equipo)
     {
-        // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar que el usuario sea miembro del equipo o administrador
         if (!$equipo->tieneMiembro($usuario->id) && !$usuario->esAdministrador()) {
             abort(403, 'No tienes permiso para editar este equipo.');
         }
 
-        // Validación de datos
         $validated = $request->validate([
             'nombre' => 'required|string|max:255|unique:equipos,nombre,' . $equipo->id_equipo . ',id_equipo',
             'nombre_proyecto' => 'required|string|max:255',
@@ -499,91 +484,68 @@ public function aprobar(Equipo $equipo)
             'descripcion.required' => 'La descripción del equipo es obligatoria.',
         ]);
 
-        // Manejar la carga del nuevo banner
         if ($request->hasFile('banner')) {
-            // Eliminar banner anterior si existe
             if ($equipo->banner && Storage::disk('public')->exists($equipo->banner)) {
                 Storage::disk('public')->delete($equipo->banner);
             }
             $validated['banner'] = $request->file('banner')->store('equipos/banners', 'public');
         }
 
-        // Actualizar el equipo
         $equipo->update($validated);
 
         return redirect()->route('equipos.show', $equipo->id_equipo)
             ->with('success', '✅ Equipo actualizado exitosamente.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Equipo $equipo)
     {
-        // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar que el usuario sea administrador o líder del equipo
         if (!$usuario->esAdministrador() &&
             !$equipo->participantes()->where('usuario_id', $usuario->id)->where('posicion', 'Líder')->exists()) {
             abort(403, 'Solo los administradores o el líder del equipo pueden eliminarlo.');
         }
 
-        // Eliminar banner si existe
         if ($equipo->banner && Storage::disk('public')->exists($equipo->banner)) {
             Storage::disk('public')->delete($equipo->banner);
         }
 
-        // Eliminar el equipo (las relaciones se eliminarán por cascade)
         $equipo->delete();
 
         return redirect()->route('equipos.index')
             ->with('success', '🗑️ Equipo eliminado exitosamente.');
     }
 
-    /**
-     * Método para que un participante se una a un equipo
-     */
     public function unirse(Equipo $equipo)
     {
-        // Obtener el usuario actual
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar autenticación
         if (!$usuario) {
             return redirect()->route('login');
         }
 
-        // Verificar que solo participantes puedan unirse
         if ($usuario->tipo !== 'participante') {
             abort(403, 'Solo los participantes pueden unirse a equipos.');
         }
 
-        // Verificar que el usuario no sea ya miembro
         if ($equipo->tieneMiembro($usuario->id)) {
             return back()->with('error', '❌ Ya eres miembro de este equipo.');
         }
 
-        // Verificar límite de miembros (máximo 4 incluyendo al líder)
         if ($equipo->participantes()->count() >= 4) {
             return back()->with('error', '❌ El equipo ya tiene el máximo de miembros permitido (4).');
         }
 
-        // Determinar la posición automática según el orden de unión
         $numeroDeMiembros = $equipo->participantes()->count();
-
-        // Mapa de posiciones según el orden de unión (excluyendo al líder)
         $posiciones = [
-            1 => 'Programador Front-end', // Primer participante en unirse
-            2 => 'Programador Back-end',  // Segundo participante en unirse
-            3 => 'Diseñador'              // Tercer participante en unirse
+            1 => 'Programador Front-end',
+            2 => 'Programador Back-end',
+            3 => 'Diseñador'
         ];
 
-        // Obtener la posición correspondiente
-        $indice = $numeroDeMiembros; // El líder es el miembro 0, el primero en unirse será miembro 1
+        $indice = $numeroDeMiembros; 
         $posicion = $posiciones[$indice] ?? 'Miembro';
 
-        // Agregar al usuario como participante con la posición automática
         $equipo->participantes()->attach($usuario->id, [
             'posicion' => $posicion
         ]);
@@ -592,15 +554,10 @@ public function aprobar(Equipo $equipo)
             ->with('success', "✅ ¡Te has unido al equipo exitosamente como {$posicion}!");
     }
 
-    /**
-     * Update the status of a team (for administrators).
-     */
     public function updateStatus(Request $request, Equipo $equipo)
     {
-        // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Solo administradores pueden cambiar el estado del equipo
         if (!$usuario->esAdministrador()) {
             abort(403, 'Solo los administradores pueden cambiar el estado del equipo.');
         }
@@ -615,7 +572,6 @@ public function aprobar(Equipo $equipo)
         $equipo->aprobado = ($estado === 'aprobado'); // true si es 'aprobado', false si no
         $equipo->save();
 
-        // Si la petición espera JSON (AJAX), retornar conteos actualizados
         if ($request->wantsJson() || $request->ajax() || $request->header('Accept') === 'application/json') {
             $totales = Equipo::selectRaw(
                 "SUM(CASE WHEN LOWER(TRIM(estado)) = 'en revisión' THEN 1 ELSE 0 END) as en_revision,"
@@ -639,15 +595,10 @@ public function aprobar(Equipo $equipo)
         return back()->with('success', '✅ Estado del equipo actualizado a "' . ucfirst($request->estado) . '".');
     }
 
-    /**
-     * Agregar un participante al equipo
-     */
     public function agregarParticipante(Request $request, Equipo $equipo)
     {
-        // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar permisos
         if (!$equipo->tieneMiembro($usuario->id) && !$usuario->esAdministrador()) {
             abort(403, 'No tienes permiso para agregar participantes a este equipo.');
         }
@@ -657,17 +608,14 @@ public function aprobar(Equipo $equipo)
             'posicion' => 'required|string|max:255'
         ]);
 
-        // Verificar que el usuario no sea ya miembro
         if ($equipo->tieneMiembro($validated['usuario_id'])) {
             return back()->with('error', '❌ Este usuario ya es miembro del equipo.');
         }
 
-        // Verificar límite de participantes (ejemplo: máximo 5)
         if ($equipo->participantes()->count() >= 5) {
             return back()->with('error', '❌ El equipo ya tiene el máximo de participantes permitido (5).');
         }
 
-        // Agregar participante
         $equipo->participantes()->attach($validated['usuario_id'], [
             'posicion' => $validated['posicion']
         ]);
@@ -675,25 +623,18 @@ public function aprobar(Equipo $equipo)
         return back()->with('success', '✅ Participante agregado exitosamente.');
     }
 
-    /**
-     * Remover un participante del equipo
-     */
     public function removerParticipante(Equipo $equipo, $usuarioId)
     {
-        // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar permisos
         if (!$equipo->tieneMiembro($usuario->id) && !$usuario->esAdministrador()) {
             abort(403, 'No tienes permiso para remover participantes de este equipo.');
         }
 
-        // Verificar que el usuario sea miembro
         if (!$equipo->tieneMiembro($usuarioId)) {
             return back()->with('error', '❌ Este usuario no es miembro del equipo.');
         }
 
-        // Verificar que no se elimine al último líder
         $esLider = $equipo->participantes()
             ->where('usuario_id', $usuarioId)
             ->where('posicion', 'Líder')
@@ -703,21 +644,15 @@ public function aprobar(Equipo $equipo)
             return back()->with('error', '❌ No puedes eliminar al único líder del equipo.');
         }
 
-        // Remover participante
         $equipo->participantes()->detach($usuarioId);
 
         return back()->with('success', '✅ Participante removido exitosamente.');
     }
 
-    /**
-     * Actualizar la posición de un participante
-     */
     public function actualizarPosicion(Request $request, Equipo $equipo, $usuarioId)
     {
-        // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar permisos
         if (!$equipo->tieneMiembro($usuario->id) && !$usuario->esAdministrador()) {
             abort(403, 'No tienes permiso para actualizar posiciones en este equipo.');
         }
@@ -726,7 +661,6 @@ public function aprobar(Equipo $equipo)
             'posicion' => 'required|string|max:255'
         ]);
 
-        // Actualizar posición
         $equipo->participantes()->updateExistingPivot($usuarioId, [
             'posicion' => $request->posicion
         ]);
@@ -734,15 +668,10 @@ public function aprobar(Equipo $equipo)
         return back()->with('success', '✅ Posición actualizada exitosamente.');
     }
 
-    /**
-     * Exportar lista de equipos a CSV
-     */
     public function exportarCSV()
     {
-        // Obtener el usuario actual como instancia de Usuario
         $usuario = Usuario::find(Auth::id());
 
-        // Solo administradores pueden exportar
         if (!$usuario->esAdministrador()) {
             abort(403, 'No tienes permiso para exportar la lista de equipos.');
         }
