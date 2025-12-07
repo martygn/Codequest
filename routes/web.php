@@ -16,7 +16,8 @@ use App\Http\Controllers\AdminController;
 |--------------------------------------------------------------------------
 */
 
-// Redirección inicial
+// --- RUTAS PÚBLICAS / INICIALES ---
+
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -24,105 +25,67 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Rutas de autenticación (Breeze/Default)
+// Rutas de autenticación predeterminadas (Breeze)
 require __DIR__.'/auth.php';
 
-// Rutas de autenticación OAuth (Social)
+// Rutas de autenticación Social (Google/Facebook)
 Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 Route::get('/auth/facebook', [SocialAuthController::class, 'redirectToFacebook'])->name('auth.facebook');
 Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFacebookCallback']);
 
-// Rutas Públicas/Semi-públicas de Equipos (si se requiere acceso antes de login, dejarlas fuera del auth)
-Route::get('/equipos/crear', [EquipoController::class, 'create'])->name('equipos.create');
-Route::post('/equipos', [EquipoController::class, 'store'])->name('equipos.store');
-
-// --- GRUPO DE RUTAS PROTEGIDAS (Requiere Login) ---
-// Nota: Usamos 'auth' estándar. Si tu middleware personalizado se llama 'auth.usuario', cámbialo aquí.
+// --- GRUPO DE RUTAS PROTEGIDAS (USUARIOS LOGUEADOS) ---
 Route::middleware(['auth'])->group(function () {
     
-    // Dashboard General
+    // 1. DASHBOARD GENERAL
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Admin routes (requieren además ser admin)
-    Route::get('/admin/eventos', [AdminController::class, 'eventos'])->name('admin.eventos')->middleware('is.admin');
-    Route::get('/admin/eventos/crear', [AdminController::class, 'crearEvento'])->name('admin.eventos.create')->middleware('is.admin');
-    Route::post('/admin/eventos', [AdminController::class, 'guardarEvento'])->name('admin.eventos.store')->middleware('is.admin');
-    Route::get('/admin/eventos/{evento}/detalles', [AdminController::class, 'verEvento'])->name('admin.eventos.show')->middleware('is.admin');
-    Route::get('/admin/equipos', [AdminController::class, 'equipos'])->name('admin.equipos')->middleware('is.admin');
-    Route::get('/admin/equipos/crear', [AdminController::class, 'crearEquipo'])->name('admin.equipos.create')->middleware('is.admin');
-    Route::post('/admin/equipos', [AdminController::class, 'guardarEquipo'])->name('admin.equipos.store')->middleware('is.admin');
-    Route::get('/admin/equipos/{equipo}/detalles', [AdminController::class, 'verEquipo'])->name('admin.equipos.show')->middleware('is.admin');
-    Route::get('/admin/perfil', [AdminController::class, 'perfil'])->name('admin.perfil')->middleware('is.admin');
-    Route::get('/admin/configuracion', [AdminController::class, 'configuracion'])->name('admin.configuracion')->middleware('is.admin');
+    // ==========================================
+    //       RUTAS DEL JUGADOR / USUARIO
+    // ==========================================
+    
+    // A. MI PERFIL (Usando UserProfileController)
+    Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('player.perfil');
+    Route::put('/mi-perfil', [UserProfileController::class, 'update'])->name('player.perfil.update');
 
-    // Endpoint para estadísticas de equipos (usado por el panel admin)
-    Route::get('/admin/api/equipos/stats', [DashboardController::class, 'equiposStats'])
-        ->name('admin.equipos.stats')
-        ->middleware('is.admin');
+    // B. MIS EQUIPOS (Usando EquipoController)
+    Route::get('/mis-equipos', [EquipoController::class, 'misEquipos'])->name('player.equipos');
+    Route::post('/mis-equipos/salir', [EquipoController::class, 'salir'])->name('player.equipos.salir');
+    
+    // Ruta auxiliar para buscar equipos
+    Route::get('/equipos/buscar', [EquipoController::class, 'index'])->name('equipos.index'); 
 
-    // Ruta para actualizar estado de un evento desde el panel admin
-    Route::patch('/admin/eventos/{evento}/status', [AdminController::class, 'updateEventoStatus'])
-        ->name('admin.eventos.update-status')
-        ->middleware('is.admin');
+    // C. MIS EVENTOS (Usando EventoController)
+    Route::get('/mis-eventos', [EventoController::class, 'misEventos'])->name('player.eventos');
+    
+    // Ruta auxiliar para ver eventos disponibles
+    Route::get('/eventos/disponibles', [EventoController::class, 'index'])->name('eventos.index');
 
-    // Ruta para actualizar estado de un equipo desde el panel admin
-    Route::patch('/equipos/{equipo}/status', [AdminController::class, 'updateEquipoStatus'])
-        ->name('equipos.update-status')
-        ->middleware('is.admin');
+    // ==========================================
+    //       RUTAS DE RECURSOS (CRUDs)
+    // ==========================================
 
-    // Eventos
-    Route::resource('eventos', EventoController::class)->parameters([
-        'eventos' => 'evento:id_evento'
-    ]);
-
-    // Unirse a un evento
-    Route::post('/eventos/{evento}/unirse', [EventoController::class, 'unirse'])
-        ->name('eventos.unirse');
-
-    // Equipos
-    Route::resource('equipos', EquipoController::class)->parameters([
-        'equipos' => 'equipo:id_equipo'
-    ]);
-
-    // Ruta para unirse a un equipo
-    Route::post('/equipos/{equipo}/unirse', [EquipoController::class, 'unirse'])
-        ->name('equipos.unirse');
-
-    // Endpoint para estadísticas de equipos (usado por el panel admin)
-    Route::get('/admin/api/equipos/stats', [DashboardController::class, 'equiposStats'])
-        ->name('admin.equipos.stats')
-        ->middleware('is.admin');
-
-    // Gestión de participantes
-    Route::post('/equipos/{equipo}/participantes', [EquipoController::class, 'agregarParticipante'])
-        ->name('equipos.participantes.agregar');
-        
-    Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])
-        ->name('equipos.participantes.remover');
-});
-
-
-// FALTABA ESTA LÍNEA DE APERTURA:
-Route::middleware('auth')->group(function () { 
-
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('profile.custom');
-
-    // Recursos Eventos y Equipos
+    // Eventos y Equipos (Operaciones estándar)
     Route::resource('eventos', EventoController::class)->parameters(['eventos' => 'evento:id_evento']);
     Route::resource('equipos', EquipoController::class)->parameters(['equipos' => 'equipo:id_equipo']);
 
-    // Funciones específicas de equipos
+    // Acciones específicas de Eventos
+    Route::post('/eventos/{evento}/unirse', [EventoController::class, 'unirse'])->name('eventos.unirse');
+
+    // Acciones específicas de Equipos
     Route::post('/equipos/{equipo}/unirse', [EquipoController::class, 'unirse'])->name('equipos.unirse');
     Route::post('/equipos/{equipo}/participantes', [EquipoController::class, 'agregarParticipante'])->name('equipos.participantes.agregar');
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])->name('equipos.participantes.remover');
 
-    // ===============================================
-    //      RUTAS DE ADMINISTRADOR
-    // ===============================================
+    // Perfil estándar de Laravel
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+    // ==========================================
+    //          RUTAS DE ADMINISTRADOR
+    // ==========================================
     Route::middleware(['is.admin'])->group(function () {
         
         // Vistas principales Admin
@@ -130,19 +93,30 @@ Route::middleware('auth')->group(function () {
         Route::get('/admin/equipos', [AdminController::class, 'equipos'])->name('admin.equipos');
         Route::get('/admin/perfil', [AdminController::class, 'perfil'])->name('admin.perfil');
         
-        // --- CONFIGURACIÓN ADMIN ---
+        // --- CONFIGURACIÓN ADMIN (CORREGIDO AQUI) ---
         // 1. Vista del formulario
         Route::get('/admin/configuracion', [AdminController::class, 'configuracion'])->name('admin.configuracion');
         
-        // 2. Ruta para actualizar Info (Nombre/Email) - IMPORTANTE: Coincide con el HTML
+        // 2. Ruta para actualizar Info (Nombre/Email)
+        // CAMBIO: Nombre ajustado para coincidir con el formulario blade (admin.updateInfo)
         Route::put('/admin/configuracion/info', [AdminController::class, 'updateInfo'])->name('admin.updateInfo');
         
-        // 3. Ruta para cambiar Contraseña - IMPORTANTE: Coincide con el HTML
+        // 3. Ruta para cambiar Contraseña
+        // CAMBIO: Nombre ajustado para coincidir con el formulario blade (admin.updatePassword)
         Route::put('/admin/configuracion/password', [AdminController::class, 'updatePassword'])->name('admin.updatePassword');
 
         // Acciones Rápidas y API Admin
         Route::get('/admin/api/equipos/stats', [DashboardController::class, 'equiposStats'])->name('admin.equipos.stats');
         Route::patch('/admin/eventos/{evento}/status', [AdminController::class, 'updateEventoStatus'])->name('admin.eventos.update-status');
         Route::patch('/equipos/{equipo}/status', [AdminController::class, 'updateEquipoStatus'])->name('equipos.update-status');
+        
+        // CRUDs específicos Admin (Crear Eventos/Equipos desde admin)
+        Route::get('/admin/eventos/crear', [AdminController::class, 'crearEvento'])->name('admin.eventos.create');
+        Route::post('/admin/eventos', [AdminController::class, 'guardarEvento'])->name('admin.eventos.store');
+        Route::get('/admin/eventos/{evento}/detalles', [AdminController::class, 'verEvento'])->name('admin.eventos.show');
+        
+        Route::get('/admin/equipos/crear', [AdminController::class, 'crearEquipo'])->name('admin.equipos.create');
+        Route::post('/admin/equipos', [AdminController::class, 'guardarEquipo'])->name('admin.equipos.store');
+        Route::get('/admin/equipos/{equipo}/detalles', [AdminController::class, 'verEquipo'])->name('admin.equipos.show');
     });
 });

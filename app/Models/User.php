@@ -17,13 +17,15 @@ class User extends Authenticatable
 
     /**
      * Los atributos que se pueden llenar masivamente.
-     * Usamos SOLO los nombres reales de la BD.
+     * AQUI AGREGAMOS TUS APELLIDOS y CORREGIMOS LA CONTRASEÑA.
      */
     protected $fillable = [
-        'nombre',   // Columna Real
+        'nombre',
+        'apellido_paterno', // Nuevo: Para guardar el apellido paterno
+        'apellido_materno', // Nuevo: Para guardar el apellido materno
         'username',
-        'correo',   // Columna Real
-        'password',
+        'correo',
+        'contrasena',       // Corregido: Tu BD usa 'contrasena', no 'password'
         'role',
     ];
 
@@ -31,7 +33,7 @@ class User extends Authenticatable
      * Atributos ocultos.
      */
     protected $hidden = [
-        'password',
+        'contrasena', // Ocultamos la columna real
         'remember_token',
     ];
 
@@ -47,13 +49,20 @@ class User extends Authenticatable
 
     /*
     |--------------------------------------------------------------------------
-    | COMPATIBILIDAD DE LECTURA (Solo Getters)
+    | CONFIGURACIÓN DE AUTENTICACIÓN (IMPORTANTE)
     |--------------------------------------------------------------------------
-    | Mantenemos esto para que Auth::user()->name y Auth::user()->email
-    | sigan funcionando en tus Vistas HTML.
-    |
-    | HEMOS ELIMINADO LOS "SETTERS" para obligar a que el guardado sea
-    | directo a las columnas 'nombre' y 'correo', evitando duplicaciones.
+    */
+    
+    // Le dice a Laravel que tu columna de contraseña se llama 'contrasena'
+    public function getAuthPasswordName()
+    {
+        return 'contrasena';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | COMPATIBILIDAD DE LECTURA (Getters)
+    |--------------------------------------------------------------------------
     */
 
     // Permite leer $user->name (devuelve 'nombre' de la BD)

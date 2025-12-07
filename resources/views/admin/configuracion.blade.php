@@ -42,38 +42,42 @@
     </script>
 </head>
 <body class="font-display bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary">
-<div class="flex min-h-screen">
-<aside class="w-64 p-6 shrink-0">
-<h1 class="text-2xl font-bold mb-12">CodeQuest</h1>
-<nav>
-<ul class="space-y-2">
-<li>
-<a class="flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="{{ route('dashboard') }}">
-<span class="material-symbols-outlined">home</span>
-<span>Panel de control</span>
-</a>
-</li>
-<li>
-<a class="flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="{{ route('admin.eventos') }}">
-<span class="material-symbols-outlined">calendar_today</span>
-<span>Eventos</span>
-</a>
-</li>
-<li>
-<a class="flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="{{ route('admin.equipos') }}">
-<span class="material-symbols-outlined">groups</span>
-<span>Equipos</span>
-</a>
-</li>
-
-<li>
-<a class="flex items-center gap-3 px-4 py-2 rounded bg-surface-light dark:bg-surface-dark font-semibold text-text-light-primary dark:text-text-dark-primary transition-colors" href="{{ route('admin.configuracion') }}">
-<span class="material-symbols-outlined">settings</span>
-<span>Configuración</span>
-</a>
-</li>
-</ul>
-</nav>
+    <div class="flex min-h-screen">
+        
+        {{-- SIDEBAR (BARRA LATERAL) --}}
+        {{-- Agregamos 'flex flex-col' para poder empujar el logout hacia abajo --}}
+        <aside class="w-64 p-6 shrink-0 border-r border-border-light dark:border-border-dark hidden md:flex flex-col fixed h-full bg-background-light dark:bg-background-dark z-10">
+            <h1 class="text-2xl font-bold mb-12 text-primary">CodeQuest</h1>
+            
+            {{-- Menú de Navegación --}}
+            <nav class="flex-1">
+                <ul class="space-y-2">
+                    <li>
+                        <a class="flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="{{ route('dashboard') }}">
+                            <span class="material-symbols-outlined">home</span>
+                            <span>Panel de control</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="{{ route('admin.eventos') }}">
+                            <span class="material-symbols-outlined">calendar_today</span>
+                            <span>Eventos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="{{ route('admin.equipos') }}">
+                            <span class="material-symbols-outlined">groups</span>
+                            <span>Equipos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="flex items-center gap-3 px-4 py-2 rounded bg-surface-light dark:bg-surface-dark font-semibold text-text-light-primary dark:text-text-dark-primary transition-colors" href="{{ route('admin.configuracion') }}">
+                            <span class="material-symbols-outlined">settings</span>
+                            <span>Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
 
 </aside>
@@ -90,113 +94,146 @@
                 </div>
             @endif
 
-            <section class="mb-12 bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-sm">
-                <h3 class="text-2xl font-bold mb-6 text-text-light-primary dark:text-text-dark-primary flex items-center gap-2">
-                    <span class="material-symbols-outlined">badge</span> Información Personal
-                </h3>
-                
-                {{-- IMPORTANTE: Ruta debe coincidir con web.php --}}
-                <form action="{{ route('admin.updateInfo') }}" method="POST" class="space-y-6">
-                    @csrf
-                    @method('PUT')
+                {{-- FORMULARIO DE INFORMACIÓN PERSONAL --}}
+                <section class="mb-12 bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-sm">
+                    <h3 class="text-2xl font-bold mb-6 text-text-light-primary dark:text-text-dark-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined">badge</span> Información Personal
+                    </h3>
                     
-                    <div>
-                        <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="nombre">Nombre</label>
-                        {{-- IMPORTANTE: name="name" --}}
-                        <input 
-                            class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-light-secondary placeholder:dark:text-text-dark-secondary focus:ring-primary focus:border-primary transition-all" 
-                            id="nombre" 
-                            name="name" 
-                            value="{{ old('name', auth()->user()->name) }}" 
-                            type="text"
-                            required
-                        />
-                        @error('name')
-                            <p class="text-primary text-sm mt-1 font-medium">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <form action="{{ route('admin.updateInfo') }}" method="POST" class="space-y-6">
+                        @csrf
+                        @method('PUT')
+                        
+                        {{-- 1. Campo Nombre --}}
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="nombre">Nombre</label>
+                            <input 
+                                class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-light-secondary placeholder:dark:text-text-dark-secondary focus:ring-primary focus:border-primary transition-all" 
+                                id="nombre" 
+                                name="nombre" 
+                                value="{{ old('nombre', auth()->user()->nombre) }}" 
+                                type="text"
+                                required
+                            />
+                            @error('nombre')
+                                <p class="text-primary text-sm mt-1 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="email">Correo electrónico</label>
-                        {{-- IMPORTANTE: name="email" --}}
-                        <input 
-                            class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-light-secondary placeholder:dark:text-text-dark-secondary focus:ring-primary focus:border-primary transition-all" 
-                            id="email" 
-                            name="email" 
-                            value="{{ old('email', auth()->user()->email) }}" 
-                            type="email"
-                            required
-                        />
-                        @error('email')
-                            <p class="text-primary text-sm mt-1 font-medium">{{ $message }}</p>
-                        @enderror
-                    </div>
+                        {{-- 2. Campo Apellido Paterno --}}
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="apellido_paterno">Apellido Paterno</label>
+                            <input 
+                                class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-light-secondary placeholder:dark:text-text-dark-secondary focus:ring-primary focus:border-primary transition-all" 
+                                id="apellido_paterno" 
+                                name="apellido_paterno" 
+                                value="{{ old('apellido_paterno', auth()->user()->apellido_paterno) }}" 
+                                type="text"
+                                required
+                            />
+                            @error('apellido_paterno')
+                                <p class="text-primary text-sm mt-1 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                    <div>
-                        <button class="bg-primary text-white font-semibold py-2 px-6 rounded hover:bg-opacity-90 transition-all shadow-md active:scale-95" type="submit">
-                            Guardar Información
-                        </button>
-                    </div>
-                </form>
-            </section>
+                        {{-- 3. Campo Apellido Materno --}}
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="apellido_materno">Apellido Materno</label>
+                            <input 
+                                class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-light-secondary placeholder:dark:text-text-dark-secondary focus:ring-primary focus:border-primary transition-all" 
+                                id="apellido_materno" 
+                                name="apellido_materno" 
+                                value="{{ old('apellido_materno', auth()->user()->apellido_materno) }}" 
+                                type="text"
+                                required
+                            />
+                            @error('apellido_materno')
+                                <p class="text-primary text-sm mt-1 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-            <section class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-sm">
-                <h3 class="text-2xl font-bold mb-6 text-text-light-primary dark:text-text-dark-primary flex items-center gap-2">
-                    <span class="material-symbols-outlined">lock</span> Seguridad de la Cuenta
-                </h3>
-                
-                <form action="{{ route('admin.updatePassword') }}" method="POST" class="space-y-6">
-                    @csrf
-                    @method('PUT')
+                        {{-- 4. Campo Email --}}
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="email">Correo electrónico</label>
+                            <input 
+                                class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark placeholder:text-text-light-secondary placeholder:dark:text-text-dark-secondary focus:ring-primary focus:border-primary transition-all" 
+                                id="email" 
+                                name="email" 
+                                value="{{ old('email', auth()->user()->email) }}" 
+                                type="email"
+                                required
+                            />
+                            @error('email')
+                                <p class="text-primary text-sm mt-1 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                    <div>
-                        <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="current_password">Contraseña Actual</label>
-                        <input 
-                            class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary focus:ring-primary focus:border-primary transition-all" 
-                            id="current_password" 
-                            name="current_password" 
-                            type="password" 
-                            required
-                        />
-                        @error('current_password')
-                            <p class="text-primary text-sm mt-1 font-medium">{{ $message }}</p>
-                        @enderror
-                    </div>
+                        <div>
+                            <button class="bg-primary text-white font-semibold py-2 px-6 rounded hover:bg-opacity-90 transition-all shadow-md active:scale-95" type="submit">
+                                Guardar Información
+                            </button>
+                        </div>
+                    </form>
+                </section>
 
-                    <div class="border-t border-border-light dark:border-border-dark pt-4">
-                        <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="new_password">Nueva Contraseña</label>
-                        <input 
-                            class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary focus:ring-primary focus:border-primary transition-all" 
-                            id="new_password" 
-                            name="password" 
-                            type="password" 
-                            required
-                        />
-                        @error('password')
-                            <p class="text-primary text-sm mt-1 font-medium">{{ $message }}</p>
-                        @enderror
-                    </div>
+                {{-- FORMULARIO DE PASSWORD --}}
+                <section class="bg-surface-light dark:bg-surface-dark p-6 rounded-lg shadow-sm">
+                    <h3 class="text-2xl font-bold mb-6 text-text-light-primary dark:text-text-dark-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined">lock</span> Seguridad de la Cuenta
+                    </h3>
+                    
+                    <form action="{{ route('admin.updatePassword') }}" method="POST" class="space-y-6">
+                        @csrf
+                        @method('PUT')
 
-                    <div>
-                        <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="confirm_password">Confirmar Nueva Contraseña</label>
-                        <input 
-                            class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary focus:ring-primary focus:border-primary transition-all" 
-                            id="confirm_password" 
-                            name="password_confirmation" 
-                            type="password" 
-                            required
-                        />
-                    </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="current_password">Contraseña Actual</label>
+                            <input 
+                                class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary focus:ring-primary focus:border-primary transition-all" 
+                                id="current_password" 
+                                name="current_password" 
+                                type="password" 
+                                required
+                            />
+                            @error('current_password')
+                                <p class="text-primary text-sm mt-1 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                    <div>
-                        <button class="bg-primary text-white font-semibold py-2 px-6 rounded hover:bg-opacity-90 transition-all shadow-md active:scale-95" type="submit">
-                            Actualizar Contraseña
-                        </button>
-                    </div>
-                </form>
-            </section>
-        </div>
-    </main>
-</div>
+                        <div class="border-t border-border-light dark:border-border-dark pt-4">
+                            <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="new_password">Nueva Contraseña</label>
+                            <input 
+                                class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary focus:ring-primary focus:border-primary transition-all" 
+                                id="new_password" 
+                                name="password" 
+                                type="password" 
+                                required
+                            />
+                            @error('password')
+                                <p class="text-primary text-sm mt-1 font-medium">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2 text-text-light-secondary dark:text-text-dark-secondary" for="confirm_password">Confirmar Nueva Contraseña</label>
+                            <input 
+                                class="w-full max-w-md rounded border border-border-light dark:border-border-dark bg-background-light dark:bg-background-dark text-text-light-primary dark:text-text-dark-primary focus:ring-primary focus:border-primary transition-all" 
+                                id="confirm_password" 
+                                name="password_confirmation" 
+                                type="password" 
+                                required
+                            />
+                        </div>
+
+                        <div>
+                            <button class="bg-primary text-white font-semibold py-2 px-6 rounded hover:bg-opacity-90 transition-all shadow-md active:scale-95" type="submit">
+                                Actualizar Contraseña
+                            </button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
 </body>
 </html>
