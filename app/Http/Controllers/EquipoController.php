@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Log;
+use Carbon\Carbon;
 use App\Models\Equipo;
 use App\Models\Evento;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class EquipoController extends Controller
 {
@@ -18,11 +19,18 @@ class EquipoController extends Controller
      */
     public function index(Request $request)
     {
-        $usuario = Usuario::find(Auth::id());
+        // Obtener el usuario actual
+    $usuario = Usuario::find(Auth::id());
 
-        $query = Equipo::with('evento')
-            ->withCount('participantes')
-            ->orderBy('created_at', 'desc');
+    // Iniciar consulta con relaciones y conteo de participantes
+    $query = Equipo::with('evento')
+        ->withCount('participantes')
+        ->orderBy('created_at', 'desc');
+
+    // Solo mostrar equipos aprobados para usuarios normales
+    if (!$usuario->esAdministrador()) {
+        $query->where('aprobado', true);
+    }
 
         $filtro = $request->get('filtro', 'todos');
 
@@ -35,7 +43,7 @@ class EquipoController extends Controller
 
             case 'eventos_pasados':
                 $query->whereHas('evento', function ($q) {
-                    $q->where('fecha_fin', '<', Carbon::now());
+                    $q->where('fecha_fin', '<', now());
                 });
                 break;
 
@@ -44,14 +52,12 @@ class EquipoController extends Controller
                 break;
         }
 
+        // Búsqueda
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('nombre_proyecto', 'like', "%{$search}%")
-                  ->orWhereHas('evento', function ($eventoQuery) use ($search) {
-                      $eventoQuery->where('nombre', 'like', "%{$search}%");
-                  });
+                  ->orWhere('nombre_proyecto', 'like', "%{$search}%");
             });
         }
 
@@ -62,50 +68,384 @@ class EquipoController extends Controller
 
     public function create()
     {
+        // No mostrar eventos en el formulario de creación
         return view('equipos.create');
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255|unique:equipos,nombre',
-            'nombre_proyecto' => 'required|string|max:255',
-            'descripcion' => 'required|string|min:10',
-            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
-        ], [
-            'nombre.required' => 'El nombre del equipo es obligatorio.',
-            'nombre.unique' => 'Ya existe un equipo con ese nombre.',
-            'nombre_proyecto.required' => 'El nombre del proyecto es obligatorio.',
-            'descripcion.required' => 'La descripción del equipo es obligatoria.',
-            'descripcion.min' => 'La descripción debe tener al menos 10 caracteres.',
-        ]);
+    /**
+ * Store a newly created resource in storage.
+ */
+public function store(Request $request)
+{
+    // Validación de datos corregida
+    $validated = $request->validate([
+        'nombre' => 'required|string|max:255|unique:equipos',
+        'nombre_proyecto' => 'required|string|max:255',
+        'descripcion' => 'required|string|min:10',
+        'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+    ]);
 
-        $validated['estado'] = 'en revisión';
+    // Establecer al creador como líder automáticamente
+    $validated['id_lider'] = Auth::id();
+    $validated['estado'] = 'en revisión';
+    $validated['aprobado'] = false;
 
-        if ($request->hasFile('banner')) {
-            $validated['banner'] = $request->file('banner')->store('equipos/banners', 'public');
-        }
-
-        $equipo = Equipo::create($validated);
-        $usuario = Usuario::find(Auth::id());
-        $equipo->participantes()->attach($usuario->id, ['posicion' => 'Líder']);
-
-        return redirect()->route('equipos.show', $equipo->id_equipo)
-            ->with('success', '🎉 ¡Equipo creado exitosamente! Tu equipo está ahora en revisión.');
+    // Manejar la carga del banner
+    if ($request->hasFile('banner')) {
+        $validated['banner'] = $request->file('banner')->store('equipos/banners', 'public');
     }
 
+    // Crear el equipo
+    try {
+        $equipo = Equipo::create($validated);
+
+        // Agregar al creador como participante (líder)
+        $equipo->participantes()->attach(Auth::id(), ['posicion' => 'Líder']);
+
+        \Log::info('Equipo creado exitosamente', [
+            'equipo_id' => $equipo->id_equipo,
+            'usuario_id' => Auth::id(),
+            'nombre' => $equipo->nombre
+        ]);
+
+        return redirect()->route('equipos.show', $equipo->id_equipo)
+            ->with('success', '🎉 ¡Equipo creado exitosamente! Tu equipo está ahora en revisión y será visible después de ser aprobado por un administrador.');
+
+    } catch (\Exception $e) {
+        \Log::error('Error al crear equipo', [
+            'error' => $e->getMessage(),
+            'usuario_id' => Auth::id(),
+            'data' => $validated
+        ]);
+
+        return back()->with('error', '❌ Ocurrió un error al crear el equipo. Por favor, intenta nuevamente.')
+                    ->withInput();
+    }
+}
+
+    /**
+     * Display the specified resource.
+     */
     public function show(Equipo $equipo)
     {
-        $equipo->load(['evento', 'participantes']);
+        $equipo->load(['evento', 'participantes', 'lider']);
+
+        // Obtener el usuario actual
         $usuario = Usuario::find(Auth::id());
 
-        if (!$usuario->esAdministrador() && !$equipo->tieneMiembro($usuario->id)) {
-            if ($equipo->estado !== 'aprobado') {
-                abort(403, 'No tienes permiso para ver este equipo.');
-            }
+        // Verificar permisos
+        if (!$equipo->estaAprobado() && !$usuario->esAdministrador() && !$equipo->esLider($usuario->id)) {
+            abort(403, 'Este equipo está en revisión.');
         }
 
         return view('equipos.show', compact('equipo'));
+    }
+
+    /**
+     * Solicitar unirse a un equipo
+     */
+    public function solicitarUnirse(Equipo $equipo)
+    {
+        $usuario = Usuario::find(Auth::id());
+
+        if (!$usuario || $usuario->tipo !== 'participante') {
+            abort(403, 'Solo los participantes pueden unirse a equipos.');
+        }
+
+        // Verificar si ya es miembro
+        if ($equipo->tieneMiembro($usuario->id)) {
+            return back()->with('error', '❌ Ya eres miembro de este equipo.');
+        }
+
+        // Verificar si ya tiene solicitud pendiente
+        if ($equipo->tieneSolicitudPendiente($usuario->id)) {
+            return back()->with('error', '❌ Ya has enviado una solicitud para unirte a este equipo.');
+        }
+
+        // Verificar cupo disponible
+        if (!$equipo->tieneCupoDisponible()) {
+            return back()->with('error', '❌ El equipo ya tiene el máximo de miembros permitido (4).');
+        }
+
+        // Verificar si el equipo está aprobado
+        if (!$equipo->estaAprobado()) {
+            return back()->with('error', '❌ Este equipo no está aprobado para recibir solicitudes.');
+        }
+
+        // Agregar solicitud
+        $equipo->agregarSolicitud($usuario->id);
+
+        return back()->with('success', '✅ Solicitud enviada. Espera a que el líder del equipo la acepte.');
+    }
+
+    /**
+     * Salir/Abandonar equipo
+     */
+    public function salir(Equipo $equipo)
+    {
+        $usuario = Auth::user();
+
+        // Verificar que el usuario sea miembro del equipo
+        if (!$equipo->tieneMiembro($usuario->id)) {
+            return back()->with('error', '❌ No eres miembro de este equipo.');
+        }
+
+        // Obtener todos los participantes ordenados por fecha de unión
+        $participantes = $equipo->participantes()
+            ->orderBy('participante_equipo.created_at')
+            ->get();
+
+        $totalMiembros = $participantes->count();
+        $esLider = $equipo->esLider($usuario->id);
+
+        // Caso 1: Si solo hay un miembro (el líder) y es el único
+        if ($totalMiembros === 1 && $esLider) {
+            // Eliminar el equipo completamente
+            if ($equipo->banner && Storage::disk('public')->exists($equipo->banner)) {
+                Storage::disk('public')->delete($equipo->banner);
+            }
+
+            $equipo->delete();
+
+            return redirect()->route('equipos.index')
+                ->with('success', '🗑️ El equipo ha sido eliminado porque eras el único miembro.');
+        }
+
+        // Caso 2: Si es el líder y hay más miembros
+        if ($esLider) {
+            // Encontrar al segundo miembro más antiguo (después del líder)
+            $segundoMiembro = $participantes
+                ->where('id', '!=', $usuario->id)
+                ->first();
+
+            if ($segundoMiembro) {
+                // Asignar nuevo líder
+                $equipo->id_lider = $segundoMiembro->id;
+                $equipo->save();
+
+                // Actualizar la posición del nuevo líder en la tabla pivote
+                $equipo->participantes()->updateExistingPivot($segundoMiembro->id, [
+                    'posicion' => 'Líder'
+                ]);
+            }
+        }
+
+        // Caso 3: Si es un miembro normal, reasignar posiciones
+        if (!$esLider && $totalMiembros > 1) {
+            // Obtener la posición del miembro que sale
+            $miembroSaliente = $equipo->participantes()
+                ->where('usuario_id', $usuario->id)
+                ->first();
+
+            $posicionSaliente = $miembroSaliente->pivot->posicion;
+
+            // Si el que sale tiene una posición específica (no "Miembro")
+            if (in_array($posicionSaliente, ['Programador Front-end', 'Programador Back-end', 'Diseñador'])) {
+                // Obtener miembros que se unieron después del que sale
+                $miembrosPosteriores = $equipo->participantes()
+                    ->where('participante_equipo.created_at', '>', $miembroSaliente->pivot->created_at)
+                    ->orderBy('participante_equipo.created_at')
+                    ->get();
+
+                // Si hay miembros posteriores, el primero toma la posición del que sale
+                if ($miembrosPosteriores->isNotEmpty()) {
+                    $siguienteMiembro = $miembrosPosteriores->first();
+                    $equipo->participantes()->updateExistingPivot($siguienteMiembro->id, [
+                        'posicion' => $posicionSaliente
+                    ]);
+
+                    // El resto mantiene sus posiciones
+                }
+            }
+        }
+
+        // Eliminar al usuario del equipo
+        $equipo->participantes()->detach($usuario->id);
+
+        $mensaje = $esLider ?
+            '✅ Has abandonado el equipo como líder. El nuevo líder es ' . ($segundoMiembro->nombre_completo ?? 'no asignado') :
+            '✅ Has salido del equipo.';
+
+        return back()->with('success', $mensaje);
+    }
+
+    /**
+     * Aceptar solicitud de unión
+     */
+    public function aceptarSolicitud(Equipo $equipo, Usuario $usuario)
+    {
+        // Verificar que el usuario actual sea el líder
+        if (!Auth::user()->esAdministrador() && $equipo->id_lider != Auth::id()) {
+            abort(403, 'Solo el líder del equipo puede aceptar solicitudes.');
+        }
+
+        // Verificar si la solicitud existe
+        if (!$equipo->tieneSolicitudPendiente($usuario->id)) {
+            return back()->with('error', '❌ No hay solicitud pendiente de este usuario.');
+        }
+
+        // Verificar cupo disponible
+        if (!$equipo->tieneCupoDisponible()) {
+            return back()->with('error', '❌ El equipo ya tiene el máximo de miembros permitido (4).');
+        }
+
+        // Aceptar solicitud y agregar como participante
+        $equipo->aceptarSolicitud($usuario->id);
+
+        // Determinar posición automática
+        $numeroMiembros = $equipo->participantes()->count();
+        $posiciones = [
+            1 => 'Programador Front-end',
+            2 => 'Programador Back-end',
+            3 => 'Diseñador'
+        ];
+        $posicion = $posiciones[$numeroMiembros] ?? 'Miembro';
+
+        $equipo->participantes()->attach($usuario->id, ['posicion' => $posicion]);
+
+        return back()->with('success', "✅ Solicitud aceptada. {$usuario->nombre} se ha unido al equipo como {$posicion}.");
+    }
+
+    /**
+     * Rechazar solicitud de unión
+     */
+    public function rechazarSolicitud(Equipo $equipo, Usuario $usuario)
+    {
+        // Verificar que el usuario actual sea el líder
+        if (!Auth::user()->esAdministrador() && $equipo->id_lider != Auth::id()) {
+            abort(403, 'Solo el líder del equipo puede rechazar solicitudes.');
+        }
+
+        // Rechazar solicitud
+        $equipo->rechazarSolicitud($usuario->id);
+
+        return back()->with('success', '✅ Solicitud rechazada.');
+    }
+
+    /**
+     * Agregar método para que el líder acepte solicitudes
+     */
+    public function aceptarSolicitudLider(Request $request, Equipo $equipo, Usuario $usuario)
+    {
+        // Verificar que el usuario actual sea el líder
+        if ($equipo->id_lider != Auth::id()) {
+            abort(403, 'Solo el líder del equipo puede aceptar solicitudes.');
+        }
+
+        // Verificar si la solicitud existe
+        if (!$equipo->tieneSolicitudPendiente($usuario->id)) {
+            return back()->with('error', '❌ No hay solicitud pendiente de este usuario.');
+        }
+
+        // Verificar cupo disponible
+        if (!$equipo->tieneCupoDisponible()) {
+            return back()->with('error', '❌ El equipo ya tiene el máximo de miembros permitido (4).');
+        }
+
+        // Aceptar solicitud
+        $equipo->aceptarSolicitud($usuario->id);
+
+        // Determinar posición automática
+        $numeroMiembros = $equipo->participantes()->count();
+        $posiciones = [
+            1 => 'Programador Front-end',
+            2 => 'Programador Back-end',
+            3 => 'Diseñador'
+        ];
+        $posicion = $posiciones[$numeroMiembros] ?? 'Miembro';
+
+        // Agregar como participante
+        $equipo->participantes()->attach($usuario->id, ['posicion' => $posicion]);
+
+        return back()->with('success', "✅ Solicitud aceptada. {$usuario->nombre} se ha unido al equipo como {$posicion}.");
+    }
+
+    /**
+     * Agregar método para que el líder rechace solicitudes
+     */
+    public function rechazarSolicitudLider(Request $request, Equipo $equipo, Usuario $usuario)
+    {
+        // Verificar que el usuario actual sea el líder
+        if ($equipo->id_lider != Auth::id()) {
+            abort(403, 'Solo el líder del equipo puede rechazar solicitudes.');
+        }
+
+        // Rechazar solicitud
+        $equipo->rechazarSolicitud($usuario->id);
+
+        return back()->with('success', '✅ Solicitud rechazada.');
+    }
+
+    /**
+     * Método para mostrar información simplificada del equipo (para admin)
+     */
+    public function verInfoEquipo(Equipo $equipo)
+    {
+        $usuario = auth()->user();
+
+        if (!$usuario->esAdministrador()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $info = $equipo->getInfoParaAdmin();
+
+        return view('admin.equipos.info', compact('info', 'equipo'));
+    }
+
+    /**
+ * Aprobar equipo (admin)
+ */
+public function aprobar(Equipo $equipo)
+{
+    if (!Auth::user()->esAdministrador()) {
+        abort(403, 'Solo los administradores pueden aprobar equipos.');
+    }
+
+    $equipo->aprobado = true;      // Esto debe ser true (1)
+    $equipo->estado = 'aprobado';  // Esto debe ser 'aprobado'
+    $equipo->save();
+
+    return back()->with('success', '✅ Equipo aprobado exitosamente.');
+}
+
+    /**
+     * Rechazar equipo (admin)
+     */
+    public function rechazar(Equipo $equipo)
+{
+    if (!Auth::user()->esAdministrador()) {
+        abort(403, 'Solo los administradores pueden rechazar equipos.');
+    }
+
+    // Verificar si el equipo está en un evento activo
+    if ($equipo->estaEnEventoActivo()) {
+        return back()->with('error', '❌ No se puede rechazar un equipo que está en un evento activo.');
+    }
+
+    // Actualizar AMBOS campos
+    $equipo->aprobado = false;
+    $equipo->estado = 'rechazado';
+    $equipo->save();
+
+    return back()->with('success', '✅ Equipo rechazado.');
+}
+
+    /**
+     * Asignar evento a equipo (admin)
+     */
+    public function asignarEvento(Request $request, Equipo $equipo)
+    {
+        if (!Auth::user()->esAdministrador()) {
+            abort(403, 'Solo los administradores pueden asignar eventos.');
+        }
+
+        $request->validate([
+            'id_evento' => 'required|exists:eventos,id_evento'
+        ]);
+
+        $equipo->update(['id_evento' => $request->id_evento]);
+
+        return back()->with('success', '✅ Evento asignado al equipo exitosamente.');
     }
 
     public function edit(Equipo $equipo)
@@ -226,7 +566,11 @@ class EquipoController extends Controller
             'estado' => 'required|in:en revisión,aprobado,rechazado'
         ]);
 
-        $equipo->update(['estado' => $request->estado]);
+        // Actualizar ambos campos según el estado
+        $estado = $request->estado;
+        $equipo->estado = $estado;
+        $equipo->aprobado = ($estado === 'aprobado'); // true si es 'aprobado', false si no
+        $equipo->save();
 
         if ($request->wantsJson() || $request->ajax() || $request->header('Accept') === 'application/json') {
             $totales = Equipo::selectRaw(
@@ -350,66 +694,5 @@ class EquipoController extends Controller
         ];
 
         return response($csvData, 200, $headers);
-    }
-
-    // ==========================================
-    //      NUEVAS FUNCIONES PARA EL JUGADOR
-    // ==========================================
-
-    /**
-     * Muestra la vista "Mis Equipos" para el jugador.
-     */
-    public function misEquipos()
-    {
-        /** @var \App\Models\Usuario $user */
-        $user = Auth::user();
-
-        // Obtenemos los equipos donde el usuario es participante
-        // Usamos la relación 'participantes' inversa si está definida en Usuario,
-        // o consultamos Equipo donde tenga al usuario como participante.
-        // Asumiendo que Equipo tiene relación 'participantes' (belongsToMany Usuario)
-        
-        // Opción A: Si User tiene relación 'equipos' (belongsToMany)
-        // $miEquipo = $user->equipos()->first(); 
-
-        // Opción B: Consulta directa a Equipo usando la relación participantes
-        $miEquipo = Equipo::whereHas('participantes', function($q) use ($user) {
-            $q->where('usuario_id', $user->id);
-        })->with(['participantes', 'evento'])->first();
-
-        // Pasamos 'miEquipo' a la vista (singular, asumiendo que el usuario tiene un equipo principal)
-        return view('player.equipos', compact('miEquipo', 'user'));
-    }
-
-    /**
-     * Permite al usuario salir de su equipo.
-     */
-    public function salir()
-    {
-        /** @var \App\Models\Usuario $user */
-        $user = Auth::user();
-
-        // Buscamos el equipo del usuario
-        $equipo = Equipo::whereHas('participantes', function($q) use ($user) {
-            $q->where('usuario_id', $user->id);
-        })->first();
-
-        if ($equipo) {
-            // Verificar si es el último líder
-            $esLider = $equipo->participantes()
-                ->where('usuario_id', $user->id)
-                ->where('pivot_posicion', 'Líder') // Ajusta 'pivot_posicion' según tu tabla pivote (puede ser solo 'posicion')
-                ->exists();
-
-             // Nota: En tu método 'unirse' usas ['posicion' => ...], así que en pivot es 'posicion'.
-             // Eloquent accede a pivot con ->pivot->posicion
-             
-             // Simplemente usamos detach para salir
-            $equipo->participantes()->detach($user->id);
-            
-            return back()->with('success', 'Has salido del equipo correctamente.');
-        }
-
-        return back()->with('error', 'No perteneces a ningún equipo.');
     }
 }

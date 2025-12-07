@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Evento;
-use App\Models\Equipo; // Necesario para la función misEventos
+use App\Models\Equipo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth; // Necesario para obtener el usuario actual
@@ -23,14 +23,14 @@ class EventoController extends Controller
             $query->where('nombre', 'like', '%' . $request->search . '%');
         }
 
-        // 3. Lógica de Pestañas (Estado)
-        // Recibimos 'status' de la URL, si no existe, por defecto es 'todos'
-        $status = $request->get('status', 'todos');
-        
-        if ($status !== 'todos') {
-            // Filtra por la columna 'estado'
-            $query->where('estado', $status);
-        }
+    // 3. Lógica de Pestañas (Estado)
+    // Recibimos 'status' de la URL, si no existe, por defecto es 'todos'
+    $status = $request->get('status', 'todos');
+
+    if ($status !== 'todos') {
+        // Filtra por la columna 'estado' que crearemos en la base de datos
+        $query->where('estado', $status);
+    }
 
         // 4. Obtener resultados (Ordenados por fecha de inicio)
         $eventos = $query->orderBy('fecha_inicio', 'desc')
@@ -54,18 +54,22 @@ class EventoController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'reglas' => 'nullable|string',
-            'premios' => 'nullable|string',
-            'otra_informacion' => 'nullable|string',
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'estado' => 'nullable|in:pendiente,publicado',
-        ]);
+{
+    $validated = $request->validate([
+        'nombre' => 'required|string|max:255',
+        'descripcion' => 'nullable|string',
+        'reglas' => 'nullable|string',
+        'premios' => 'nullable|string',
+        'otra_informacion' => 'nullable|string',
+        'fecha_inicio' => 'required|date',
+        'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+        'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        'estado' => 'nullable|in:pendiente,publicado',
+    ]);
+
+    if (empty($validated['estado'])) {
+        $validated['estado'] = 'pendiente';
+    }
 
         // Si no viene estado en el request, forzamos 'pendiente'
         if (empty($validated['estado'])) {
@@ -87,7 +91,67 @@ class EventoController extends Controller
     public function show(Evento $evento)
     {
         $evento->load('equipos.participantes');
-        return view('eventos.show', compact('evento'));
+
+        $usuario = auth()->user();
+        $esParticipante = false;
+        $tieneEquipoEnEsteEvento = false;
+        $tieneEquipoAprobado = false;
+
+        if ($usuario) {
+            $esParticipante = $usuario->tipo === 'participante';
+
+            if ($esParticipante) {
+                // Verificar si el usuario tiene equipo aprobado para ESTE evento
+                $tieneEquipoEnEsteEvento = $usuario->equipos()
+                    ->where('aprobado', true)
+                    ->where('id_evento', $evento->id_evento)
+                    ->exists();
+
+                // Verificar si tiene ALGÚN equipo aprobado
+                $tieneEquipoAprobado = $usuario->equipos()
+                    ->where('aprobado', true)
+                    ->exists();
+            }
+        }
+
+        return view('eventos.show', compact(
+            'evento',
+            'esParticipante',
+            'tieneEquipoEnEsteEvento',
+            'tieneEquipoAprobado'
+        ));
+    }
+
+    /**
+     * Agregar método para inscribir equipo a evento
+     */
+    public function inscribirEquipo(Request $request, Evento $evento)
+    {
+        $usuario = auth()->user();
+
+        if (!$usuario) {
+            return redirect()->route('login');
+        }
+
+        // Verificar que el usuario tenga al menos un equipo aprobado
+        $equiposAprobados = $usuario->equipos()->where('aprobado', true)->get();
+
+        if ($equiposAprobados->isEmpty()) {
+            return redirect()->route('equipos.create')
+                ->with('info', 'Debes crear un equipo aprobado antes de inscribirte a un evento.');
+        }
+
+        // Si solo tiene un equipo aprobado, usarlo automáticamente
+        if ($equiposAprobados->count() === 1) {
+            $equipo = $equiposAprobados->first();
+            $equipo->id_evento = $evento->id_evento;
+            $equipo->save();
+
+            return back()->with('success', '✅ Tu equipo se ha inscrito exitosamente al evento.');
+        }
+
+        // Si tiene múltiples equipos, mostrar formulario para seleccionar
+        return view('eventos.seleccionar-equipo', compact('evento', 'equiposAprobados'));
     }
 
     /**
@@ -143,47 +207,50 @@ class EventoController extends Controller
             ->with('success', 'Evento eliminado exitosamente.');
     }
 
-    // ==========================================
-    //       FUNCIONES DEL JUGADOR
-    // ==========================================
-
     /**
-     * Muestra la vista "Mis Eventos" para el jugador.
+     * Seleccionar equipo para evento (cuando tiene múltiples equipos)
      */
-    public function misEventos()
+    public function seleccionarEquipoParaEvento(Request $request, Evento $evento)
     {
-        $user = Auth::user();
-        
-        // 1. Obtener el equipo del usuario
-        $miEquipo = Equipo::whereHas('participantes', function($q) use ($user) {
-            $q->where('usuario_id', $user->id);
-        })->with('evento')->first();
+        $usuario = auth()->user();
 
-        // 2. Obtener los eventos
-        $misEventos = [];
-        if ($miEquipo && $miEquipo->evento) {
-            $misEventos = [$miEquipo->evento];
+        if (!$usuario) {
+            return redirect()->route('login');
         }
 
-        // Determinar si es líder
-        $soyLider = false;
-        if ($miEquipo) {
-            $participanteUsuario = $miEquipo->participantes->find($user->id);
-            // Ajusta 'posicion' según tu tabla pivote (puede ser 'pivot_posicion')
-            if ($participanteUsuario && $participanteUsuario->pivot->posicion === 'Líder') {
-                $soyLider = true;
-            }
+        $request->validate([
+            'equipo_id' => 'required|exists:equipos,id_equipo'
+        ]);
+
+        // Verificar que el equipo pertenezca al usuario y esté aprobado
+        $equipo = $usuario->equipos()
+            ->where('id_equipo', $request->equipo_id)
+            ->where('aprobado', true)
+            ->first();
+
+        if (!$equipo) {
+            return back()->with('error', '❌ Equipo no encontrado o no aprobado.');
         }
 
-        return view('player.eventos', compact('misEventos', 'soyLider', 'miEquipo'));
+        // Asignar el evento al equipo
+        $equipo->id_evento = $evento->id_evento;
+        $equipo->save();
+
+        return redirect()->route('eventos.show', $evento->id_evento)
+            ->with('success', '✅ Tu equipo se ha inscrito exitosamente al evento.');
     }
 
-    /**
-     * Permite unirse a un evento (Lógica placeholder)
-     */
-    public function unirse(Evento $evento)
+    // Agregar este método al controlador EventoController
+    private function verificarEquipoParaInscripcion($usuario)
     {
-        // Aquí iría la lógica real para inscribir al equipo
-        return back()->with('success', 'Solicitud enviada.');
+        // Verificar si el usuario tiene al menos un equipo aprobado
+        $equiposAprobados = $usuario->equipos()->where('aprobado', true)->count();
+
+        if ($equiposAprobados === 0) {
+            session()->flash('info', 'Debes crear un equipo y que sea aprobado antes de inscribirte a un evento.');
+            return redirect()->route('equipos.create');
+        }
+
+        return null;
     }
 }
