@@ -11,10 +11,13 @@
             {{-- Banner del equipo --}}
             <div class="mb-8 rounded-lg overflow-hidden shadow-lg">
                 @if($equipo->banner)
-                    <img src="{{ Storage::url($equipo->banner) }}"
-                        alt="Banner del equipo {{ $equipo->nombre }}"
-                        class="w-full h-64 object-cover"
-                        onerror="this.src='https://via.placeholder.com/800x400/3B82F6/FFFFFF?text={{ urlencode($equipo->nombre) }}'">
+                    <img src="{{ asset('storage/' . $equipo->banner) }}"
+                         alt="Banner del equipo {{ $equipo->nombre }}"
+                         class="w-full h-64 object-cover"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="w-full h-64 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center hidden">
+                        <h1 class="text-4xl font-bold text-white">{{ $equipo->nombre }}</h1>
+                    </div>
                 @else
                     <div class="w-full h-64 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
                         <h1 class="text-4xl font-bold text-white">{{ $equipo->nombre }}</h1>
@@ -169,6 +172,21 @@
                                                     @endswitch
                                                 </p>
                                             </div>
+                                            
+                                            {{-- Botón de expulsar (solo para líderes) --}}
+                                            @php
+                                                $usuarioActual = auth()->user();
+                                                $esLider = $equipo->participantes()->wherePivot('usuario_id', $usuarioActual->id)->wherePivot('posicion', 'Líder')->exists();
+                                            @endphp
+
+                                            @if($esLider && $participante->id !== $usuarioActual->id)
+                                                <div class="flex-shrink-0">
+                                                    <button onclick="abrirModalExpulsar({{ $participante->id }}, '{{ $participante->nombre_completo }}')" 
+                                                        class="text-red-600 hover:text-red-800 font-semibold text-sm">
+                                                        Expulsar
+                                                    </button>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach
@@ -304,4 +322,51 @@
 
         </div>
     </div>
+
+    {{-- Modal de Expulsión --}}
+    <div id="modalExpulsar" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h3 class="text-lg font-bold text-gray-900 mb-4">Expulsar Miembro</h3>
+            <p class="text-gray-600 mb-4">¿Estás seguro de que quieres expulsar a <span id="nombreMiembro" class="font-bold"></span>?</p>
+            
+            <form id="formExpulsar" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Razón de Expulsión (opcional)</label>
+                    <textarea name="razon" placeholder="Ejemplo: Comportamiento inapropiado..." 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500" rows="3"></textarea>
+                </div>
+                
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="cerrarModalExpulsar()" 
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+                        Expulsar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    function abrirModalExpulsar(usuarioId, nombreCompleto) {
+        document.getElementById('nombreMiembro').textContent = nombreCompleto;
+        document.getElementById('formExpulsar').action = `/equipos/{{ $equipo->id_equipo }}/expulsar/${usuarioId}`;
+        document.getElementById('modalExpulsar').classList.remove('hidden');
+    }
+
+    function cerrarModalExpulsar() {
+        document.getElementById('modalExpulsar').classList.add('hidden');
+    }
+
+    // Cerrar modal al presionar Escape
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            cerrarModalExpulsar();
+        }
+    });
+    </script>
 </x-app-layout>

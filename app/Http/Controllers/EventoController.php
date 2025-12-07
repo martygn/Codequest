@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Evento;
-use App\Models\Equipo;
+use App\Models\Equipo; // Necesario para la función misEventos
+use App\Models\Usuario; // Necesario para obtener el usuario actual
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth; // Necesario para obtener el usuario actual
@@ -240,17 +241,52 @@ class EventoController extends Controller
             ->with('success', '✅ Tu equipo se ha inscrito exitosamente al evento.');
     }
 
-    // Agregar este método al controlador EventoController
-    private function verificarEquipoParaInscripcion($usuario)
+    /**
+     * Unirse a un evento con el equipo aprobado del usuario (solo líderes)
+     */
+    public function unirse(Request $request, Evento $evento)
     {
-        // Verificar si el usuario tiene al menos un equipo aprobado
-        $equiposAprobados = $usuario->equipos()->where('aprobado', true)->count();
-
-        if ($equiposAprobados === 0) {
-            session()->flash('info', 'Debes crear un equipo y que sea aprobado antes de inscribirte a un evento.');
-            return redirect()->route('equipos.create');
+        // Verificar si el evento está publicado
+        if ($evento->estado !== 'publicado') {
+            return back()->with('error', 'Este evento aún no ha sido publicado. Espera a que los administradores lo publiquen.');
         }
 
-        return null;
+        // Obtener el usuario actual
+        $usuario = Auth::user();
+
+        // Verificar si el usuario tiene un equipo
+        $equipoUsuario = Equipo::whereHas('participantes', function ($q) use ($usuario) {
+            $q->where('usuario_id', $usuario->id);
+        })->first();
+
+        if (!$equipoUsuario) {
+            return redirect()->route('equipos.create')
+                ->with('error', 'Necesitas crear un equipo primero antes de unirte a un evento.');
+        }
+
+        // Verificar si el usuario es LÍDER del equipo
+        $esLider = $equipoUsuario->participantes()
+            ->wherePivot('usuario_id', $usuario->id)
+            ->wherePivot('posicion', 'Líder')
+            ->exists();
+
+        if (!$esLider) {
+            return back()->with('error', 'Solo el líder del equipo puede inscribirse a eventos.');
+        }
+
+        // Verificar si el equipo está aprobado
+        if ($equipoUsuario->estado !== 'aprobado') {
+            return back()->with('error', 'Tu equipo aún está en revisión. Espera a que los administradores lo aprueben.');
+        }
+
+        // Verificar si el equipo ya está inscrito en este evento
+        if ($equipoUsuario->id_evento === $evento->id_evento) {
+            return back()->with('info', 'Tu equipo ya está inscrito en este evento.');
+        }
+
+        // Actualizar el evento del equipo
+        $equipoUsuario->update(['id_evento' => $evento->id_evento]);
+
+        return back()->with('success', '¡Tu equipo se ha inscrito exitosamente en el evento!');
     }
 }

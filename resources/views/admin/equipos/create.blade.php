@@ -102,12 +102,18 @@
 
                         <div class="mb-6">
                             <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">Banner del Equipo</label>
-                            <div class="border-2 border-dashed border-gray-300 dark:border-zinc-600 rounded-lg p-10 text-center hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-colors relative">
-                                <input type="file" name="banner" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*">
-                                <div class="flex flex-col items-center justify-center">
-                                    <span class="material-symbols-outlined text-4xl text-gray-400 mb-2">image</span>
-                                    <p class="font-semibold text-gray-700 dark:text-gray-300 mb-1">Cargar Imagen</p>
-                                    <p class="text-gray-500 dark:text-gray-400 text-sm">Arrastra y suelta o haz clic para seleccionar</p>
+                            <div class="border-2 border-dashed border-gray-300 dark:border-zinc-600 rounded-lg p-6 text-center hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition-colors relative">
+                                <input type="file" name="banner" id="adminBannerInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onchange="previewAdminImage(event)">
+                                <div class="flex flex-col items-center justify-center" id="adminBannerPlaceholder">
+                                    <span class="material-symbols-outlined text-3xl text-gray-400 mb-2">image</span>
+                                    <p class="font-semibold text-gray-700 dark:text-gray-300 mb-1 text-sm">Cargar Imagen</p>
+                                    <p class="text-gray-500 dark:text-gray-400 text-xs">Arrastra y suelta o haz clic para seleccionar</p>
+                                </div>
+                                <div id="adminImagePreview" class="hidden">
+                                    <img id="adminPreviewImage" src="" alt="Preview" class="w-full h-40 object-cover rounded mb-3">
+                                    <button type="button" onclick="removeAdminImage()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition text-sm">
+                                        Cambiar Imagen
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -134,5 +140,41 @@
             </div>
         </main>
     </div>
+
+    <script>
+        function previewAdminImage(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const placeholder = document.getElementById('adminBannerPlaceholder');
+                const preview = document.getElementById('adminImagePreview');
+                const previewImage = document.getElementById('adminPreviewImage');
+
+                previewImage.src = e.target.result;
+                placeholder.classList.add('hidden');
+                preview.classList.remove('hidden');
+            };
+
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeAdminImage() {
+            const input = document.getElementById('adminBannerInput');
+            const placeholder = document.getElementById('adminBannerPlaceholder');
+            const preview = document.getElementById('adminImagePreview');
+
+            input.value = '';
+            placeholder.classList.remove('hidden');
+            preview.classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
+            </div>
+        </main>
+    </div>
+</body>
+

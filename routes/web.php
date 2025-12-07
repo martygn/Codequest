@@ -9,6 +9,7 @@ use App\Http\Controllers\EquipoController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\NotificacionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,10 +45,34 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard General
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Eventos
-    Route::resource('eventos', EventoController::class)->parameters([
-        'eventos' => 'evento:id_evento'
-    ]);
+    // ==========================================
+    //       NOTIFICACIONES
+    // ==========================================
+    Route::post('/notificaciones/{notificacion}/marcar-leida', [NotificacionController::class, 'marcarLeida'])->name('notificaciones.marcar-leida');
+    Route::post('/notificaciones/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.marcar-todas-leidas');
+
+    // ==========================================
+    //       RUTAS DEL JUGADOR / USUARIO
+    // ==========================================
+    
+    // A. MI PERFIL (Usando UserProfileController)
+    Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('player.perfil');
+    Route::put('/mi-perfil', [UserProfileController::class, 'update'])->name('player.perfil.update');
+
+    // B. MIS EQUIPOS (Usando EquipoController)
+    Route::get('/mis-equipos', [EquipoController::class, 'misEquipos'])->name('player.equipos');
+    Route::post('/mis-equipos/salir', [EquipoController::class, 'salir'])->name('player.equipos.salir');
+    Route::post('/mis-equipos/{equipo}/expulsar/{usuario}', [EquipoController::class, 'expulsarMiembroDesdeMyTeam'])->name('player.equipos.expulsar');
+    Route::post('/equipos/{equipo}/expulsar/{usuario}', [EquipoController::class, 'expulsarMiembro'])->name('equipos.expulsar-miembro');
+    
+    // Ruta auxiliar para buscar equipos
+    Route::get('/equipos/buscar', [EquipoController::class, 'index'])->name('equipos.buscar'); 
+
+    // C. MIS EVENTOS (Usando EventoController)
+    Route::get('/mis-eventos', [EventoController::class, 'misEventos'])->name('player.eventos');
+    
+    // Ruta auxiliar para ver eventos disponibles
+    Route::get('/eventos/disponibles', [EventoController::class, 'disponibles'])->name('eventos.disponibles');
 
     // Unirse a un evento
     Route::post('/eventos/{evento}/unirse', [EventoController::class, 'unirse'])

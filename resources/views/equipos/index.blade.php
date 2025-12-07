@@ -15,35 +15,16 @@
         <p class="text-gray-500">Gestiona los equipos y sus proyectos</p>
     </div>
 
-    @if(auth()->user()->tipo === 'participante')
-        @php
-            $tieneEquipoAprobado = auth()->user()->equipos()
-                ->where('aprobado', true)
-                ->exists();
-        @endphp
-
-        @if(!$tieneEquipoAprobado)
-            <div class="flex items-center">
+            {{-- Botón para agregar equipo para participantes y administradores --}}
+            <div class="mb-6 flex justify-end">
                 <a href="{{ route('equipos.create') }}"
-                   class="inline-flex items-center px-8 py-4 bg-blue-600 border border-transparent rounded-lg font-bold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
-                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path>
+                   class="inline-flex items-center px-6 py-3 bg-blue-600 border border-transparent rounded-md font-bold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     Crear Nuevo Equipo
                 </a>
             </div>
-        @else
-            <div class="bg-green-100 border-2 border-green-400 text-green-800 px-6 py-3 rounded-lg shadow-sm">
-                <p class="font-bold flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    ✅ Ya tienes un equipo aprobado
-                </p>
-            </div>
-        @endif
-    @endif
-</div>
 
             {{-- Filtros y búsqueda --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 border border-gray-200">

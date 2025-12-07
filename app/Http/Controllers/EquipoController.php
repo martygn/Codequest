@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\Equipo;
 use App\Models\Evento;
 use App\Models\Usuario;
+use App\Models\Notificacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -133,9 +134,16 @@ public function store(Request $request)
         // Obtener el usuario actual
         $usuario = Usuario::find(Auth::id());
 
-        // Verificar permisos
-        if (!$equipo->estaAprobado() && !$usuario->esAdministrador() && !$equipo->esLider($usuario->id)) {
-            abort(403, 'Este equipo está en revisión.');
+        // El usuario puede ver el equipo si:
+        // 1. Es administrador
+        // 2. Es miembro del equipo
+        // 3. El equipo está aprobado (cualquiera puede verlo)
+        // 4. Es un participante que quiere unirse (puede ver incluso si no está aprobado)
+        $esParticipante = $usuario->esParticipante();
+        $puedeVer = $usuario->esAdministrador() || $equipo->tieneMiembro($usuario->id) || $equipo->estado === 'aprobado' || $esParticipante;
+
+        if (!$puedeVer) {
+            abort(403, 'No tienes permiso para ver este equipo.');
         }
 
         return view('equipos.show', compact('equipo'));
@@ -694,5 +702,184 @@ public function aprobar(Equipo $equipo)
         ];
 
         return response($csvData, 200, $headers);
+    }
+
+    // ==========================================
+    //      NUEVAS FUNCIONES PARA EL JUGADOR
+    // ==========================================
+
+    /**
+     * Muestra la vista "Mis Equipos" para el jugador.
+     */
+    public function misEquipos()
+    {
+        /** @var \App\Models\Usuario $user */
+        $user = Auth::user();
+
+        // Obtenemos TODOS los equipos donde el usuario es participante
+        $misEquipos = Equipo::whereHas('participantes', function($q) use ($user) {
+            $q->where('usuario_id', $user->id);
+        })->with(['participantes', 'evento'])->get();
+
+        // Pasamos 'misEquipos' a la vista
+        return view('player.equipos', compact('misEquipos', 'user'));
+    }
+
+    /**
+     * Permite al usuario salir de su equipo.
+     */
+    public function salir(Request $request)
+    {
+        /** @var \App\Models\Usuario $user */
+        $user = Auth::user();
+
+        // Obtener el equipo_id del request
+        $equipoId = $request->input('equipo_id');
+        
+        // Si no viene en el request, buscar el primer equipo del usuario (compatibilidad)
+        if (!$equipoId) {
+            $equipo = Equipo::whereHas('participantes', function($q) use ($user) {
+                $q->where('usuario_id', $user->id);
+            })->first();
+        } else {
+            $equipo = Equipo::find($equipoId);
+        }
+
+        if ($equipo) {
+            // Verificar si el usuario es el líder del equipo
+            $esLider = $equipo->participantes()
+                ->wherePivot('usuario_id', $user->id)
+                ->wherePivot('posicion', 'Líder')
+                ->exists();
+
+            if ($esLider) {
+                // Si es el líder, disolver el equipo completamente
+                // Obtener todos los participantes (excepto el líder) para notificarles
+                $otrosParticipantes = $equipo->participantes()
+                    ->where('usuario_id', '!=', $user->id)
+                    ->get();
+
+                // Crear notificaciones para todos los demás miembros
+                $nombreEquipo = $equipo->nombre;
+                foreach ($otrosParticipantes as $participante) {
+                    Notificacion::create([
+                        'usuario_id' => $participante->id,
+                        'titulo' => '⚠️ Equipo Disuelto',
+                        'mensaje' => "El equipo '{$nombreEquipo}' ha sido disuelto por su líder. Se han removido todas las inscripciones a eventos.",
+                        'tipo' => 'warning',
+                        'leida' => false,
+                    ]);
+                }
+
+                // Eliminar todas las relaciones de participantes
+                $equipo->participantes()->detach();
+
+                // Eliminar el equipo completamente
+                $equipo->delete();
+
+                return back()->with('success', '✨ El equipo ha sido disuelto. Se ha notificado a todos los miembros.');
+            } else {
+                // Si no es el líder, simplemente retirarse del equipo
+                $equipo->participantes()->detach($user->id);
+                
+                return back()->with('success', 'Has salido del equipo correctamente.');
+            }
+        }
+
+        return back()->with('error', 'No perteneces a este equipo.');
+    }
+
+    /**
+     * Expulsar un miembro del equipo (solo para líderes)
+     */
+    public function expulsarMiembro(Request $request, Equipo $equipo, Usuario $usuario)
+    {
+        /** @var \App\Models\Usuario $user */
+        $user = Auth::user();
+
+        // Verificar que el usuario logueado es el líder del equipo
+        $esLider = $equipo->participantes()
+            ->wherePivot('usuario_id', $user->id)
+            ->wherePivot('posicion', 'Líder')
+            ->exists();
+
+        if (!$esLider) {
+            return back()->with('error', 'Solo el líder puede expulsar miembros del equipo.');
+        }
+
+        // No permitir que el líder se expulse a sí mismo
+        if ($usuario->id === $user->id) {
+            return back()->with('error', 'No puedes expulsarte a ti mismo del equipo.');
+        }
+
+        // Verificar que el usuario a expulsar está en el equipo
+        $esMiembro = $equipo->participantes()
+            ->where('usuario_id', $usuario->id)
+            ->exists();
+
+        if (!$esMiembro) {
+            return back()->with('error', 'Este usuario no es miembro del equipo.');
+        }
+
+        // Obtener la razón de expulsión
+        $razon = $request->input('razon', 'Tu cuenta ha sido removida del equipo.');
+
+        // Crear notificación de expulsión
+        Notificacion::create([
+            'usuario_id' => $usuario->id,
+            'titulo' => '❌ Expulsado del Equipo',
+            'mensaje' => "Has sido expulsado del equipo '{$equipo->nombre}'. Razón: {$razon}",
+            'tipo' => 'error',
+            'leida' => false,
+        ]);
+
+        // Expulsar al miembro
+        $equipo->participantes()->detach($usuario->id);
+
+        return back()->with('success', "El miembro {$usuario->nombre} ha sido expulsado del equipo.");
+    }
+
+    /**
+     * Expulsa un miembro desde la vista mis-equipos
+     */
+    public function expulsarMiembroDesdeMyTeam(Request $request, Equipo $equipo, Usuario $usuario)
+    {
+        $userAutenticado = Auth::user();
+
+        // Verificar que el usuario autenticado sea líder del equipo
+        $esLider = $equipo->participantes()->wherePivot('usuario_id', $userAutenticado->id)->wherePivot('posicion', 'Líder')->exists();
+
+        if (!$esLider) {
+            return back()->with('error', 'No tienes permisos para expulsar miembros de este equipo.');
+        }
+
+        // Validar que el usuario a expulsar no sea el líder
+        if ($usuario->id === $userAutenticado->id) {
+            return back()->with('error', 'No puedes expulsarte a ti mismo.');
+        }
+
+        // Validar que el usuario sea miembro del equipo
+        $esMiembro = $equipo->participantes()->where('usuario_id', $usuario->id)->exists();
+
+        if (!$esMiembro) {
+            return back()->with('error', 'Este usuario no es miembro del equipo.');
+        }
+
+        // Obtener la razón de expulsión
+        $razon = $request->input('razon', 'Tu cuenta ha sido removida del equipo.');
+
+        // Crear notificación de expulsión
+        Notificacion::create([
+            'usuario_id' => $usuario->id,
+            'titulo' => '❌ Expulsado del Equipo',
+            'mensaje' => "Has sido expulsado del equipo '{$equipo->nombre}'. Razón: {$razon}",
+            'tipo' => 'error',
+            'leida' => false,
+        ]);
+
+        // Expulsar al miembro
+        $equipo->participantes()->detach($usuario->id);
+
+        return back()->with('success', "El miembro {$usuario->nombre} ha sido expulsado del equipo.");
     }
 }

@@ -80,14 +80,33 @@
                             </a>
                             <div class="flex space-x-3">
                                 @if(auth()->user()->esAdministrador())
-                                    <form action="{{ route('equipos.destroy', $equipo->id_equipo) }}" method="POST" class="inline" onsubmit="return confirm('¿Estás seguro de eliminar este equipo?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded shadow-lg transition duration-200">
-                                            Eliminar Equipo
-                                        </button>
-                                    </form>
+                                    <button type="button" onclick="openConfirmModal('eliminarEquipo{{ $equipo->id_equipo }}')" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded shadow-lg transition duration-200">
+                                        Eliminar Equipo
+                                    </button>
+
+                                    <!-- Modal de Confirmación para Eliminar Equipo -->
+                                    <div id="eliminarEquipo{{ $equipo->id_equipo }}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="if(event.target === this) closeConfirmModal('eliminarEquipo{{ $equipo->id_equipo }}')">
+                                        <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4" onclick="event.stopPropagation()">
+                                            <div class="px-6 py-4 border-b border-gray-200">
+                                                <h3 class="text-lg font-bold text-gray-900">Eliminar Equipo</h3>
+                                            </div>
+                                            <div class="px-6 py-4">
+                                                <p class="text-gray-700">¿Estás seguro de que deseas eliminar este equipo? Esta acción no se puede deshacer.</p>
+                                            </div>
+                                            <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                                                <button type="button" onclick="closeConfirmModal('eliminarEquipo{{ $equipo->id_equipo }}')" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 font-semibold transition">
+                                                    Cancelar
+                                                </button>
+                                                <form action="{{ route('equipos.destroy', $equipo->id_equipo) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold transition">
+                                                        Eliminar
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endif
                                 <button type="submit"
                                     class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded shadow-lg transition duration-200">
