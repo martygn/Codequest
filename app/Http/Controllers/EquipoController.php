@@ -183,6 +183,18 @@ public function store(Request $request)
         // Agregar solicitud
         $equipo->agregarSolicitud($usuario->id);
 
+        // Crear notificación para el líder del equipo
+        $lider = Usuario::find($equipo->id_lider);
+        if ($lider) {
+            Notificacion::create([
+                'usuario_id' => $lider->id,
+                'titulo' => '📨 Nueva Solicitud de Unión',
+                'mensaje' => "{$usuario->nombre_completo} ha solicitado unirse al equipo '{$equipo->nombre}'.",
+                'tipo' => 'info',
+                'leida' => false,
+            ]);
+        }
+
         return back()->with('success', '✅ Solicitud enviada. Espera a que el líder del equipo la acepte.');
     }
 
@@ -311,6 +323,15 @@ public function store(Request $request)
 
         $equipo->participantes()->attach($usuario->id, ['posicion' => $posicion]);
 
+        // Crear notificación para el participante que solicitó
+        Notificacion::create([
+            'usuario_id' => $usuario->id,
+            'titulo' => '✅ Solicitud Aceptada',
+            'mensaje' => "Tu solicitud para unirte al equipo '{$equipo->nombre}' ha sido aceptada. Te has unido como {$posicion}.",
+            'tipo' => 'success',
+            'leida' => false,
+        ]);
+
         return back()->with('success', "✅ Solicitud aceptada. {$usuario->nombre} se ha unido al equipo como {$posicion}.");
     }
 
@@ -326,6 +347,15 @@ public function store(Request $request)
 
         // Rechazar solicitud
         $equipo->rechazarSolicitud($usuario->id);
+
+        // Crear notificación para el participante que solicitó
+        Notificacion::create([
+            'usuario_id' => $usuario->id,
+            'titulo' => '❌ Solicitud Rechazada',
+            'mensaje' => "Tu solicitud para unirte al equipo '{$equipo->nombre}' ha sido rechazada por el líder.",
+            'tipo' => 'error',
+            'leida' => false,
+        ]);
 
         return back()->with('success', '✅ Solicitud rechazada.');
     }
@@ -365,6 +395,15 @@ public function store(Request $request)
         // Agregar como participante
         $equipo->participantes()->attach($usuario->id, ['posicion' => $posicion]);
 
+        // Crear notificación para el participante que solicitó
+        Notificacion::create([
+            'usuario_id' => $usuario->id,
+            'titulo' => '✅ Solicitud Aceptada',
+            'mensaje' => "Tu solicitud para unirte al equipo '{$equipo->nombre}' ha sido aceptada. Te has unido como {$posicion}.",
+            'tipo' => 'success',
+            'leida' => false,
+        ]);
+
         return back()->with('success', "✅ Solicitud aceptada. {$usuario->nombre} se ha unido al equipo como {$posicion}.");
     }
 
@@ -380,6 +419,15 @@ public function store(Request $request)
 
         // Rechazar solicitud
         $equipo->rechazarSolicitud($usuario->id);
+
+        // Crear notificación para el participante que solicitó
+        Notificacion::create([
+            'usuario_id' => $usuario->id,
+            'titulo' => '❌ Solicitud Rechazada',
+            'mensaje' => "Tu solicitud para unirte al equipo '{$equipo->nombre}' ha sido rechazada por el líder.",
+            'tipo' => 'error',
+            'leida' => false,
+        ]);
 
         return back()->with('success', '✅ Solicitud rechazada.');
     }

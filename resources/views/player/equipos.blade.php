@@ -159,6 +159,56 @@
                                     </div>
                                 </div>
 
+                                {{-- Sección de solicitudes pendientes para el líder --}}
+                                @php
+                                    $solicitudesPendientes = $miEquipo->solicitudes_pendientes ?? [];
+                                    $esLiderDelEquipo = $miEquipo->participantes()->wherePivot('usuario_id', $user->id)->wherePivot('posicion', 'Líder')->exists();
+                                @endphp
+                                @if($esLiderDelEquipo && count($solicitudesPendientes) > 0)
+                                    <div class="mt-8 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-6">
+                                        <h4 class="text-lg font-bold text-yellow-900 mb-4 flex items-center">
+                                            <span class="material-symbols-outlined mr-2">mail</span> 
+                                            Solicitudes Pendientes ({{ count($solicitudesPendientes) }})
+                                        </h4>
+                                        
+                                        <div class="space-y-3">
+                                            @foreach($solicitudesPendientes as $usuarioId)
+                                                @php
+                                                    $solicitante = App\Models\Usuario::find($usuarioId);
+                                                @endphp
+                                                @if($solicitante)
+                                                <div class="flex items-center justify-between p-4 bg-white rounded-lg border border-yellow-200 hover:shadow-md transition">
+                                                    <div class="flex items-center flex-1">
+                                                        <div class="h-10 w-10 rounded-full bg-yellow-200 flex items-center justify-center text-yellow-700 font-bold mr-4">
+                                                            {{ strtoupper(substr($solicitante->nombre, 0, 1)) }}
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-sm font-bold text-gray-900">{{ $solicitante->nombre_completo }}</p>
+                                                            <p class="text-xs text-gray-600">{{ $solicitante->correo }}</p>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="flex gap-2 ml-4">
+                                                        <form action="{{ route('equipos.aceptar-solicitud-lider', [$miEquipo->id_equipo, $solicitante->id]) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            <button type="submit" class="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition">
+                                                                ✓ Aceptar
+                                                            </button>
+                                                        </form>
+                                                        <form action="{{ route('equipos.rechazar-solicitud-lider', [$miEquipo->id_equipo, $solicitante->id]) }}" method="POST" class="inline">
+                                                            @csrf
+                                                            <button type="submit" class="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition">
+                                                                ✕ Rechazar
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+
                                 {{-- Modal de expulsión --}}
                                 <div id="modalExpulsar{{ $miEquipo->id_equipo }}" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50" onclick="if(event.target === this) cerrarModalExpulsar{{ $miEquipo->id_equipo }}()">
                                     <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" onclick="event.stopPropagation()">

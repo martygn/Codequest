@@ -195,11 +195,15 @@
                     </div>
 
                     {{-- Mostrar solicitudes pendientes para el líder --}}
-                    @if($equipo->esLider(auth()->id()) && $equipo->solicitudes_pendientes)
+                    @php
+                        $solicitudesPendientes = $equipo->solicitudes_pendientes ?? [];
+                        $esLider = $equipo->esLider(auth()->id());
+                    @endphp
+                    @if($esLider && count($solicitudesPendientes) > 0)
                         <div class="mt-8 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg p-6">
                             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Solicitudes Pendientes</h3>
 
-                            @foreach($equipo->solicitudes_pendientes as $usuarioId)
+                            @foreach($solicitudesPendientes as $usuarioId)
                                 @php
                                     $solicitante = App\Models\Usuario::find($usuarioId);
                                 @endphp
