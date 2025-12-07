@@ -24,7 +24,7 @@ class Evento extends Model
         'reglas',           // Campo del formulario
         'premios',          // Campo del formulario
         'otra_informacion', // Campo del formulario
-        'lugar',            // (Opcional si decides agregarlo después)
+        'lugar',
         'foto',
         'estado'
     ];
@@ -59,11 +59,17 @@ class Evento extends Model
             ->where('fecha_fin', '>=', now());
     }
 
-    // --- Funciones de Ayuda ---
-
+    /**
+     * Verificar si el evento está activo
+     */
     public function estaActivo()
     {
-        return now()->between($this->fecha_inicio, $this->fecha_fin);
+        if (!$this->fecha_inicio || !$this->fecha_fin) {
+            return false;
+        }
+
+        $now = now();
+        return $now->between($this->fecha_inicio, $this->fecha_fin);
     }
 
     public function haFinalizado()

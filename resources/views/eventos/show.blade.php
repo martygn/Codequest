@@ -96,56 +96,40 @@
 
             {{-- Botón Inscribirse --}}
             <div class="mt-16 flex justify-end pb-10">
-                @php
-                    // Obtener el usuario actual y su equipo
-                    $usuario = auth()->user();
-                    $usuarioModel = \App\Models\Usuario::find($usuario->id);
-                    $equipoUsuario = \App\Models\Equipo::whereHas('participantes', function ($q) use ($usuarioModel) {
-                        $q->where('usuario_id', $usuarioModel->id);
-                    })->first();
-                    
-                    // Verificar si ya está inscrito en este evento
-                    $yaInscrito = $equipoUsuario && $equipoUsuario->id_evento === $evento->id_evento;
-                @endphp
-
-                @if ($evento->estado !== 'publicado')
-                    {{-- Evento no publicado --}}
-                    <button disabled
-                       class="bg-gray-400 text-white font-bold py-3 px-8 rounded-lg shadow-sm cursor-not-allowed text-base">
-                        🔒 Evento No Publicado
-                    </button>
-                    <span class="ml-4 text-sm text-gray-600">Este evento aún no ha sido publicado.</span>
-                @elseif (!$equipoUsuario)
-                    {{-- Sin equipo --}}
-                    <a href="{{ route('equipos.create') }}"
-                       class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition duration-200 text-base">
-                        ⚙️ Crear Equipo Primero
-                    </a>
-                @elseif ($equipoUsuario->estado !== 'aprobado')
-                    {{-- Equipo en revisión o rechazado --}}
-                    <button disabled
-                       class="bg-gray-400 text-white font-bold py-3 px-8 rounded-lg shadow-sm cursor-not-allowed text-base">
-                        ⏳ Equipo en Revisión
-                    </button>
-                    <span class="ml-4 text-sm text-gray-600">Los administradores aún están revisando tu equipo.</span>
-                @elseif ($yaInscrito)
-                    {{-- Ya inscrito --}}
-                    <button disabled
-                       class="bg-green-500 text-white font-bold py-3 px-8 rounded-lg shadow-sm cursor-not-allowed text-base">
-                        ✓ Ya Inscrito
-                    </button>
+                @auth
+                    @if($esParticipante)
+                        @if($tieneEquipoEnEsteEvento)
+                            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
+                                <p class="font-bold">✅ Ya tienes un equipo inscrito en este evento.</p>
+                            </div>
+                        @elseif($tieneEquipoAprobado)
+                            {{-- Tiene equipo aprobado pero no en este evento --}}
+                            <a href="{{ route('eventos.inscribir-equipo', $evento->id_evento) }}"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-200">
+                                Inscribir mi equipo en este evento
+                            </a>
+                        @else
+                            {{-- No tiene ningún equipo aprobado --}}
+                            <div class="flex flex-col items-end">
+                                <a href="{{ route('equipos.create') }}"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-200">
+                                    Crear equipo para participar
+                                </a>
+                                <p class="text-sm text-gray-600 mt-2">Primero debes crear y obtener la aprobación de un equipo.</p>
+                            </div>
+                        @endif
+                    @else
+                        <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+                            <p class="font-bold">⚠️ Solo los participantes pueden inscribirse en eventos.</p>
+                        </div>
+                    @endif
                 @else
-                    {{-- Puede inscribirse --}}
-                    <form action="{{ route('eventos.unirse', $evento->id_evento) }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit"
-                           class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg shadow-sm transition duration-200 text-base">
-                            Inscribirse
-                        </button>
-                    </form>
-                @endif
+                    <a href="{{ route('login') }}"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow transition duration-200">
+                        Iniciar sesión para participar
+                    </a>
+                @endauth
             </div>
-
         </div>
     </div>
 </x-app-layout>
