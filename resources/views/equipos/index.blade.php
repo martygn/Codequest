@@ -13,18 +13,16 @@
                 <p class="text-gray-500">Gestiona los equipos y sus proyectos</p>
             </div>
 
-            {{-- Botón para agregar equipo solo para administradores --}}
-            @if(auth()->user()->tipo === 'administrador')
-                <div class="mb-6 flex justify-end">
-                    <a href="{{ route('equipos.create') }}"
-                       class="inline-flex items-center px-6 py-3 bg-blue-600 border border-transparent rounded-md font-bold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        Nuevo equipo
-                    </a>
-                </div>
-            @endif
+            {{-- Botón para agregar equipo para participantes y administradores --}}
+            <div class="mb-6 flex justify-end">
+                <a href="{{ route('equipos.create') }}"
+                   class="inline-flex items-center px-6 py-3 bg-blue-600 border border-transparent rounded-md font-bold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Crear Nuevo Equipo
+                </a>
+            </div>
 
             {{-- Filtros y búsqueda --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 border border-gray-200">

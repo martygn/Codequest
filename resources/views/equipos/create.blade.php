@@ -7,6 +7,17 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
 
+                    @if ($errors->any())
+                        <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
+                            <h3 class="text-red-800 font-bold mb-2">Errores en el formulario:</h3>
+                            <ul class="text-red-700 text-sm space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>• {{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <form action="{{ route('equipos.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 

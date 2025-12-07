@@ -9,6 +9,7 @@ use App\Http\Controllers\EquipoController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\NotificacionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +42,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // ==========================================
+    //       NOTIFICACIONES
+    // ==========================================
+    Route::post('/notificaciones/{notificacion}/marcar-leida', [NotificacionController::class, 'marcarLeida'])->name('notificaciones.marcar-leida');
+    Route::post('/notificaciones/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.marcar-todas-leidas');
+
+    // ==========================================
     //       RUTAS DEL JUGADOR / USUARIO
     // ==========================================
     
@@ -51,6 +58,8 @@ Route::middleware(['auth'])->group(function () {
     // B. MIS EQUIPOS (Usando EquipoController)
     Route::get('/mis-equipos', [EquipoController::class, 'misEquipos'])->name('player.equipos');
     Route::post('/mis-equipos/salir', [EquipoController::class, 'salir'])->name('player.equipos.salir');
+    Route::post('/mis-equipos/{equipo}/expulsar/{usuario}', [EquipoController::class, 'expulsarMiembroDesdeMyTeam'])->name('player.equipos.expulsar');
+    Route::post('/equipos/{equipo}/expulsar/{usuario}', [EquipoController::class, 'expulsarMiembro'])->name('equipos.expulsar-miembro');
     
     // Ruta auxiliar para buscar equipos
     Route::get('/equipos/buscar', [EquipoController::class, 'index'])->name('equipos.index'); 

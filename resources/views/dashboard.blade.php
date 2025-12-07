@@ -21,6 +21,44 @@
             </div>
         </div>
 
+        {{-- Notificaciones --}}
+        @php
+            $notificaciones = auth()->user()->notificaciones()->noLeidas()->orderBy('created_at', 'desc')->get();
+        @endphp
+
+        @if($notificaciones->count() > 0)
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+            <div class="space-y-4">
+                @foreach($notificaciones as $notificacion)
+                    @php
+                        $colorClases = [
+                            'info' => 'bg-blue-50 border-blue-200 text-blue-800',
+                            'warning' => 'bg-yellow-50 border-yellow-200 text-yellow-800',
+                            'success' => 'bg-green-50 border-green-200 text-green-800',
+                            'error' => 'bg-red-50 border-red-200 text-red-800',
+                        ];
+                        $clase = $colorClases[$notificacion->tipo] ?? $colorClases['info'];
+                    @endphp
+                    <div class="border {{ $clase }} rounded-lg p-4 flex justify-between items-start">
+                        
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
+        <script>
+            function marcarComoLeida(notificacionId) {
+                // Aquí puedes hacer una petición AJAX para marcar como leída
+                fetch(`/notificaciones/${notificacionId}/marcar-leida`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    },
+                }).then(() => location.reload());
+            }
+        </script>
+
         {{-- Próximos Eventos Carrusel --}}
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
             <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-8">Próximos Eventos</h2>

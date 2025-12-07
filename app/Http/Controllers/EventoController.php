@@ -179,11 +179,51 @@ class EventoController extends Controller
     }
 
     /**
-     * Permite unirse a un evento (Lógica placeholder)
+     * Unirse a un evento con el equipo aprobado del usuario (solo líderes)
      */
-    public function unirse(Evento $evento)
+    public function unirse(Request $request, Evento $evento)
     {
-        // Aquí iría la lógica real para inscribir al equipo
-        return back()->with('success', 'Solicitud enviada.');
+        // Verificar si el evento está publicado
+        if ($evento->estado !== 'publicado') {
+            return back()->with('error', 'Este evento aún no ha sido publicado. Espera a que los administradores lo publiquen.');
+        }
+
+        // Obtener el usuario actual
+        $usuario = Usuario::find(Auth::id());
+
+        // Verificar si el usuario tiene un equipo
+        $equipoUsuario = Equipo::whereHas('participantes', function ($q) use ($usuario) {
+            $q->where('usuario_id', $usuario->id);
+        })->first();
+
+        if (!$equipoUsuario) {
+            return redirect()->route('equipos.create')
+                ->with('error', 'Necesitas crear un equipo primero antes de unirte a un evento.');
+        }
+
+        // Verificar si el usuario es LÍDER del equipo
+        $esLider = $equipoUsuario->participantes()
+            ->wherePivot('usuario_id', $usuario->id)
+            ->wherePivot('posicion', 'Líder')
+            ->exists();
+
+        if (!$esLider) {
+            return back()->with('error', 'Solo el líder del equipo puede inscribirse a eventos.');
+        }
+
+        // Verificar si el equipo está aprobado
+        if ($equipoUsuario->estado !== 'aprobado') {
+            return back()->with('error', 'Tu equipo aún está en revisión. Espera a que los administradores lo aprueben.');
+        }
+
+        // Verificar si el equipo ya está inscrito en este evento
+        if ($equipoUsuario->id_evento === $evento->id_evento) {
+            return back()->with('info', 'Tu equipo ya está inscrito en este evento.');
+        }
+
+        // Actualizar el evento del equipo
+        $equipoUsuario->update(['id_evento' => $evento->id_evento]);
+
+        return back()->with('success', '¡Tu equipo se ha inscrito exitosamente en el evento!');
     }
 }

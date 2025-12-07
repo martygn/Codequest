@@ -154,6 +154,14 @@ class Usuario extends Authenticatable
     }
 
     /**
+     * Relación con notificaciones
+     */
+    public function notificaciones()
+    {
+        return $this->hasMany(Notificacion::class, 'usuario_id', 'id');
+    }
+
+    /**
      * Relación con eventos (a través de equipos)
      * Un usuario puede participar en varios eventos a través de sus equipos
      */
