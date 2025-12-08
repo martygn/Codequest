@@ -115,10 +115,6 @@
             <div class="max-w-7xl mx-auto">
                 <!-- Encabezado -->
                 <div class="mb-8">
-                    <a href="{{ route('admin.resultados-panel') }}" class="inline-flex items-center gap-2 text-primary hover:underline mb-4">
-                        <span class="material-symbols-outlined">arrow_back</span>
-                        <span>Volver a Resultados</span>
-                    </a>
                     <h1 class="text-4xl font-bold text-text-light dark:text-white">
                         📊 Resultados - {{ $evento->nombre }}
                     </h1>
@@ -272,19 +268,117 @@
                 </div>
 
                 <!-- Opciones de admin -->
-                <div class="mt-8 flex gap-4">
-                    <a href="{{ route('admin.resultados.exportar', $evento->id_evento) }}" class="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition text-center">
-                        📄 Exportar a PDF
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <a href="{{ route('admin.resultados.exportar', $evento->id_evento) }}" target="_blank" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined">picture_as_pdf</span>
+                        <span>Exportar a PDF</span>
                     </a>
                     @if ($ganador)
-                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}" class="flex-1 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition text-center">
-                            🎖️ Generar Constancia
+                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}" target="_blank" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">workspace_premium</span>
+                            <span>Ver Constancia</span>
                         </a>
+                        <button onclick="openEmailModal()" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">forward_to_inbox</span>
+                            <span>Enviar por Correo</span>
+                        </button>
                     @endif
-                    <a href="{{ route('admin.resultados.index') }}" class="flex-1 px-6 py-3 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-semibold rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition text-center">
-                        ⬅️ Volver
-                    </a>
                 </div>
+
+                <!-- Modal de confirmación de envío de correo -->
+                @if ($ganador)
+                    <div id="emailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                        <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-2xl max-w-md w-full border border-border-light dark:border-border-dark">
+                            <!-- Header del modal -->
+                            <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 rounded-t-lg">
+                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                    <span class="material-symbols-outlined">forward_to_inbox</span>
+                                    Enviar Constancia por Correo
+                                </h3>
+                            </div>
+
+                            <!-- Contenido del modal -->
+                            <div class="p-6">
+                                <div class="mb-6">
+                                    <p class="text-text-light dark:text-text-dark mb-4">
+                                        ¿Estás seguro de que deseas enviar la constancia del equipo ganador por correo electrónico?
+                                    </p>
+
+                                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-2">
+                                        <div class="flex items-start gap-2">
+                                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">workspace_premium</span>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-semibold text-blue-900 dark:text-blue-100">Equipo Ganador</p>
+                                                <p class="text-sm text-blue-800 dark:text-blue-200">{{ $ganador['equipo']->nombre }}</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-start gap-2">
+                                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">person</span>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-semibold text-blue-900 dark:text-blue-100">Líder del Equipo</p>
+                                                <p class="text-sm text-blue-800 dark:text-blue-200">{{ $ganador['equipo']->lider->nombre_completo ?? 'No especificado' }}</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-start gap-2">
+                                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">mail</span>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-semibold text-blue-900 dark:text-blue-100">Correo Electrónico</p>
+                                                <p class="text-sm text-blue-800 dark:text-blue-200 break-all">{{ $ganador['equipo']->lider->correo ?? 'No especificado' }}</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-start gap-2 mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+                                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">emoji_events</span>
+                                            <div class="flex-1">
+                                                <p class="text-sm font-semibold text-blue-900 dark:text-blue-100">Puntuación Final</p>
+                                                <p class="text-sm text-blue-800 dark:text-blue-200">{{ number_format($ganador['puntaje_promedio'], 2) }}/10</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Botones de acción -->
+                                <div class="flex gap-3">
+                                    <button onclick="closeEmailModal()" class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                                        Cancelar
+                                    </button>
+                                    <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?enviar_correo=1" class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
+                                        <span class="material-symbols-outlined text-lg">send</span>
+                                        Enviar Ahora
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openEmailModal() {
+                            document.getElementById('emailModal').classList.remove('hidden');
+                            document.body.style.overflow = 'hidden';
+                        }
+
+                        function closeEmailModal() {
+                            document.getElementById('emailModal').classList.add('hidden');
+                            document.body.style.overflow = 'auto';
+                        }
+
+                        // Cerrar modal al hacer clic fuera de él
+                        document.getElementById('emailModal')?.addEventListener('click', function(e) {
+                            if (e.target === this) {
+                                closeEmailModal();
+                            }
+                        });
+
+                        // Cerrar modal con tecla ESC
+                        document.addEventListener('keydown', function(e) {
+                            if (e.key === 'Escape') {
+                                closeEmailModal();
+                            }
+                        });
+                    </script>
+                @endif
             </div>
         </div>
     </main>
