@@ -78,10 +78,10 @@
 <!-- <a href="{{ route('admin.equipos.create') }}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-semibold">Nuevo equipo</a> -->
 </header>
 <div class="mb-6 flex items-center justify-between">
-<div class="relative w-1/3">
-<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">search</span>
-<input class="w-full rounded-lg border-none bg-gray-100 dark:bg-zinc-800 py-3 pl-12 pr-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary" placeholder="Buscar equipos" type="text"/>
-</div>
+  <form method="GET" action="{{ route('admin.equipos') }}" class="w-1/3 relative">
+    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">search</span>
+    <input name="search" value="{{ $search ?? request('search') }}" class="w-full rounded-lg border-none bg-gray-100 dark:bg-zinc-800 py-3 pl-12 pr-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary" placeholder="Buscar equipos" type="text"/>
+  </form>
 </div>
 <div class="mb-6 flex items-center gap-2 border-b border-gray-200 dark:border-zinc-700">
 <button class="px-4 py-2 text-sm font-medium border-b-2 border-primary text-primary">Todos los eventos</button>
@@ -124,6 +124,16 @@
 </tbody>
 </table>
 </div>
+@if(method_exists($equipos, 'links') && $equipos->hasPages())
+  <div class="px-4 py-3 border-t border-gray-100 bg-white">
+    <div class="flex items-center justify-between">
+      <div class="text-sm text-gray-600">Mostrando {{ $equipos->firstItem() }} - {{ $equipos->lastItem() }} de {{ $equipos->total() }} equipos</div>
+      <div>
+        {{ $equipos->links() }}
+      </div>
+    </div>
+  </div>
+@endif
 </main>
 </div>
 </div>
