@@ -39,205 +39,209 @@
 </head>
 <body class="font-display bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200">
 <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 flex flex-col justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">CodeQuest</h1>
-            <nav class="mt-8 space-y-2">
-                <a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('juez.panel') }}">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                    <span>Volver al Panel</span>
-                </a>
-            </nav>
-        </div>
-
-        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                    <span class="material-symbols-outlined">logout</span>
-                    <span>Cerrar sesión</span>
-                </button>
-            </form>
-        </div>
-    </aside>
+    @include('admin._sidebar')
 
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-y-auto">
         <div class="max-w-4xl mx-auto">
             <!-- Encabezado -->
-            <header class="mb-8">
-                <h1 class="text-4xl font-bold text-slate-900 dark:text-white">Calificar Equipo</h1>
-                <p class="text-slate-500 dark:text-slate-400 mt-2">
+            <div class="mb-8">
+                <a href="{{ route('juez.panel') }}" class="text-blue-600 hover:text-blue-800 mb-4 inline-block">
+                    ← Volver al Panel
+                </a>
+                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Calificar Equipo</h1>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">
                     Evento: <strong>{{ $evento->nombre }}</strong> | 
                     Equipo: <strong>{{ $equipo->nombre }}</strong>
                 </p>
-            </header>
+            </div>
 
-            <!-- Información del equipo -->
-            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-8">
-                <h2 class="text-lg font-semibold text-slate-900 dark:text-white mb-3">👥 Información del Equipo</h2>
-                <div class="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <p class="text-slate-600 dark:text-slate-400">Líder:</p>
-                        <p class="font-semibold text-slate-900 dark:text-white">{{ $equipo->lider->nombre_completo ?? 'N/A' }}</p>
-                    </div>
-                    <div>
-                        <p class="text-slate-600 dark:text-slate-400">Cantidad de miembros:</p>
-                        <p class="font-semibold text-slate-900 dark:text-white">{{ $equipo->participantes->count() }}</p>
-                    </div>
+    <!-- Información del equipo -->
+    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-8">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-3">👥 Información del Equipo</h2>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <p class="text-gray-600 dark:text-gray-400">Líder:</p>
+                <p class="font-semibold text-gray-900 dark:text-white">{{ $equipo->lider->nombre_completo ?? 'N/A' }}</p>
+            </div>
+            <div>
+                <p class="text-gray-600 dark:text-gray-400">Cantidad de miembros:</p>
+                <p class="font-semibold text-gray-900 dark:text-white">{{ $equipo->participantes->count() }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario de calificación -->
+    <form action="{{ route('calificaciones.store', $equipo->id_equipo) }}" method="POST" class="bg-white dark:bg-slate-900 rounded-lg shadow-md p-8 border border-gray-200 dark:border-slate-800">
+        @csrf
+
+        <div class="space-y-8">
+            <!-- Creatividad -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <label for="puntaje_creatividad" class="block text-sm font-semibold text-gray-900 dark:text-white">
+                        🎨 Creatividad e Innovación
+                    </label>
+                    <span id="valor_creatividad" class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) }}</span>
+                </div>
+                <input type="range" 
+                       id="puntaje_creatividad" 
+                       name="puntaje_creatividad" 
+                       min="1" 
+                       max="10" 
+                       value="{{ old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) }}"
+                       class="w-full h-2 bg-blue-200 dark:bg-blue-800 rounded-lg appearance-none cursor-pointer"
+                       oninput="actualizarValor('creatividad')">
+                <div class="flex justify-between text-xs text-gray-500 mt-2">
+                    <span>Nada creativo</span>
+                    <span>Muy creativo</span>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">¿Qué tan innovador y creativo es el proyecto?</p>
+            </div>
+
+            <!-- Funcionalidad -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <label for="puntaje_funcionalidad" class="block text-sm font-semibold text-gray-900 dark:text-white">
+                        ⚙️ Funcionalidad
+                    </label>
+                    <span id="valor_funcionalidad" class="text-2xl font-bold text-green-600 dark:text-green-400">{{ old('puntaje_funcionalidad', $calificacion->puntaje_funcionalidad ?? 5) }}</span>
+                </div>
+                <input type="range" 
+                       id="puntaje_funcionalidad" 
+                       name="puntaje_funcionalidad" 
+                       min="1" 
+                       max="10" 
+                       value="{{ old('puntaje_funcionalidad', $calificacion->puntaje_funcionalidad ?? 5) }}"
+                       class="w-full h-2 bg-green-200 dark:bg-green-800 rounded-lg appearance-none cursor-pointer"
+                       oninput="actualizarValor('funcionalidad')">
+                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    <span>No funciona</span>
+                    <span>Funciona perfectamente</span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">¿El proyecto cumple con los requisitos y funciona correctamente?</p>
+            </div>
+
+            <!-- Diseño -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <label for="puntaje_diseño" class="block text-sm font-semibold text-gray-900 dark:text-white">
+                        🎯 Diseño y UX
+                    </label>
+                    <span id="valor_diseño" class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ old('puntaje_diseño', $calificacion->puntaje_diseño ?? 5) }}</span>
+                </div>
+                <input type="range" 
+                       id="puntaje_diseño" 
+                       name="puntaje_diseño" 
+                       min="1" 
+                       max="10" 
+                       value="{{ old('puntaje_diseño', $calificacion->puntaje_diseño ?? 5) }}"
+                       class="w-full h-2 bg-purple-200 dark:bg-purple-800 rounded-lg appearance-none cursor-pointer"
+                       oninput="actualizarValor('diseño')">
+                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    <span>Diseño pobre</span>
+                    <span>Diseño excelente</span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">¿La interfaz es atractiva, intuitiva y fácil de usar?</p>
+            </div>
+
+            <!-- Presentación -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <label for="puntaje_presentacion" class="block text-sm font-semibold text-gray-900 dark:text-white">
+                        🎤 Presentación
+                    </label>
+                    <span id="valor_presentacion" class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) }}</span>
+                </div>
+                <input type="range" 
+                       id="puntaje_presentacion" 
+                       name="puntaje_presentacion" 
+                       min="1" 
+                       max="10" 
+                       value="{{ old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) }}"
+                       class="w-full h-2 bg-orange-200 dark:bg-orange-800 rounded-lg appearance-none cursor-pointer"
+                       oninput="actualizarValor('presentacion')">
+                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    <span>Mala presentación</span>
+                    <span>Presentación excelente</span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">¿La presentación fue clara, organizada y convincente?</p>
+            </div>
+
+            <!-- Documentación -->
+            <div>
+                <div class="flex justify-between items-center mb-3">
+                    <label for="puntaje_documentacion" class="block text-sm font-semibold text-gray-900 dark:text-white">
+                        📚 Documentación
+                    </label>
+                    <span id="valor_documentacion" class="text-2xl font-bold text-red-600 dark:text-red-400">{{ old('puntaje_documentacion', $calificacion->puntaje_documentacion ?? 5) }}</span>
+                </div>
+                <input type="range" 
+                       id="puntaje_documentacion" 
+                       name="puntaje_documentacion" 
+                       min="1" 
+                       max="10" 
+                       value="{{ old('puntaje_documentacion', $calificacion->puntaje_documentacion ?? 5) }}"
+                       class="w-full h-2 bg-red-200 dark:bg-red-800 rounded-lg appearance-none cursor-pointer"
+                       oninput="actualizarValor('documentacion')">
+                <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    <span>Sin documentación</span>
+                    <span>Muy bien documentado</span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">¿El código y proyecto están bien documentados?</p>
+            </div>
+
+            <!-- Puntuación Final -->
+            <div class="bg-gradient-to-r from-blue-50 dark:from-blue-900/20 to-purple-50 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">📊 Puntuación Final</h3>
+                <div class="text-4xl font-bold text-blue-600 dark:text-blue-400" id="puntaje_final">
+                    {{ number_format((old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) + 
+                                      old('puntaje_funcionalidad', $calificacion->puntaje_funcionalidad ?? 5) + 
+                                      old('puntaje_diseño', $calificacion->puntaje_diseño ?? 5) + 
+                                      old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) + 
+                                      old('puntaje_documentacion', $calificacion->puntaje_documentacion ?? 5)) / 5, 2) }}
                 </div>
             </div>
 
-            <!-- Formulario de calificación -->
-            <form action="{{ route('calificaciones.store', $equipo->id_equipo) }}" method="POST" class="bg-white dark:bg-slate-900 rounded-lg shadow-md p-8 border border-slate-200 dark:border-slate-800">
-                @csrf
+            <!-- Observaciones -->
+            <div>
+                <label for="observaciones" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                    💬 Observaciones (opcional)
+                </label>
+                <textarea id="observaciones" 
+                          name="observaciones" 
+                          rows="4"
+                          placeholder="Añade tus observaciones sobre el proyecto..."
+                          class="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">{{ old('observaciones', $calificacion->observaciones ?? '') }}</textarea>
+            </div>
 
-                <div class="space-y-8">
-                    <!-- Creatividad -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <label for="puntaje_creatividad" class="block text-sm font-semibold text-slate-900 dark:text-white">
-                                🎨 Creatividad e Innovación
-                            </label>
-                            <span id="valor_creatividad" class="text-2xl font-bold text-blue-600">{{ old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) }}</span>
-                        </div>
-                        <input type="range" 
-                               id="puntaje_creatividad" 
-                               name="puntaje_creatividad" 
-                               min="1" 
-                               max="10" 
-                               value="{{ old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) }}"
-                               class="w-full h-2 bg-blue-200 dark:bg-blue-800 rounded-lg appearance-none cursor-pointer"
-                               oninput="actualizarValor('creatividad')">
-                        <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-2">
-                            <span>Nada creativo</span>
-                            <span>Muy creativo</span>
-                        </div>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">¿Qué tan innovador y creativo es el proyecto?</p>
-                    </div>
+            <!-- Recomendaciones -->
+            <div>
+                <label for="recomendaciones" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                    💡 Recomendaciones (opcional)
+                </label>
+                <textarea id="recomendaciones" 
+                          name="recomendaciones" 
+                          rows="4"
+                          placeholder="Sugiere mejoras y recomendaciones..."
+                          class="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">{{ old('recomendaciones', $calificacion->recomendaciones ?? '') }}</textarea>
+            </div>
+        </div>
 
-                    <!-- Funcionalidad -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <label for="puntaje_funcionalidad" class="block text-sm font-semibold text-slate-900 dark:text-white">
-                                ⚙️ Funcionalidad
-                            </label>
-                            <span id="valor_funcionalidad" class="text-2xl font-bold text-green-600">{{ old('puntaje_funcionalidad', $calificacion->puntaje_funcionalidad ?? 5) }}</span>
-                        </div>
-                        <input type="range" 
-                               id="puntaje_funcionalidad" 
-                               name="puntaje_funcionalidad" 
-                               min="1" 
-                               max="10" 
-                               value="{{ old('puntaje_funcionalidad', $calificacion->puntaje_funcionalidad ?? 5) }}"
-                               class="w-full h-2 bg-green-200 dark:bg-green-800 rounded-lg appearance-none cursor-pointer"
-                               oninput="actualizarValor('funcionalidad')">
-                        <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-2">
-                            <span>No funciona</span>
-                            <span>Funciona perfectamente</span>
-                        </div>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">¿El proyecto cumple con los requisitos y funciona correctamente?</p>
-                    </div>
-
-                    <!-- Diseño -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <label for="puntaje_diseno" class="block text-sm font-semibold text-slate-900 dark:text-white">
-                                🎯 Diseño y UX
-                            </label>
-                            <span id="valor_diseno" class="text-2xl font-bold text-purple-600">{{ old('puntaje_diseno', $calificacion->puntaje_diseno ?? 5) }}</span>
-                        </div>
-                        <input type="range" 
-                               id="puntaje_diseno" 
-                               name="puntaje_diseno" 
-                               min="1" 
-                               max="10" 
-                               value="{{ old('puntaje_diseno', $calificacion->puntaje_diseno ?? 5) }}"
-                               class="w-full h-2 bg-purple-200 dark:bg-purple-800 rounded-lg appearance-none cursor-pointer"
-                               oninput="actualizarValor('diseno')">
-                        <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-2">
-                            <span>Diseño pobre</span>
-                            <span>Diseño excelente</span>
-                        </div>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">¿Qué tan atractivo y usable es el proyecto?</p>
-                    </div>
-
-                    <!-- Código -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <label for="puntaje_codigo" class="block text-sm font-semibold text-slate-900 dark:text-white">
-                                💻 Calidad del Código
-                            </label>
-                            <span id="valor_codigo" class="text-2xl font-bold text-orange-600">{{ old('puntaje_codigo', $calificacion->puntaje_codigo ?? 5) }}</span>
-                        </div>
-                        <input type="range" 
-                               id="puntaje_codigo" 
-                               name="puntaje_codigo" 
-                               min="1" 
-                               max="10" 
-                               value="{{ old('puntaje_codigo', $calificacion->puntaje_codigo ?? 5) }}"
-                               class="w-full h-2 bg-orange-200 dark:bg-orange-800 rounded-lg appearance-none cursor-pointer"
-                               oninput="actualizarValor('codigo')">
-                        <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-2">
-                            <span>Código desordenado</span>
-                            <span>Código limpio</span>
-                        </div>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">¿Es el código limpio, bien estructurado y fácil de entender?</p>
-                    </div>
-
-                    <!-- Presentación -->
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <label for="puntaje_presentacion" class="block text-sm font-semibold text-slate-900 dark:text-white">
-                                🎤 Presentación y Exposición
-                            </label>
-                            <span id="valor_presentacion" class="text-2xl font-bold text-red-600">{{ old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) }}</span>
-                        </div>
-                        <input type="range" 
-                               id="puntaje_presentacion" 
-                               name="puntaje_presentacion" 
-                               min="1" 
-                               max="10" 
-                               value="{{ old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) }}"
-                               class="w-full h-2 bg-red-200 dark:bg-red-800 rounded-lg appearance-none cursor-pointer"
-                               oninput="actualizarValor('presentacion')">
-                        <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mt-2">
-                            <span>Presentación pobre</span>
-                            <span>Presentación excelente</span>
-                        </div>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">¿Fue clara y convincente la presentación del equipo?</p>
-                    </div>
-
-                    <!-- Observaciones -->
-                    <div>
-                        <label for="observaciones" class="block text-sm font-semibold text-slate-900 dark:text-white mb-3">
-                            📝 Observaciones (Opcional)
-                        </label>
-                        <textarea id="observaciones" 
-                                  name="observaciones" 
-                                  rows="4" 
-                                  placeholder="Agrega comentarios sobre la calificación..."
-                                  class="w-full px-4 py-3 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('observaciones', $calificacion->observaciones ?? '') }}</textarea>
-                    </div>
-
-                    <!-- Puntuación Final -->
-                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-                        <p class="text-sm font-semibold text-slate-600 dark:text-slate-400 mb-2">Puntuación Promedio</p>
-                        <p id="puntaje_final" class="text-4xl font-bold text-blue-600">{{ old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) }}</p>
-                    </div>
-
-                    <!-- Botones -->
-                    <div class="flex gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-                        <a href="{{ route('juez.panel') }}" class="flex-1 px-6 py-3 bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-white font-semibold rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition text-center">
-                            Cancelar
-                        </a>
-                        <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
-                            ✅ Guardar Calificación
-                        </button>
-                    </div>
-                </div>
-            </form>
+        <!-- Botones -->
+        <div class="flex gap-4 mt-8">
+            <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 dark:bg-blue-700 text-white font-semibold rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition">
+                @if(isset($calificacion) && $calificacion->id)
+                    ✏️ Actualizar Calificación
+                @else
+                    📤 Enviar Calificación
+                @endif
+            </button>
+            <a href="{{ route('juez.panel') }}" class="flex-1 px-6 py-3 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-semibold rounded-lg hover:bg-gray-400 dark:hover:bg-gray-600 transition text-center">
+                ❌ Cancelar
+            </a>
+        </div>
+    </form>
         </div>
     </main>
 </div>
@@ -247,9 +251,9 @@ function actualizarValor(campo) {
     const valores = {
         'creatividad': 'puntaje_creatividad',
         'funcionalidad': 'puntaje_funcionalidad',
-        'diseno': 'puntaje_diseno',
-        'codigo': 'puntaje_codigo',
-        'presentacion': 'puntaje_presentacion'
+        'diseño': 'puntaje_diseño',
+        'presentacion': 'puntaje_presentacion',
+        'documentacion': 'puntaje_documentacion'
     };
     
     const input = document.getElementById(valores[campo]);
@@ -262,162 +266,19 @@ function actualizarValor(campo) {
 function calcularPromedio() {
     const creatividad = parseInt(document.getElementById('puntaje_creatividad').value) || 0;
     const funcionalidad = parseInt(document.getElementById('puntaje_funcionalidad').value) || 0;
-    const diseno = parseInt(document.getElementById('puntaje_diseno').value) || 0;
-    const codigo = parseInt(document.getElementById('puntaje_codigo').value) || 0;
+    const diseño = parseInt(document.getElementById('puntaje_diseño').value) || 0;
     const presentacion = parseInt(document.getElementById('puntaje_presentacion').value) || 0;
+    const documentacion = parseInt(document.getElementById('puntaje_documentacion').value) || 0;
 
-    const promedio = (creatividad + funcionalidad + diseno + codigo + presentacion) / 5;
-
-    document.getElementById('puntaje_final').textContent = promedio.toFixed(2);
-}
-
-// Calcular promedio inicial
-calcularPromedio();
-</script>
-</body>
-</html>
-            <div>
-                <div class="flex justify-between items-center mb-3">
-                    <label for="puntaje_diseño" class="block text-sm font-semibold text-gray-900">
-                        🎯 Diseño y UX
-                    </label>
-                    <span id="valor_diseño" class="text-2xl font-bold text-purple-600">{{ old('puntaje_diseño', $calificacion->puntaje_diseño ?? 5) }}</span>
-                </div>
-                <input type="range" 
-                       id="puntaje_diseño" 
-                       name="puntaje_diseño" 
-                       min="1" 
-                       max="10" 
-                       value="{{ old('puntaje_diseño', $calificacion->puntaje_diseño ?? 5) }}"
-                       class="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer"
-                       oninput="actualizarValor('diseño')">
-                <div class="flex justify-between text-xs text-gray-500 mt-2">
-                    <span>Diseño pobre</span>
-                    <span>Diseño excelente</span>
-                </div>
-                <p class="text-sm text-gray-600 mt-2">¿La interfaz es atractiva, intuitiva y fácil de usar?</p>
-            </div>
-
-            <!-- Presentación -->
-            <div>
-                <div class="flex justify-between items-center mb-3">
-                    <label for="puntaje_presentacion" class="block text-sm font-semibold text-gray-900">
-                        🎤 Presentación
-                    </label>
-                    <span id="valor_presentacion" class="text-2xl font-bold text-orange-600">{{ old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) }}</span>
-                </div>
-                <input type="range" 
-                       id="puntaje_presentacion" 
-                       name="puntaje_presentacion" 
-                       min="1" 
-                       max="10" 
-                       value="{{ old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) }}"
-                       class="w-full h-2 bg-orange-200 rounded-lg appearance-none cursor-pointer"
-                       oninput="actualizarValor('presentacion')">
-                <div class="flex justify-between text-xs text-gray-500 mt-2">
-                    <span>Mala presentación</span>
-                    <span>Presentación excelente</span>
-                </div>
-                <p class="text-sm text-gray-600 mt-2">¿La presentación fue clara, organizada y convincente?</p>
-            </div>
-
-            <!-- Documentación -->
-            <div>
-                <div class="flex justify-between items-center mb-3">
-                    <label for="puntaje_documentacion" class="block text-sm font-semibold text-gray-900">
-                        📚 Documentación
-                    </label>
-                    <span id="valor_documentacion" class="text-2xl font-bold text-red-600">{{ old('puntaje_documentacion', $calificacion->puntaje_documentacion ?? 5) }}</span>
-                </div>
-                <input type="range" 
-                       id="puntaje_documentacion" 
-                       name="puntaje_documentacion" 
-                       min="1" 
-                       max="10" 
-                       value="{{ old('puntaje_documentacion', $calificacion->puntaje_documentacion ?? 5) }}"
-                       class="w-full h-2 bg-red-200 rounded-lg appearance-none cursor-pointer"
-                       oninput="actualizarValor('documentacion')">
-                <div class="flex justify-between text-xs text-gray-500 mt-2">
-                    <span>Sin documentación</span>
-                    <span>Muy bien documentado</span>
-                </div>
-                <p class="text-sm text-gray-600 mt-2">¿El código y proyecto están bien documentados?</p>
-            </div>
-
-            <!-- Puntuación Final -->
-            <div class="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-6 mt-8">
-                <h3 class="text-lg font-bold text-gray-900 mb-2">📊 Puntuación Final</h3>
-                <div class="text-4xl font-bold text-blue-600" id="puntaje_final">
-                    {{ number_format((old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) + 
-                                      old('puntaje_funcionalidad', $calificacion->puntaje_funcionalidad ?? 5) + 
-                                      old('puntaje_diseño', $calificacion->puntaje_diseño ?? 5) + 
-                                      old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) + 
-                                      old('puntaje_documentacion', $calificacion->puntaje_documentacion ?? 5)) / 5, 2) }}
-                </div>
-            </div>
-
-            <!-- Observaciones -->
-            <div>
-                <label for="observaciones" class="block text-sm font-semibold text-gray-900 mb-2">
-                    💬 Observaciones (opcional)
-                </label>
-                <textarea id="observaciones" 
-                          name="observaciones" 
-                          rows="4"
-                          placeholder="Añade tus observaciones sobre el proyecto..."
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">{{ old('observaciones', $calificacion->observaciones ?? '') }}</textarea>
-            </div>
-
-            <!-- Recomendaciones -->
-            <div>
-                <label for="recomendaciones" class="block text-sm font-semibold text-gray-900 mb-2">
-                    💡 Recomendaciones (opcional)
-                </label>
-                <textarea id="recomendaciones" 
-                          name="recomendaciones" 
-                          rows="4"
-                          placeholder="Sugiere mejoras y recomendaciones..."
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">{{ old('recomendaciones', $calificacion->recomendaciones ?? '') }}</textarea>
-            </div>
-        </div>
-
-        <!-- Botones -->
-        <div class="flex gap-4 mt-8">
-            <button type="submit" class="flex-1 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition">
-                {{ $calificacion && $calificacion->exists ? '✏️ Actualizar Calificación' : '📤 Enviar Calificación' }}
-            </button>
-            <a href="{{ route('eventos.show', $evento->id_evento) }}" class="flex-1 px-6 py-3 bg-gray-300 text-gray-900 font-semibold rounded-lg hover:bg-gray-400 transition text-center">
-                ❌ Cancelar
-            </a>
-        </div>
-    </form>
-</div>
-
-<script>
-function actualizarValor(campo) {
-    const valores = {
-        creatividad: document.getElementById('puntaje_creatividad').value,
-        funcionalidad: document.getElementById('puntaje_funcionalidad').value,
-        diseño: document.getElementById('puntaje_diseño').value,
-        presentacion: document.getElementById('puntaje_presentacion').value,
-        documentacion: document.getElementById('puntaje_documentacion').value,
-    };
-
-    document.getElementById('valor_' + campo).textContent = valores[campo];
-
-    const promedio = (
-        parseInt(valores.creatividad) +
-        parseInt(valores.funcionalidad) +
-        parseInt(valores.diseño) +
-        parseInt(valores.presentacion) +
-        parseInt(valores.documentacion)
-    ) / 5;
+    const promedio = (creatividad + funcionalidad + diseño + presentacion + documentacion) / 5;
 
     document.getElementById('puntaje_final').textContent = promedio.toFixed(2);
 }
 
-// Calcular promedio inicial
-calcularPromedio();
+// Calcular promedio inicial al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    calcularPromedio();
+});
 </script>
 </body>
 </html>

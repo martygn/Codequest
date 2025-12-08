@@ -74,7 +74,7 @@ class CalificacionController extends Controller
             $validated
         );
 
-        return redirect()->route('eventos.show', $evento->id_evento)
+        return redirect()->route('juez.panel')
             ->with('success', '✅ Calificación guardada exitosamente.');
     }
 
