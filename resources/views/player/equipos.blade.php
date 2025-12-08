@@ -145,9 +145,10 @@
                                         </div>
                                         
                                         @if($miEquipo->evento)
-                                            <div>
-                                                <p class="text-sm font-bold text-gray-600">Participando en Evento</p>
-                                                <a href="{{ route('eventos.show', $miEquipo->evento) }}" class="text-indigo-600 hover:text-indigo-800 font-medium hover:underline">
+                                        <div>
+                                            <p class="text-sm font-bold text-gray-600">Participando en Evento</p>
+                                            <a href="{{ route('eventos.show', $miEquipo->evento->id_evento) }}"
+                                             class="text-indigo-600 hover:text-indigo-800 font-medium hover:underline">
                                                     {{ $miEquipo->evento->nombre }}
                                                 </a>
                                             </div>
