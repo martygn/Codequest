@@ -43,6 +43,15 @@
                         <span class="material-symbols-outlined">groups</span>
                         <span>Equipos</span>
                     </a>
+                    <a class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800" href="{{ route('admin.jueces') }}">
+<span class="material-symbols-outlined text-xl">gavel</span>
+<span class="font-medium">Jueces</span>
+</a>
+
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.resultados-panel') }}">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                        <span>Resultados</span>
+                        </a>
                     <a class="flex items-center gap-3 px-4 py-2 text-gray-600 dark:text-gray-400 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition" href="{{ route('admin.configuracion') }}">
                         <span class="material-symbols-outlined">settings</span>
                         <span>Configuración</span>

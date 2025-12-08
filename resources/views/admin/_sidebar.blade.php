@@ -20,6 +20,10 @@
                 <span class="material-symbols-outlined">gavel</span>
                 <span>Jueces</span>
             </a>
+           <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.resultados-panel') }}">
+  <span class="material-symbols-outlined">bar_chart</span>
+  <span>Resultados</span>
+</a>
 
             <a class="flex items-center gap-3 px-4 py-2 {{ $isConfig ? 'text-slate-900 bg-slate-100 dark:text-white dark:bg-slate-800 font-semibold rounded' : 'text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors' }}" href="{{ route('admin.configuracion') }}">
                 <span class="material-symbols-outlined">settings</span>
