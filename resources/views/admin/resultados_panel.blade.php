@@ -127,9 +127,15 @@
                         @foreach ($resultados as $resultado)
                             <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-md overflow-hidden border border-border-light dark:border-border-dark">
                                 <!-- Encabezado del evento -->
-                                <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white">
-                                    <h2 class="text-2xl font-bold">{{ $resultado['evento']->nombre }}</h2>
-                                    <p class="text-blue-100 mt-1">📅 {{ $resultado['evento']->fecha_inicio->format('d/m/Y') }} - {{ $resultado['evento']->fecha_fin->format('d/m/Y') }}</p>
+                                <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white flex justify-between items-center">
+                                    <div>
+                                        <h2 class="text-2xl font-bold">{{ $resultado['evento']->nombre }}</h2>
+                                        <p class="text-blue-100 mt-1">📅 {{ $resultado['evento']->fecha_inicio->format('d/m/Y') }} - {{ $resultado['evento']->fecha_fin->format('d/m/Y') }}</p>
+                                    </div>
+                                    <a href="{{ route('admin.resultados.show', $resultado['evento']->id_evento) }}" class="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors flex items-center gap-2 shadow-md">
+                                        <span class="material-symbols-outlined">visibility</span>
+                                        Ver Detalles
+                                    </a>
                                 </div>
 
                                 <!-- Contenido -->
@@ -169,7 +175,6 @@
                                                     <th class="px-4 py-2 text-center font-semibold text-text-light dark:text-text-dark">Puntuación</th>
                                                     <th class="px-4 py-2 text-center font-semibold text-text-light dark:text-text-dark">Jueces</th>
                                                     <th class="px-4 py-2 text-center font-semibold text-text-light dark:text-text-dark">Estado</th>
-                                                    <th class="px-4 py-2 text-center font-semibold text-text-light dark:text-text-dark">Acciones</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -187,11 +192,6 @@
                                                             @else
                                                                 <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full text-xs">Participante</span>
                                                             @endif
-                                                        </td>
-                                                        <td class="px-4 py-3 text-center">
-                                                            <a href="{{ route('admin.resultados.show', $resultado['evento']->id_evento) }}" class="text-primary hover:underline font-semibold">
-                                                                Ver Detalles
-                                                            </a>
                                                         </td>
                                                     </tr>
                                                 @endforeach

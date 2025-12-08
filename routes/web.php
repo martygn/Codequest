@@ -1,19 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\SocialAuthController;
+use App\Http\Controllers\CalificacionController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EquipoController;
 use App\Http\Controllers\EventoController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\JuezController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RepositorioController;
-use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\ResultadoController;
+use App\Http\Controllers\UserProfileController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +27,7 @@ Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
     }
+
     return redirect()->route('login');
 });
 
@@ -58,7 +59,7 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     //       RUTAS DEL JUGADOR / USUARIO
     // ==========================================
-    
+
     // 1. MI PERFIL (Corrección: Nombre correcto 'player.perfil')
     Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('player.perfil');
     Route::put('/mi-perfil', [UserProfileController::class, 'update'])->name('player.perfil.update');
@@ -68,7 +69,7 @@ Route::middleware(['auth'])->group(function () {
     // Corrección: Usamos 'abandonarEquipo' para evitar conflictos en el controlador
     Route::post('/mis-equipos/salir', [EquipoController::class, 'abandonarEquipo'])->name('player.equipos.salir');
     Route::post('/mis-equipos/{equipo}/expulsar/{usuario}', [EquipoController::class, 'expulsarMiembroDesdeMyTeam'])->name('player.equipos.expulsar');
-    
+
     // 3. MIS EVENTOS
     Route::get('/mis-eventos', [EventoController::class, 'misEventos'])->name('player.eventos');
     Route::get('/eventos/disponibles', [EventoController::class, 'disponibles'])->name('eventos.disponibles');
@@ -87,10 +88,10 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     //       GESTIÓN DE EQUIPOS (Resource)
     // ==========================================
-    Route::get('/equipos/buscar', [EquipoController::class, 'index'])->name('equipos.buscar'); 
-    
+    Route::get('/equipos/buscar', [EquipoController::class, 'index'])->name('equipos.buscar');
+
     Route::resource('equipos', EquipoController::class)->parameters([
-        'equipos' => 'equipo:id_equipo'
+        'equipos' => 'equipo:id_equipo',
     ]);
 
     // Rutas extra de equipos
@@ -98,7 +99,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/equipos/{equipo}/participantes', [EquipoController::class, 'agregarParticipante'])->name('equipos.participantes.agregar');
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])->name('equipos.participantes.remover');
     Route::post('/equipos/{equipo}/expulsar/{usuario}', [EquipoController::class, 'expulsarMiembro'])->name('equipos.expulsar-miembro');
-    
+
     Route::post('/equipos/{equipo}/solicitar-unirse', [EquipoController::class, 'solicitarUnirse'])->name('equipos.solicitar-unirse');
     Route::post('/equipos/{equipo}/aceptar-solicitud/{usuario}', [EquipoController::class, 'aceptarSolicitudLider'])->name('equipos.aceptar-solicitud-lider');
     Route::post('/equipos/{equipo}/rechazar-solicitud/{usuario}', [EquipoController::class, 'rechazarSolicitudLider'])->name('equipos.rechazar-solicitud-lider');
@@ -113,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/equipos/{equipo}/repositorio', [RepositorioController::class, 'show'])->name('repositorios.show');
     Route::post('/equipos/{equipo}/repositorio', [RepositorioController::class, 'store'])->name('repositorios.store');
     Route::post('/repositorios/{repositorio}/descargar', [RepositorioController::class, 'descargar'])->name('repositorios.descargar');
-    
+
     // Calificaciones (Juez)
     Route::get('/equipos/{equipo}/calificar', [CalificacionController::class, 'show'])->name('calificaciones.show');
     Route::post('/equipos/{equipo}/calificar', [CalificacionController::class, 'store'])->name('calificaciones.store');
@@ -127,7 +128,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 
     // ==========================================
     //          RUTAS DE ADMINISTRADOR
@@ -154,7 +154,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/api/equipos/stats', [DashboardController::class, 'equiposStats'])->name('admin.equipos.stats');
         Route::patch('/admin/eventos/{evento}/status', [AdminController::class, 'updateEventoStatus'])->name('admin.eventos.update-status');
         Route::patch('/equipos/{equipo}/status', [AdminController::class, 'updateEquipoStatus'])->name('equipos.update-status');
-        
+
         // Jueces (Admin)
         Route::get('/admin/jueces', [AdminController::class, 'jueces'])->name('admin.jueces');
         Route::get('/admin/jueces/crear', [AdminController::class, 'crearJuez'])->name('admin.jueces.create');
@@ -182,5 +182,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['is.juez'])->group(function () {
         Route::get('/juez/panel', [JuezController::class, 'panel'])->name('juez.panel');
         Route::get('/juez/constancias', [JuezController::class, 'historialConstancias'])->name('juez.constancias');
+        Route::get('/juez/configuracion', [JuezController::class, 'configuracion'])->name('juez.configuracion');
+        Route::put('/juez/updateInfo', [JuezController::class, 'updateInfo'])->name('juez.updateInfo');
+        Route::put('/juez/updatePassword', [JuezController::class, 'updatePassword'])->name('juez.updatePassword');
     });
 });

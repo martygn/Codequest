@@ -19,8 +19,14 @@ class CalificacionController extends Controller
         $evento = $equipo->evento;
 
         // Verificar que el usuario sea juez del evento
-        if (!$evento->jueces()->where('usuario_id', $usuario->id)->exists()) {
+        if (! $evento->jueces()->where('usuario_id', $usuario->id)->exists()) {
             abort(403, 'Solo los jueces del evento pueden calificar equipos.');
+        }
+
+        // Verificar que el equipo esté aprobado
+        if ($equipo->estado !== 'aprobado') {
+            return redirect()->route('juez.panel')
+                ->with('error', 'Solo se pueden calificar equipos que han sido aprobados por el administrador.');
         }
 
         // Obtener o crear calificación
@@ -29,11 +35,11 @@ class CalificacionController extends Controller
             ->where('evento_id', $evento->id_evento)
             ->first();
 
-        if (!$calificacion) {
+        if (! $calificacion) {
             $calificacion = new CalificacionEquipo([
                 'juez_id' => $usuario->id,
                 'equipo_id' => $equipo->id_equipo,
-                'evento_id' => $evento->id_evento
+                'evento_id' => $evento->id_evento,
             ]);
         }
 
@@ -49,8 +55,14 @@ class CalificacionController extends Controller
         $evento = $equipo->evento;
 
         // Verificar que sea juez del evento
-        if (!$evento->jueces()->where('usuario_id', $usuario->id)->exists()) {
+        if (! $evento->jueces()->where('usuario_id', $usuario->id)->exists()) {
             abort(403, 'Solo los jueces del evento pueden calificar equipos.');
+        }
+
+        // Verificar que el equipo esté aprobado
+        if ($equipo->estado !== 'aprobado') {
+            return redirect()->route('juez.panel')
+                ->with('error', 'Solo se pueden calificar equipos que han sido aprobados por el administrador.');
         }
 
         // Validar puntuaciones (1-10)
@@ -61,7 +73,7 @@ class CalificacionController extends Controller
             'puntaje_presentacion' => 'required|integer|min:1|max:10',
             'puntaje_documentacion' => 'required|integer|min:1|max:10',
             'observaciones' => 'nullable|string|max:1000',
-            'recomendaciones' => 'nullable|string|max:1000'
+            'recomendaciones' => 'nullable|string|max:1000',
         ]);
 
         // Obtener o crear calificación
@@ -69,7 +81,7 @@ class CalificacionController extends Controller
             [
                 'juez_id' => $usuario->id,
                 'equipo_id' => $equipo->id_equipo,
-                'evento_id' => $evento->id_evento
+                'evento_id' => $evento->id_evento,
             ],
             $validated
         );
@@ -86,7 +98,7 @@ class CalificacionController extends Controller
         $usuario = Auth::user();
 
         // Verificar que sea el juez que creó la calificación o admin
-        if ($calificacion->juez_id !== $usuario->id && !$usuario->esAdmin()) {
+        if ($calificacion->juez_id !== $usuario->id && ! $usuario->esAdmin()) {
             abort(403, 'No tienes permiso para editar esta calificación.');
         }
 
@@ -97,7 +109,7 @@ class CalificacionController extends Controller
             'puntaje_presentacion' => 'required|integer|min:1|max:10',
             'puntaje_documentacion' => 'required|integer|min:1|max:10',
             'observaciones' => 'nullable|string|max:1000',
-            'recomendaciones' => 'nullable|string|max:1000'
+            'recomendaciones' => 'nullable|string|max:1000',
         ]);
 
         $calificacion->update($validated);
@@ -112,7 +124,7 @@ class CalificacionController extends Controller
     {
         $usuario = Auth::user();
 
-        if (!$usuario->esAdmin()) {
+        if (! $usuario->esAdmin()) {
             abort(403, 'Solo administradores pueden eliminar calificaciones.');
         }
 
@@ -131,7 +143,7 @@ class CalificacionController extends Controller
         $usuario = Auth::user();
 
         // Verificar que sea juez del evento o admin
-        if (!$evento->jueces()->where('usuario_id', $usuario->id)->exists() && !$usuario->esAdmin()) {
+        if (! $evento->jueces()->where('usuario_id', $usuario->id)->exists() && ! $usuario->esAdmin()) {
             abort(403, 'No tienes permiso para ver estas calificaciones.');
         }
 
@@ -145,7 +157,7 @@ class CalificacionController extends Controller
             return [
                 'equipo' => $grupoEquipo->first()->equipo,
                 'calificaciones' => $grupoEquipo,
-                'puntaje_promedio' => round($grupoEquipo->avg('puntaje_final'), 2)
+                'puntaje_promedio' => round($grupoEquipo->avg('puntaje_final'), 2),
             ];
         })->sortByDesc('puntaje_promedio');
 
@@ -160,7 +172,7 @@ class CalificacionController extends Controller
         $usuario = Auth::user();
 
         // Cualquiera puede ver el ranking si el evento está cerrado, solo admin puede ver borrador
-        if ($evento->estado !== 'finalizado' && !$usuario->esAdmin()) {
+        if ($evento->estado !== 'finalizado' && ! $usuario->esAdmin()) {
             abort(403, 'El evento aún no ha finalizado.');
         }
 
@@ -171,11 +183,12 @@ class CalificacionController extends Controller
         // Agrupar por equipo y calcular promedio final
         $ranking = $calificaciones->groupBy('equipo_id')->map(function ($grupoEquipo) {
             $califs = $grupoEquipo->all();
+
             return [
                 'equipo' => $grupoEquipo->first()->equipo,
                 'puntaje_promedio' => round(collect($califs)->avg('puntaje_final'), 2),
                 'calificaciones_count' => count($califs),
-                'ganador' => $grupoEquipo->first()->ganador ?? false
+                'ganador' => $grupoEquipo->first()->ganador ?? false,
             ];
         })->sortByDesc('puntaje_promedio')->values();
 
