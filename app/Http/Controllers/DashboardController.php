@@ -45,6 +45,11 @@ class DashboardController extends Controller
             return view('admin.panel', compact('estadisticas', 'equipos'));
         }
 
+        // Si es juez, redirigir al panel del juez
+        if ($usuario->esJuez()) {
+            return redirect()->route('juez.panel');
+        }
+
         // Obtener próximos eventos (ordenados por fecha)
         $proximosEventos = Evento::where('fecha_inicio', '>=', Carbon::now())
             ->orderBy('fecha_inicio', 'asc')

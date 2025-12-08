@@ -66,6 +66,12 @@
                     </a>
                 </li>
                 <li>
+                    <a class="flex items-center gap-3 px-4 py-2 rounded text-text-light-secondary dark:text-text-dark-secondary hover:bg-surface-light dark:hover:bg-surface-dark transition-colors" href="{{ route('admin.jueces') }}">
+                        <span class="material-symbols-outlined">gavel</span>
+                        <span>Jueces</span>
+                    </a>
+                </li>
+                <li>
                     <a class="flex items-center gap-3 px-4 py-2 rounded bg-surface-light dark:bg-surface-dark font-semibold text-text-light-primary dark:text-text-dark-primary" href="{{ route('admin.configuracion') }}">
                         <span class="material-symbols-outlined">settings</span>
                         <span>Configuración</span>

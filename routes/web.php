@@ -9,6 +9,7 @@ use App\Http\Controllers\EquipoController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\JuezController;
 use App\Http\Controllers\NotificacionController;
 
 /*
@@ -134,5 +135,20 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/admin/api/equipos/stats', [DashboardController::class, 'equiposStats'])->name('admin.equipos.stats');
         Route::patch('/admin/eventos/{evento}/status', [AdminController::class, 'updateEventoStatus'])->name('admin.eventos.update-status');
         Route::patch('/equipos/{equipo}/status', [AdminController::class, 'updateEquipoStatus'])->name('equipos.update-status');
+        
+        // Jueces (Admin)
+        Route::get('/admin/jueces', [AdminController::class, 'jueces'])->name('admin.jueces');
+        Route::get('/admin/jueces/crear', [AdminController::class, 'crearJuez'])->name('admin.jueces.create');
+        Route::post('/admin/jueces', [AdminController::class, 'guardarJuez'])->name('admin.jueces.store');
+        Route::get('/admin/jueces/{juez}/asignar-eventos', [AdminController::class, 'asignarEventosJuez'])->name('admin.jueces.asignar-eventos');
+        Route::post('/admin/jueces/{juez}/guardar-asignacion', [AdminController::class, 'guardarAsignacionEventosJuez'])->name('admin.jueces.guardar-asignacion');
+    });
+
+    // ==========================================
+    //          RUTAS DE JUEZ
+    // ==========================================
+    Route::middleware(['is.juez'])->group(function () {
+        Route::get('/juez/panel', [JuezController::class, 'panel'])->name('juez.panel');
+        Route::get('/juez/constancias', [JuezController::class, 'historialConstancias'])->name('juez.constancias');
     });
 });

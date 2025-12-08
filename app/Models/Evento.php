@@ -45,6 +45,15 @@ class Evento extends Model
         return $this->hasMany(Equipo::class, 'id_evento', 'id_evento');
     }
 
+    /**
+     * Relación: jueces asignados a este evento
+     */
+    public function jueces()
+    {
+        return $this->belongsToMany(\App\Models\Usuario::class, 'juez_evento', 'evento_id', 'usuario_id', 'id_evento', 'id')
+            ->withTimestamps();
+    }
+
     // --- Scopes (Filtros) ---
 
     public function scopeProximos($query)
