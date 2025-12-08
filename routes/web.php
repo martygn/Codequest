@@ -11,6 +11,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\JuezController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\RepositorioController;
+use App\Http\Controllers\CalificacionController;
+use App\Http\Controllers\ResultadoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -104,6 +107,21 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/equipos/{equipo}/quitar-evento', [EquipoController::class, 'quitarEvento'])->name('equipos.quitar-evento');
 
     // ==========================================
+    //    REPOSITORIOS & CALIFICACIONES
+    // ==========================================
+    // Repositorios (Líder del equipo)
+    Route::get('/equipos/{equipo}/repositorio', [RepositorioController::class, 'show'])->name('repositorios.show');
+    Route::post('/equipos/{equipo}/repositorio', [RepositorioController::class, 'store'])->name('repositorios.store');
+    Route::post('/repositorios/{repositorio}/descargar', [RepositorioController::class, 'descargar'])->name('repositorios.descargar');
+    
+    // Calificaciones (Juez)
+    Route::get('/equipos/{equipo}/calificar', [CalificacionController::class, 'show'])->name('calificaciones.show');
+    Route::post('/equipos/{equipo}/calificar', [CalificacionController::class, 'store'])->name('calificaciones.store');
+    Route::post('/calificaciones/{calificacion}', [CalificacionController::class, 'update'])->name('calificaciones.update');
+    Route::get('/eventos/{evento}/calificaciones', [CalificacionController::class, 'listar'])->name('calificaciones.listar');
+    Route::get('/eventos/{evento}/ranking', [CalificacionController::class, 'ranking'])->name('calificaciones.ranking');
+
+    // ==========================================
     //      PERFIL DE LARAVEL (Breeze)
     // ==========================================
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -128,6 +146,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/admin/perfil', [AdminController::class, 'perfil'])->name('admin.perfil');
         Route::get('/admin/configuracion', [AdminController::class, 'configuracion'])->name('admin.configuracion');
+        Route::get('/admin/resultados-panel', [AdminController::class, 'resultados'])->name('admin.resultados-panel');
 
         Route::put('/admin/configuracion/info', [AdminController::class, 'updateInfo'])->name('admin.updateInfo');
         Route::put('/admin/configuracion/password', [AdminController::class, 'updatePassword'])->name('admin.updatePassword');
@@ -142,6 +161,19 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/admin/jueces', [AdminController::class, 'guardarJuez'])->name('admin.jueces.store');
         Route::get('/admin/jueces/{juez}/asignar-eventos', [AdminController::class, 'asignarEventosJuez'])->name('admin.jueces.asignar-eventos');
         Route::post('/admin/jueces/{juez}/guardar-asignacion', [AdminController::class, 'guardarAsignacionEventosJuez'])->name('admin.jueces.guardar-asignacion');
+
+        // Repositorios & Calificaciones (Admin)
+        Route::post('/repositorios/{repositorio}/verificar', [RepositorioController::class, 'verificar'])->name('repositorios.verificar');
+        Route::post('/repositorios/{repositorio}/rechazar', [RepositorioController::class, 'rechazar'])->name('repositorios.rechazar');
+        Route::delete('/repositorios/{repositorio}', [RepositorioController::class, 'destroy'])->name('repositorios.destroy');
+        Route::delete('/calificaciones/{calificacion}', [CalificacionController::class, 'destroy'])->name('calificaciones.destroy');
+
+        // Resultados (Admin)
+        Route::get('/admin/resultados', [ResultadoController::class, 'index'])->name('admin.resultados.index');
+        Route::get('/admin/eventos/{evento}/resultados', [ResultadoController::class, 'show'])->name('admin.resultados.show');
+        Route::post('/admin/eventos/{evento}/marcar-ganador', [ResultadoController::class, 'marcarGanador'])->name('admin.resultados.marcar-ganador');
+        Route::get('/admin/eventos/{evento}/exportar-resultados', [ResultadoController::class, 'exportarPDF'])->name('admin.resultados.exportar');
+        Route::get('/admin/eventos/{evento}/constancia', [ResultadoController::class, 'generarConstancia'])->name('admin.resultados.constancia');
     });
 
     // ==========================================

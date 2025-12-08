@@ -54,6 +54,22 @@ class Evento extends Model
             ->withTimestamps();
     }
 
+    /**
+     * Relación: Repositorios de este evento (1:M)
+     */
+    public function repositorios()
+    {
+        return $this->hasMany(Repositorio::class, 'evento_id', 'id_evento');
+    }
+
+    /**
+     * Relación: Calificaciones de equipos en este evento (1:M)
+     */
+    public function calificaciones()
+    {
+        return $this->hasMany(CalificacionEquipo::class, 'evento_id', 'id_evento');
+    }
+
     // --- Scopes (Filtros) ---
 
     public function scopeProximos($query)

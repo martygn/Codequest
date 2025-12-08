@@ -248,4 +248,12 @@ class Usuario extends Authenticatable
         return $this->belongsToMany(\App\Models\Evento::class, 'juez_evento', 'usuario_id', 'evento_id', 'id', 'id_evento')
             ->withTimestamps();
     }
+
+    /**
+     * Relación: Calificaciones que ha dado el juez (1:M)
+     */
+    public function calificacionesJuez()
+    {
+        return $this->hasMany(CalificacionEquipo::class, 'juez_id', 'id');
+    }
 }

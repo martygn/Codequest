@@ -46,8 +46,17 @@
             <nav class="mt-8 space-y-2">
                 <a class="flex items-center gap-3 px-4 py-2 {{ request()->routeIs('juez.panel') ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 rounded font-semibold' : 'text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors' }}" href="{{ route('juez.panel') }}">
                     <span class="material-symbols-outlined">calendar_today</span>
-                    <span>Evento Asignado</span>
+                    <span>Eventos</span>
                 </a>
+                @forelse($eventosAsignados as $ev)
+                    @if($eventosAsignados->count() > 1)
+                        <a href="{{ route('juez.panel', ['evento' => $ev->id_evento]) }}" class="flex items-center gap-3 px-4 py-2 ml-3 text-sm {{ $evento && $evento->id_evento === $ev->id_evento ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 rounded font-semibold' : 'text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors' }}">
+                            <span class="material-symbols-outlined text-base">{{ $evento && $evento->id_evento === $ev->id_evento ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
+                            <span class="truncate">{{ $ev->nombre }}</span>
+                        </a>
+                    @endif
+                @empty
+                @endforelse
                 <a class="flex items-center gap-3 px-4 py-2 {{ request()->routeIs('juez.constancias') ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 rounded font-semibold' : 'text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors' }}" href="{{ route('juez.constancias') }}">
                     <span class="material-symbols-outlined">description</span>
                     <span>Historial de Constancias</span>
@@ -132,7 +141,14 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <a href="#" class="text-primary hover:underline font-medium">Calificar</a>
+                                            @php
+                                                $calificacion = $equipo->calificaciones?->firstWhere('juez_id', $juez->id);
+                                            @endphp
+                                            @if($calificacion)
+                                                <a href="{{ route('calificaciones.show', ['equipo' => $equipo->id_equipo]) }}" class="text-primary hover:underline font-medium">Editar Puntuación</a>
+                                            @else
+                                                <a href="{{ route('calificaciones.show', ['equipo' => $equipo->id_equipo]) }}" class="text-primary hover:underline font-medium">Calificar</a>
+                                            @endif
                                         </td>
                                     </tr>
                                     @endforeach

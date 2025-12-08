@@ -277,10 +277,26 @@ class Equipo extends Model
     }
 
     /**
-     * Alias 'juez' para compatibilidad con código que intenta cargar 'juez'
+     * Relación: Alias 'juez' para compatibilidad con código que intenta cargar 'juez'
      */
     public function juez()
     {
         return $this->jueces();
+    }
+
+    /**
+     * Relación: Repositorio del equipo (1:1)
+     */
+    public function repositorio()
+    {
+        return $this->hasOne(Repositorio::class, 'equipo_id', 'id_equipo');
+    }
+
+    /**
+     * Relación: Calificaciones del equipo (1:M)
+     */
+    public function calificaciones()
+    {
+        return $this->hasMany(CalificacionEquipo::class, 'equipo_id', 'id_equipo');
     }
 }
