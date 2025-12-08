@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Panel de control - Administrador</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
@@ -188,123 +189,123 @@
         </div>
     </main>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    let teamsChart = null;
+    const ctx = document.getElementById('teamsChart');
 
-                <!-- Chart.js CDN + panel script -->
-                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                <script>
-                    (function(){
-                        const statsUrl = "{{ route('admin.equipos.stats') }}";
-                        const initial = { en_revision: 0, aprobado: 0, rechazado: 0 };
+    if (!ctx) {
+        console.error('Canvas no encontrado');
+        return;
+    }
 
-                        const ctx = document.getElementById('teamsChart');
-                        let teamsChart = null;
+    async function loadStats() {
+        try {
+            const res = await fetch("{{ route('admin.equipos.stats') }}", {
+                headers: { 'Accept': 'application/json' }
+            });
+            const data = await res.json();
+            const stats = data.estadisticas || { en_revision: 0, aprobado: 0, rechazado: 0 };
 
-                        function buildChart(data) {
-                            try {
-                                const values = [data.en_revision || 0, data.aprobado || 0, data.rechazado || 0];
-                                if (!teamsChart) {
-                                    const ctx2d = ctx && ctx.getContext ? ctx.getContext('2d') : null;
-                                    if (!ctx2d) return;
-                                    teamsChart = new Chart(ctx2d, {
-                                        type: 'doughnut',
-                                        data: {
-                                            labels: ['En revisión','Aprobados','Rechazados'],
-                                            datasets: [{
-                                                data: values,
-                                                backgroundColor: ['#F59E0B','#10B981','#EF4444']
-                                            }]
-                                        },
-                                        options: { responsive: true, maintainAspectRatio: false }
-                                    });
-                                } else {
-                                    teamsChart.data.datasets[0].data = values;
-                                    teamsChart.update();
-                                }
-                            } catch (err) {
-                                console.error('Error construyendo la gráfica:', err);
-                            }
+            const valores = [stats.en_revision, stats.aprobado, stats.rechazado];
+
+            if (!teamsChart) {
+                teamsChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['En revisión', 'Aprobados', 'Rechazados'],
+                        datasets: [{
+                            data: valores,
+                            backgroundColor: ['#F59E0B', '#10B981', '#EF4444'],
+                            borderColor: '#fff',
+                            borderWidth: 3,
+                            hoverOffset: 12
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { padding: 20 } }
                         }
+                    }
+                });
+            } else {
+                teamsChart.data.datasets[0].data = valores;
+                teamsChart.update();
+            }
+        } catch (e) {
+            console.error('Error cargando stats:', e);
+        }
+    }
 
-                        // Eliminada: la actualización de conteos numéricos en la vista (las tarjetas fueron removidas)
+    loadStats();
+    setInterval(loadStats, 6000);
 
-                        async function fetchStats() {
-                            try {
-                                const res = await fetch(statsUrl, { headers: { 'Accept': 'application/json' } });
-                                if (!res.ok) return;
-                                const json = await res.json();
-                                const data = json.estadisticas || {};
-                                buildChart(data);
-                            } catch (e) {
-                                console.error('Error fetching stats', e);
-                            }
-                        }
+    // CAMBIO DE ESTADO CON AJAX
+    document.addEventListener('submit', async function(e) {
+        const form = e.target;
+        if (!form.classList.contains('ajax-status')) return;
 
-                        // Inicializar
-                        if (ctx) {
-                            buildChart(initial);
-                        }
+        e.preventDefault();
 
-                        // Polling cada 4 segundos
-                        setInterval(fetchStats, 4000);
+        const estado = form.querySelector('select[name="estado"]').value;
+        const row = form.closest('tr');
+        const nombreEquipo = row.cells[0].textContent.trim();
 
-                        // Interceptar formularios AJAX de cambio de estado
-                        document.addEventListener('submit', async function(e){
-                            const form = e.target;
-                            if (!form.classList || !form.classList.contains('ajax-status')) return;
-                            e.preventDefault();
-                            const action = form.action;
-                            const tokenInput = form.querySelector('input[name="_token"]');
-                            const token = tokenInput ? tokenInput.value : '';
-                            const estado = form.querySelector('select[name="estado"]').value;
+        try {
+            const res = await fetch(form.action, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify({ estado })
+            });
 
-                            try {
-                                const res = await fetch(action, {
-                                    method: 'PATCH',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Accept': 'application/json',
-                                        'X-CSRF-TOKEN': token
-                                    },
-                                    body: JSON.stringify({ estado })
-                                });
-                                if (!res.ok) {
-                                    const txt = await res.text();
-                                    alert('Error actualizando estado');
-                                    return;
-                                }
-                                const json = await res.json();
-                                if (json.estadisticas) {
-                                    buildChart(json.estadisticas);
-                                }
+            if (!res.ok) throw new Error('Error HTTP ' + res.status);
 
-                                // Actualizar la celda de estado en la fila donde se envió el formulario
-                                try {
-                                    const nuevoEstado = json.estado || (json.estadisticas && json.estadisticas.estado) || null;
-                                    if (nuevoEstado) {
-                                        const row = form.closest('tr');
-                                        if (row) {
-                                            const tds = row.querySelectorAll('td');
-                                            if (tds && tds.length >= 4) {
-                                                const estadoCell = tds[3];
-                                                const estadoNorm = (nuevoEstado || '').toString().toLowerCase().trim();
-                                                let bg = '#FFFBEB';
-                                                let color = '#92400E';
-                                                if (estadoNorm === 'aprobado') { bg = '#ECFDF5'; color = '#065F46'; }
-                                                if (estadoNorm === 'rechazado') { bg = '#FEF2F2'; color = '#991B1B'; }
-                                                estadoCell.innerHTML = `<span class="inline-block px-3 py-1 rounded-full text-xs font-medium" style="background: ${bg}; color: ${color};">${nuevoEstado}</span>`;
-                                            }
-                                        }
-                                    }
-                                } catch (err) {
-                                    console.warn('No fue posible actualizar la celda de estado en la fila:', err);
-                                }
-                            } catch (err) {
-                                console.error(err);
-                                alert('Error al actualizar el estado.');
-                            }
-                        });
-                    })();
-                </script>
+            const json = await res.json();
+
+            // Actualizar celda de estado
+            const cell = row.cells[3];
+            let bg = '#FFFBEB', color = '#92400E';
+            if (estado === 'aprobado') { bg = '#ECFDF5'; color = '#065F46'; }
+            if (estado === 'rechazado') { bg = '#FEF2F2'; color = '#991B1B'; }
+
+            cell.innerHTML = `
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-medium" 
+                      style="background:${bg}; color:${color}">
+                    ${estado}
+                </span>
+            `;
+
+            // Actualizar gráfica si vienen estadísticas
+            if (json.estadisticas) {
+                const valores = [
+                    json.estadisticas.en_revision || 0,
+                    json.estadisticas.aprobado || 0,
+                    json.estadisticas.rechazado || 0
+                ];
+                teamsChart.data.datasets[0].data = valores;
+                teamsChart.update();
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-pulse';
+            toast.textContent = `"${nombreEquipo}" → ${estado}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+
+        } catch (err) {
+            console.error(err);
+            alert('Error al actualizar el estado del equipo');
+        }
+    });
+});
+</script>
 
             </body>
             </html>

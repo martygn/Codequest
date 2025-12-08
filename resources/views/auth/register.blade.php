@@ -8,21 +8,26 @@
     <form method="POST" action="{{ route('register') }}" class="space-y-4">
         @csrf
 
-        <!-- Nombre completo -->
-        <div>
-            <x-text-input
-                id="name"
-                class="block w-full"
-                type="text"
-                name="name"
-                :value="old('name')"
-                required
-                autofocus
-                autocomplete="name"
-                placeholder="Nombre completo"
-            />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Nombre -->
+    <div>
+        <x-input-label for="nombre" :value="__('Nombre')" />
+        <x-text-input id="nombre" class="block mt-1 w-full" type="text" name="nombre" :value="old('nombre')" required autofocus autocomplete="given-name" />
+        <x-input-error :messages="$errors->get('nombre')" class="mt-2" />
+    </div>
+         <!-- apellido paterno -->
+    <div>
+        <x-input-label for="apellido_paterno" :value="__('Apellido Paterno')" />
+        <x-text-input id="apellido_paterno" class="block mt-1 w-full" type="text" name="apellido_paterno" :value="old('apellido_paterno')" required autocomplete="family-name" />
+        <x-input-error :messages="$errors->get('apellido_paterno')" class="mt-2" />
+    </div>
+        <!-- Apellido materno -->
+    <div>
+        <x-input-label for="apellido_materno" :value="__('Apellido Materno')" />
+        <x-text-input id="apellido_materno" class="block mt-1 w-full" type="text" name="apellido_materno" :value="old('apellido_materno')" autocomplete="family-name" />
+        <x-input-error :messages="$errors->get('apellido_materno')" class="mt-2" />
+    </div>
+    </div>
 
         <!-- Nombre de Usuario -->
         <div>
