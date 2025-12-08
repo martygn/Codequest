@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Usuario extends Authenticatable
 {
@@ -221,5 +222,30 @@ class Usuario extends Authenticatable
     public function scopeParticipantes($query)
     {
         return $query->where('tipo', 'participante');
+    }
+
+    /**
+     * Verificar si el usuario es juez
+     */
+    public function esJuez()
+    {
+        return $this->tipo === 'juez';
+    }
+
+    /**
+     * Scope para jueces
+     */
+    public function scopeJueces($query)
+    {
+        return $query->where('tipo', 'juez');
+    }
+
+    /**
+     * Relación: eventos asignados al juez (pivote juez_evento)
+     */
+    public function eventosAsignados(): BelongsToMany
+    {
+        return $this->belongsToMany(\App\Models\Evento::class, 'juez_evento', 'usuario_id', 'evento_id', 'id', 'id_evento')
+            ->withTimestamps();
     }
 }

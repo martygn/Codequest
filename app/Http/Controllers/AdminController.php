@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use App\Models\Evento;
 use App\Models\Equipo;
-use App\Models\User; // Asegúrate de importar tu modelo de usuario
+use App\Models\Usuario; // Modelo de usuarios del sistema
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -235,5 +237,101 @@ class AdminController extends Controller
         $user->save();
 
         return back()->with('success', 'Contraseña actualizada correctamente.');
+    }
+
+    // ------------------ JUECES (Admin) ------------------
+
+    public function jueces()
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
+
+        $jueces = Usuario::where('tipo', 'juez')->orderBy('created_at', 'desc')->paginate(15);
+        return view('admin.jueces.index', compact('jueces'));
+    }
+
+    public function crearJuez()
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
+
+        return view('admin.jueces.create');
+    }
+
+    public function guardarJuez(Request $request)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
+
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido_paterno' => 'nullable|string|max:255',
+            'apellido_materno' => 'nullable|string|max:255',
+            'correo' => 'required|email|unique:usuarios,correo'
+        ]);
+
+        $password = Str::random(10);
+
+        $juez = new Usuario();
+        $juez->nombre = $validated['nombre'];
+        $juez->apellido_paterno = $validated['apellido_paterno'] ?? null;
+        $juez->apellido_materno = $validated['apellido_materno'] ?? null;
+        $juez->correo = $validated['correo'];
+        $juez->password = $password; // el mutator del modelo hace el hash
+        $juez->tipo = 'juez';
+        $juez->save();
+
+        try {
+            Mail::send('emails.juez_credentials', ['juez' => $juez, 'password' => $password], function ($m) use ($juez) {
+                $m->to($juez->correo, $juez->nombre_completo)->subject('Tus credenciales como Juez - CodeQuest');
+            });
+            $emailEnviado = true;
+        } catch (\Exception $e) {
+            $emailEnviado = false;
+        }
+
+        // Mostrar las credenciales en una vista de confirmación
+        return view('admin.jueces.credentials', compact('juez', 'password', 'emailEnviado'));
+    }
+
+    /**
+     * Mostrar formulario para asignar eventos a un juez
+     */
+    public function asignarEventosJuez(Usuario $juez)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        // Obtener todos los eventos
+        $eventos = Evento::orderBy('nombre')->get();
+
+        // Obtener eventos ya asignados al juez
+        $eventosAsignados = $juez->eventosAsignados()->pluck('id_evento')->toArray();
+
+        return view('admin.jueces.asignar', compact('juez', 'eventos', 'eventosAsignados'));
+    }
+
+    /**
+     * Guardar asignación de eventos a un juez
+     */
+    public function guardarAsignacionEventosJuez(Request $request, Usuario $juez)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $validated = $request->validate([
+            'eventos' => 'array',
+            'eventos.*' => 'exists:eventos,id_evento'
+        ]);
+
+        // Sincronizar eventos asignados (solo los seleccionados)
+        $eventosIds = $validated['eventos'] ?? [];
+        $juez->eventosAsignados()->sync($eventosIds);
+
+        return redirect()->route('admin.jueces')->with('success', 'Eventos asignados al juez correctamente.');
     }
 }

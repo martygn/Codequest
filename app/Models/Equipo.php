@@ -266,4 +266,21 @@ class Equipo extends Model
             ->orderBy('participante_equipo.created_at')
             ->first();
     }
+
+    /**
+     * Relación: jueces asignados al evento de este equipo (a través de la tabla pivote)
+     */
+    public function jueces()
+    {
+        return $this->belongsToMany(\App\Models\Usuario::class, 'juez_evento', 'evento_id', 'usuario_id', 'id_evento', 'id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Alias 'juez' para compatibilidad con código que intenta cargar 'juez'
+     */
+    public function juez()
+    {
+        return $this->jueces();
+    }
 }
