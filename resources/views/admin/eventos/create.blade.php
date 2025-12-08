@@ -4,6 +4,107 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Crear Evento - Panel Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24 }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200">
+<div class="flex h-screen">
+    @include('admin._sidebar')
+
+    <main class="flex-1 p-8 overflow-y-auto">
+        <div class="max-w-4xl mx-auto">
+
+            {{-- Header --}}
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold">Crear Evento</h1>
+                    <p class="text-sm text-gray-500">Rellena los datos para crear un nuevo evento.</p>
+                </div>
+                <a href="{{ route('admin.eventos') }}" class="text-primary hover:underline">Volver a Eventos</a>
+            </div>
+
+            @if(session('success'))
+                <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <form action="{{ route('admin.eventos.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+
+                    <div class="grid grid-cols-1 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Nombre del Evento</label>
+                            <input type="text" name="nombre" value="{{ old('nombre') }}" required
+                                   class="w-full rounded border px-4 py-2">
+                            @error('nombre') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Descripción</label>
+                            <textarea name="descripcion" rows="4" class="w-full rounded border px-4 py-2">{{ old('descripcion') }}</textarea>
+                            @error('descripcion') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Fecha de Inicio</label>
+                                <input type="datetime-local" name="fecha_inicio" value="{{ old('fecha_inicio') }}" required class="w-full rounded border px-4 py-2">
+                                @error('fecha_inicio') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Fecha de Fin</label>
+                                <input type="datetime-local" name="fecha_fin" value="{{ old('fecha_fin') }}" required class="w-full rounded border px-4 py-2">
+                                @error('fecha_fin') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Reglas</label>
+                            <textarea name="reglas" rows="3" class="w-full rounded border px-4 py-2">{{ old('reglas') }}</textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Premios</label>
+                            <textarea name="premios" rows="3" class="w-full rounded border px-4 py-2">{{ old('premios') }}</textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Otra información</label>
+                            <textarea name="otra_informacion" rows="3" class="w-full rounded border px-4 py-2">{{ old('otra_informacion') }}</textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium mb-2">Imagen del Evento</label>
+                            <input type="file" name="foto" accept="image/*" class="w-full">
+                            @error('foto') <p class="text-red-600 text-sm mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <input type="hidden" name="estado" value="pendiente">
+
+                        <div class="flex justify-end">
+                            <button type="submit" class="bg-primary text-white font-semibold px-6 py-2 rounded">Crear Evento</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </main>
+</div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Crear Evento - Panel Admin</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>

@@ -23,11 +23,20 @@ class AdminController extends Controller
         $status = request()->get('status', 'pendientes');
         $query = Evento::query();
 
+        // Búsqueda por texto
+        $search = request()->get('search');
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('descripcion', 'like', "%{$search}%");
+            });
+        }
+
         if ($status === 'pendientes') { $query->where('estado', 'pendiente'); } 
         elseif ($status === 'publicados') { $query->where('estado', 'publicado'); }
 
         $eventos = $query->orderBy('fecha_inicio', 'desc')->paginate(10)->withQueryString();
-        return view('admin.eventos', compact('eventos', 'status'));
+        return view('admin.eventos', compact('eventos', 'status', 'search'));
     }
 
     public function updateEventoStatus(Request $request, Evento $evento)
@@ -125,6 +134,55 @@ class AdminController extends Controller
         $evento->load('equipos.participantes');
 
         return view('admin.eventos.show', compact('evento'));
+    }
+
+    /**
+     * Mostrar formulario de creación de evento (panel admin).
+     */
+    public function crearEvento()
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        // Usar vista específica del panel admin
+        return view('admin.eventos.create');
+    }
+
+    /**
+     * Guardar evento creado desde panel admin.
+     */
+    public function guardarEvento(Request $request)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'reglas' => 'nullable|string',
+            'premios' => 'nullable|string',
+            'otra_informacion' => 'nullable|string',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'estado' => 'nullable|in:pendiente,publicado',
+        ]);
+
+        if (empty($validated['estado'])) {
+            $validated['estado'] = 'pendiente';
+        }
+
+        if ($request->hasFile('foto')) {
+            $validated['foto'] = $request->file('foto')->store('eventos', 'public');
+        }
+
+        Evento::create($validated);
+
+        return redirect()->route('admin.eventos')->with('success', 'Evento creado exitosamente.');
     }
 
     // --- MÉTODOS DE ACTUALIZACIÓN DE PERFIL Y CONTRASEÑA ---
