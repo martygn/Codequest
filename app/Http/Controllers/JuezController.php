@@ -11,7 +11,7 @@ class JuezController extends Controller
     /**
      * Panel principal del juez - Muestra el evento asignado y equipos a evaluar
      */
-    public function panel()
+    public function panel(Request $request)
     {
         $juez = auth()->user();
         
@@ -22,14 +22,15 @@ class JuezController extends Controller
         // Obtener los eventos asignados al juez
         $eventosAsignados = $juez->eventosAsignados()->get();
 
-        // Si hay eventos, obtener el primero (el actual)
-        $evento = $eventosAsignados->first();
+        // Obtener evento desde el parámetro de query o usar el primero
+        $eventoId = $request->query('evento');
+        $evento = $eventosAsignados->firstWhere('id_evento', $eventoId) ?? $eventosAsignados->first();
         $equipos = [];
 
         if ($evento) {
-            // Obtener los equipos del evento asignado
+            // Obtener los equipos del evento asignado con sus calificaciones
             $equipos = Equipo::where('id_evento', $evento->id_evento)
-                ->with('participantes', 'lider')
+                ->with('participantes', 'lider', 'calificaciones')
                 ->orderBy('nombre')
                 ->get();
         }

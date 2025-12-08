@@ -117,6 +117,18 @@
                             {{ __('Mis Eventos') }}
                         </x-dropdown-link>
 
+                        @if(Auth::user()->esAdmin())
+                            <div class="border-t border-gray-100"></div>
+                            <x-dropdown-link :href="route('admin.resultados-panel')">
+                                {{ __('📊 Resultados') }}
+                            </x-dropdown-link>
+                        @elseif(Auth::user()->es_juez)
+                            <div class="border-t border-gray-100"></div>
+                            <x-dropdown-link :href="route('juez.panel')">
+                                {{ __('⭐ Panel de Juez') }}
+                            </x-dropdown-link>
+                        @endif
+
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
@@ -172,6 +184,18 @@
                 <x-responsive-nav-link :href="route('player.eventos')">
                     {{ __('Mis Eventos') }}
                 </x-responsive-nav-link>
+
+                @if(Auth::user()->esAdmin())
+                    <div class="border-t border-gray-200 my-2"></div>
+                    <x-responsive-nav-link :href="route('admin.resultados.index')">
+                        {{ __('📊 Resultados') }}
+                    </x-responsive-nav-link>
+                @elseif(Auth::user()->es_juez)
+                    <div class="border-t border-gray-200 my-2"></div>
+                    <x-responsive-nav-link :href="route('juez.panel')">
+                        {{ __('⭐ Panel de Juez') }}
+                    </x-responsive-nav-link>
+                @endif
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

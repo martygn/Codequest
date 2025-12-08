@@ -10,6 +10,7 @@ use Illuminate\Validation\Rules\Password;
 use App\Models\Evento;
 use App\Models\Equipo;
 use App\Models\Usuario; // Modelo de usuarios del sistema
+use App\Models\CalificacionEquipo;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 
@@ -91,6 +92,39 @@ class AdminController extends Controller
         $usuario = auth()->user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
         return view('admin.configuracion');
+    }
+
+    public function resultados()
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
+
+        // Obtener eventos con calificaciones
+        $eventos = Evento::with(['calificaciones', 'equipos'])->get();
+
+        $resultados = $eventos->map(function ($evento) {
+            $calificaciones = CalificacionEquipo::where('evento_id', $evento->id_evento)->get();
+            
+            if ($calificaciones->isEmpty()) {
+                return null;
+            }
+
+            $ranking = $calificaciones->groupBy('equipo_id')->map(function ($grupoEquipo) {
+                return [
+                    'equipo' => $grupoEquipo->first()->equipo,
+                    'puntaje_promedio' => round(collect($grupoEquipo)->avg('puntaje_final'), 2),
+                    'calificaciones_count' => $grupoEquipo->count(),
+                    'ganador' => $grupoEquipo->first()->ganador ?? false
+                ];
+            })->sortByDesc('puntaje_promedio');
+
+            return [
+                'evento' => $evento,
+                'ranking' => $ranking
+            ];
+        })->filter();
+
+        return view('admin.resultados_panel', compact('resultados'));
     }
 
     public function updateEquipoStatus(Request $request, Equipo $equipo)
