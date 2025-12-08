@@ -108,9 +108,11 @@ class EventoController extends Controller
                     ->where('id_evento', $evento->id_evento)
                     ->exists();
 
-                // Verificar si tiene ALGÚN equipo aprobado
+                // Verificar si tiene ALGÚN equipo aprobado en el que sea LÍDER
+                // Solo los líderes de un equipo aprobado pueden inscribirlo en eventos
                 $tieneEquipoAprobado = $usuario->equipos()
                     ->where('aprobado', true)
+                    ->where('id_lider', $usuario->id)
                     ->exists();
             }
         }
@@ -134,8 +136,16 @@ class EventoController extends Controller
             return redirect()->route('login');
         }
 
-        // Verificar que el usuario tenga al menos un equipo aprobado
-        $equiposAprobados = $usuario->equipos()->where('aprobado', true)->get();
+        // Solo permitir inscripción si el evento está publicado
+        if ($evento->estado !== 'publicado') {
+            return back()->with('error', '❌ No puedes inscribir equipos en un evento que aún no ha sido publicado.');
+        }
+
+        // Verificar que el usuario tenga al menos un equipo aprobado y que además sea LÍDER
+        $equiposAprobados = $usuario->equipos()
+            ->where('aprobado', true)
+            ->where('id_lider', $usuario->id)
+            ->get();
 
         if ($equiposAprobados->isEmpty()) {
             return redirect()->route('equipos.create')
@@ -145,8 +155,17 @@ class EventoController extends Controller
         // Si solo tiene un equipo aprobado, usarlo automáticamente
         if ($equiposAprobados->count() === 1) {
             $equipo = $equiposAprobados->first();
-            $equipo->id_evento = $evento->id_evento;
-            $equipo->save();
+
+            // Verificar que el equipo no esté inscrito en otro evento distinto
+            if (!is_null($equipo->id_evento) && $equipo->id_evento != $evento->id_evento) {
+                return back()->with('error', '❌ Tu equipo ya está inscrito en otro evento. Desinscríbelo primero desde Mis Eventos antes de inscribirlo en este.');
+            }
+
+            // Asignar solo si no está inscrito o ya está en este mismo evento
+            if (is_null($equipo->id_evento) || $equipo->id_evento == $evento->id_evento) {
+                $equipo->id_evento = $evento->id_evento;
+                $equipo->save();
+            }
 
             return back()->with('success', '✅ Tu equipo se ha inscrito exitosamente al evento.');
         }
@@ -223,19 +242,27 @@ class EventoController extends Controller
             'equipo_id' => 'required|exists:equipos,id_equipo'
         ]);
 
-        // Verificar que el equipo pertenezca al usuario y esté aprobado
+        // Verificar que el equipo pertenezca al usuario, esté aprobado y que el usuario sea LÍDER
         $equipo = $usuario->equipos()
             ->where('id_equipo', $request->equipo_id)
             ->where('aprobado', true)
+            ->where('id_lider', $usuario->id)
             ->first();
 
         if (!$equipo) {
             return back()->with('error', '❌ Equipo no encontrado o no aprobado.');
         }
 
-        // Asignar el evento al equipo
-        $equipo->id_evento = $evento->id_evento;
-        $equipo->save();
+        // Verificar que el equipo no esté ya inscrito en otro evento distinto
+        if (!is_null($equipo->id_evento) && $equipo->id_evento != $evento->id_evento) {
+            return back()->with('error', '❌ El equipo seleccionado ya está inscrito en otro evento. Desinscríbelo primero desde Mis Eventos.');
+        }
+
+        // Asignar el evento al equipo solo si no está en otro evento
+        if (is_null($equipo->id_evento) || $equipo->id_evento == $evento->id_evento) {
+            $equipo->id_evento = $evento->id_evento;
+            $equipo->save();
+        }
 
         return redirect()->route('eventos.show', $evento->id_evento)
             ->with('success', '✅ Tu equipo se ha inscrito exitosamente al evento.');
@@ -279,7 +306,12 @@ class EventoController extends Controller
             return back()->with('error', 'Tu equipo aún está en revisión. Espera a que los administradores lo aprueben.');
         }
 
-        // Verificar si el equipo ya está inscrito en este evento
+        // Verificar si el equipo ya está inscrito en otro evento distinto
+        if (!is_null($equipoUsuario->id_evento) && $equipoUsuario->id_evento != $evento->id_evento) {
+            return back()->with('error', '❌ Tu equipo ya está inscrito en otro evento. Desinscríbelo primero desde Mis Eventos antes de inscribirte aquí.');
+        }
+
+        // Si ya está inscrito en este mismo evento, informar
         if ($equipoUsuario->id_evento === $evento->id_evento) {
             return back()->with('info', 'Tu equipo ya está inscrito en este evento.');
         }
@@ -303,18 +335,27 @@ class EventoController extends Controller
 
         // 2. Obtener el equipo del usuario (Para corregir el error Undefined variable $miEquipo)
         // Buscamos el primer equipo donde esté el usuario
-        $miEquipo = Equipo::whereHas('participantes', function($q) use ($usuario) {
+        $misEquiposUsuario = Equipo::whereHas('participantes', function($q) use ($usuario) {
             $q->where('usuario_id', $usuario->id);
-        })->first();
+        })->get();
 
-        // 3. Determinar si es líder (Para la variable $soyLider que también pide la vista)
-        $soyLider = false;
-        if ($miEquipo) {
-            // Asumiendo que usas 'id_lider' en la tabla equipos
-            $soyLider = $miEquipo->id_lider === $usuario->id;
+        // Mapear equipos por su id_evento para mostrar acciones por evento
+        $equiposPorEvento = [];
+        foreach ($misEquiposUsuario as $e) {
+            if (!is_null($e->id_evento)) {
+                $equiposPorEvento[$e->id_evento] = $e;
+            }
         }
 
-        // 4. Enviamos las TRES variables a la vista
-        return view('player.eventos', compact('misEventos', 'miEquipo', 'soyLider'));
+        // Mantener compatibilidad con la variable miEquipo (primer equipo)
+        $miEquipo = $misEquiposUsuario->first();
+
+        // 3. Determinar si es líder (para al menos uno de sus equipos)
+        $soyLider = $misEquiposUsuario->contains(function($eq) use ($usuario) {
+            return $eq->id_lider === $usuario->id;
+        });
+
+        // 4. Enviamos variables a la vista
+        return view('player.eventos', compact('misEventos', 'miEquipo', 'soyLider', 'equiposPorEvento'));
     }
 }

@@ -111,6 +111,22 @@ class AdminController extends Controller
         return view('admin.equipos.show', compact('equipo'));
     }
 
+    /**
+     * Mostrar detalles de un evento específico (panel admin).
+     */
+    public function verEvento(Evento $evento)
+    {
+        $usuario = auth()->user();
+        if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
+            abort(403, 'Acceso no autorizado.');
+        }
+
+        // Cargar relaciones necesarias: equipos y sus participantes
+        $evento->load('equipos.participantes');
+
+        return view('admin.eventos.show', compact('evento'));
+    }
+
     // --- MÉTODOS DE ACTUALIZACIÓN DE PERFIL Y CONTRASEÑA ---
 
     /**
@@ -154,8 +170,10 @@ class AdminController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        // IMPORTANTE: Usamos Hash::make para encriptar la contraseña antes de guardar.
-        $user->password = Hash::make($validated['password']);
+        // Guardar la nueva contraseña. El modelo `Usuario` tiene un mutator
+        // `setPasswordAttribute` que hace el hash, por eso aquí asignamos
+        // la contraseña en texto plano y dejamos que el modelo la encripte.
+        $user->password = $validated['password'];
         $user->save();
 
         return back()->with('success', 'Contraseña actualizada correctamente.');

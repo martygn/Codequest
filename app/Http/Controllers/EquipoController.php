@@ -204,7 +204,10 @@ public function store(Request $request)
     public function salir(Equipo $equipo)
     {
         $usuario = Auth::user();
-
+        // Si el equipo está inscrito en un evento, bloquear la salida normal.
+        if (!is_null($equipo->id_evento)) {
+            return back()->with('error', '❌ No puedes abandonar el equipo mientras esté inscrito en un evento. Si eres el líder y necesitas desinscribirlo para inscribirlo en otro evento, usa la opción "Salir del evento" desde Mis Eventos.');
+        }
         // Verificar que el usuario sea miembro del equipo
         if (!$equipo->tieneMiembro($usuario->id)) {
             return back()->with('error', '❌ No eres miembro de este equipo.');
@@ -502,6 +505,28 @@ public function aprobar(Equipo $equipo)
         $equipo->update(['id_evento' => $request->id_evento]);
 
         return back()->with('success', '✅ Evento asignado al equipo exitosamente.');
+    }
+
+    /**
+     * Permite al líder desasociar (quitar) el equipo del evento al que está inscrito.
+     */
+    public function quitarEvento(Equipo $equipo)
+    {
+        $usuario = Auth::user();
+
+        // Solo el líder del equipo o un admin puede desasociar el evento
+        if (!$usuario->esAdministrador() && $equipo->id_lider != $usuario->id) {
+            abort(403, 'Solo el líder del equipo puede desinscribirlo del evento.');
+        }
+
+        if (is_null($equipo->id_evento)) {
+            return back()->with('info', 'El equipo no está inscrito en ningún evento.');
+        }
+
+        $equipo->id_evento = null;
+        $equipo->save();
+
+        return back()->with('success', '✅ El equipo ha sido desinscrito del evento. Ahora puedes inscribirlo en otro evento.');
     }
 
     public function edit(Equipo $equipo)
