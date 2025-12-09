@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Evento;
 use App\Models\CalificacionEquipo;
+use App\Models\Notificacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -206,6 +207,16 @@ class ResultadoController extends Controller
         // Nombre del archivo
         $nombreArchivo = 'Constancia_' . str_replace(' ', '_', $equipo->nombre) . '_' . str_replace(' ', '_', $evento->nombre) . '.pdf';
 
+        // Crear notificación para el líder del equipo
+        if ($equipo->lider) {
+            Notificacion::create([
+                'usuario_id' => $equipo->lider->id,
+                'titulo' => '¡Felicidades! Tu equipo ha ganado',
+                'mensaje' => "El equipo '{$equipo->nombre}' ha obtenido el primer lugar en el evento '{$evento->nombre}'. ¡Excelente trabajo!",
+                'tipo' => 'success',
+            ]);
+        }
+
         // Descargar PDF
         return $pdf->download($nombreArchivo);
     }
@@ -246,6 +257,14 @@ class ResultadoController extends Controller
                         'mime' => 'application/pdf',
                     ]);
             });
+
+            // Crear notificación para el líder del equipo
+            Notificacion::create([
+                'usuario_id' => $lider->id,
+                'titulo' => '¡Constancia de ganador enviada!',
+                'mensaje' => "Se ha enviado la constancia de ganador del evento '{$evento->nombre}' a tu correo {$lider->correo}. ¡Felicidades!",
+                'tipo' => 'success',
+            ]);
 
             return back()->with('success', '✅ Constancia enviada exitosamente al correo: ' . $lider->correo);
         } catch (\Exception $e) {

@@ -36,35 +36,59 @@
 
         {{-- Notificaciones (Adaptadas al tema oscuro) --}}
         @php
-            $notificaciones = auth()->user()->notificaciones()->noLeidas()->orderBy('created_at', 'desc')->get();
+            $notificaciones = auth()->user()->notificaciones()->noLeidas()->orderBy('created_at', 'desc')->limit(5)->get();
         @endphp
 
         @if($notificaciones->count() > 0)
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-            <div class="flex items-center gap-2 mb-6">
-                <span class="material-symbols-outlined text-[#64FFDA]">notifications_active</span>
-                <h3 class="text-xl font-bold text-[#CCD6F6]">Novedades</h3>
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[#64FFDA] text-2xl">notifications_active</span>
+                    <h3 class="text-2xl font-bold text-[#CCD6F6]">Notificaciones</h3>
+                    <span class="bg-[#64FFDA] text-[#0A192F] text-xs font-bold px-2 py-1 rounded-full">{{ $notificaciones->count() }}</span>
+                </div>
+                <a href="{{ route('notificaciones.index') }}" class="text-[#64FFDA] hover:text-[#52d6b3] text-sm font-semibold transition-colors">
+                    Ver todas →
+                </a>
             </div>
-            
-            <div class="space-y-4">
+
+            <div class="space-y-3">
                 @foreach($notificaciones as $notificacion)
                     @php
-                        $estilos = [
-                            'info' => 'bg-blue-500/10 border-blue-500/30 text-blue-300',
-                            'warning' => 'bg-yellow-500/10 border-yellow-500/30 text-yellow-300',
-                            'success' => 'bg-green-500/10 border-green-500/30 text-green-300',
-                            'error' => 'bg-red-500/10 border-red-500/30 text-red-300',
+                        $iconos = [
+                            'info' => 'info',
+                            'warning' => 'warning',
+                            'success' => 'check_circle',
+                            'error' => 'error',
                         ];
+                        $estilos = [
+                            'info' => 'bg-blue-500/10 border-blue-500/30',
+                            'warning' => 'bg-yellow-500/10 border-yellow-500/30',
+                            'success' => 'bg-green-500/10 border-green-500/30',
+                            'error' => 'bg-red-500/10 border-red-500/30',
+                        ];
+                        $coloresIcono = [
+                            'info' => 'text-blue-400',
+                            'warning' => 'text-yellow-400',
+                            'success' => 'text-green-400',
+                            'error' => 'text-red-400',
+                        ];
+                        $icono = $iconos[$notificacion->tipo] ?? $iconos['info'];
                         $clase = $estilos[$notificacion->tipo] ?? $estilos['info'];
+                        $colorIcono = $coloresIcono[$notificacion->tipo] ?? $coloresIcono['info'];
                     @endphp
-                    <div class="border {{ $clase }} rounded-xl p-4 flex justify-between items-center shadow-lg backdrop-blur-sm transition hover:scale-[1.01]">
-                        <div class="flex items-center gap-3">
-                            <span class="material-symbols-outlined text-sm">circle</span>
-                            <span>{{ $notificacion->data['mensaje'] ?? 'Tienes una nueva notificación' }}</span>
+                    <div class="border {{ $clase }} rounded-xl p-4 shadow-lg backdrop-blur-sm transition hover:scale-[1.01] hover:border-[#64FFDA]/50">
+                        <div class="flex items-start gap-4">
+                            <span class="material-symbols-outlined {{ $colorIcono }} text-2xl mt-1">{{ $icono }}</span>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-[#CCD6F6] mb-1">{{ $notificacion->titulo }}</h4>
+                                <p class="text-[#8892B0] text-sm">{{ $notificacion->mensaje }}</p>
+                                <p class="text-[#64FFDA] text-xs mt-2">{{ $notificacion->created_at->diffForHumans() }}</p>
+                            </div>
+                            <button onclick="marcarComoLeida('{{ $notificacion->id }}')" class="text-[#8892B0] hover:text-[#64FFDA] transition-colors">
+                                <span class="material-symbols-outlined text-xl">close</span>
+                            </button>
                         </div>
-                        <button onclick="marcarComoLeida('{{ $notificacion->id }}')" class="text-xs font-bold uppercase tracking-wider opacity-60 hover:opacity-100 hover:text-white transition-all border border-current px-2 py-1 rounded">
-                            Marcar leída
-                        </button>
                     </div>
                 @endforeach
             </div>
@@ -77,6 +101,7 @@
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
                     },
                 }).then(() => location.reload());
             }
