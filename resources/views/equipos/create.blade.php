@@ -1,93 +1,106 @@
 <x-app-layout>
-    <div class="py-12 bg-gray-100">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-12 bg-[#0A192F] min-h-screen text-[#8892B0] font-sans" style="
+    padding-top: 130px;">
+        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8" >
+            
 
-            <h1 class="text-3xl font-bold text-gray-900 mb-8">Crear Nuevo Equipo</h1>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
+            <div class="flex items-center gap-3 mb-8">
+                <a href="{{ route('equipos.index') }}" class="p-2 rounded-full hover:bg-[#112240] text-[#64FFDA] transition-colors">
+                    <span class="material-symbols-outlined text-xl">arrow_back</span>
+                </a>
+                <h1 class="text-3xl font-bold text-[#CCD6F6] tracking-tight">Crear Nuevo Equipo</h1>
+            </div>
 
+            <div class="bg-[#112240] overflow-hidden shadow-2xl sm:rounded-2xl border border-[#233554]">
+                <div class="p-8">
+
+                    {{-- Errores --}}
                     @if ($errors->any())
-                        <div class="mb-6 bg-red-50 border border-red-200 rounded-lg p-4">
-                            <h3 class="text-red-800 font-bold mb-2">Errores en el formulario:</h3>
-                            <ul class="text-red-700 text-sm space-y-1">
+                        <div class="mb-8 bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                            <h3 class="text-red-400 font-bold mb-2 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">error</span> Errores en el formulario:
+                            </h3>
+                            <ul class="text-red-300 text-sm space-y-1 list-disc list-inside">
                                 @foreach ($errors->all() as $error)
-                                    <li>• {{ $error }}</li>
+                                    <li>{{ $error }}</li>
                                 @endforeach
                             </ul>
                         </div>
                     @endif
 
-                    <form action="{{ route('equipos.store') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('equipos.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                         @csrf
 
-                        <div class="mb-6">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Nombre del Equipo *</label>
-                            <input type="text" name="nombre" placeholder="Equipo Minecraft"
-                                class="w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                required>
+                        <div class="group">
+                            <label class="block text-xs font-mono font-bold text-[#64FFDA] mb-2 uppercase tracking-wide">Nombre del Equipo *</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#8892B0]">
+                                    <span class="material-symbols-outlined">diversity_3</span>
+                                </span>
+                                <input type="text" name="nombre" placeholder="Ej. Equipo CodeQuest" required
+                                    class="w-full pl-11 bg-[#0A192F] text-[#CCD6F6] border border-[#233554] rounded-xl py-3 px-4 focus:border-[#64FFDA] focus:ring-1 focus:ring-[#64FFDA] outline-none transition-all placeholder-[#8892B0]/30">
+                            </div>
                         </div>
 
-                        <div class="mb-6">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Nombre del Proyecto *</label>
-                            <input type="text" name="nombre_proyecto"
-                                placeholder="Sistema de gestión de inventarios"
-                                class="w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                                required>
+                        <div class="group">
+                            <label class="block text-xs font-mono font-bold text-[#64FFDA] mb-2 uppercase tracking-wide">Nombre del Proyecto *</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#8892B0]">
+                                    <span class="material-symbols-outlined">rocket_launch</span>
+                                </span>
+                                <input type="text" name="nombre_proyecto" placeholder="Ej. Sistema de gestión de inventarios" required
+                                    class="w-full pl-11 bg-[#0A192F] text-[#CCD6F6] border border-[#233554] rounded-xl py-3 px-4 focus:border-[#64FFDA] focus:ring-1 focus:ring-[#64FFDA] outline-none transition-all placeholder-[#8892B0]/30">
+                            </div>
                         </div>
 
-                        <div class="mb-6">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Descripción del Equipo *</label>
-                            <textarea name="descripcion" rows="4" placeholder="Describe tu equipo y proyecto..."
-                                class="w-full bg-gray-100 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" required></textarea>
+                        <div class="group">
+                            <label class="block text-xs font-mono font-bold text-[#64FFDA] mb-2 uppercase tracking-wide">Descripción del Equipo *</label>
+                            <textarea name="descripcion" rows="4" placeholder="Describe tu equipo y la idea del proyecto..." required
+                                class="w-full bg-[#0A192F] text-[#CCD6F6] border border-[#233554] rounded-xl py-3 px-4 focus:border-[#64FFDA] focus:ring-1 focus:ring-[#64FFDA] outline-none transition-all placeholder-[#8892B0]/30 resize-none"></textarea>
                         </div>
 
-                        <div class="mb-8 border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors relative">
+                        <div class="mb-8 border-2 border-dashed border-[#233554] hover:border-[#64FFDA] rounded-xl p-8 text-center transition-all bg-[#0A192F]/50 relative group cursor-pointer">
                             <input type="file" name="banner" id="bannerInput"
-                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                                 accept="image/*"
                                 onchange="previewImage(event)">
-                            <div class="flex flex-col items-center justify-center" id="bannerPlaceholder">
-                                <svg class="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <p class="font-bold text-gray-700 text-base mb-1">Imagen del Equipo</p>
-                                <p class="text-gray-500 text-xs mb-3">Arrastra y suelta una imagen aquí o haz clic para seleccionar un archivo</p>
-                                <span class="bg-gray-200 text-gray-700 font-bold py-1 px-3 rounded pointer-events-none text-sm">
+                            
+                            <div class="flex flex-col items-center justify-center pointer-events-none transition-opacity duration-300" id="bannerPlaceholder">
+                                <div class="w-16 h-16 bg-[#233554] rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <span class="material-symbols-outlined text-3xl text-[#64FFDA]">cloud_upload</span>
+                                </div>
+                                <p class="font-bold text-[#CCD6F6] text-base mb-1">Imagen del Equipo</p>
+                                <p class="text-[#8892B0] text-xs mb-4">Arrastra una imagen o haz clic para seleccionar</p>
+                                <span class="bg-[#112240] border border-[#233554] text-[#64FFDA] text-xs font-bold py-2 px-4 rounded-lg">
                                     Seleccionar Archivo
                                 </span>
                             </div>
-                            <div id="imagePreview" class="hidden">
-                                <img id="previewImage" src="" alt="Preview" class="w-full h-40 object-cover rounded">
-                                <button type="button" onclick="removeImage()" class="mt-3 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition text-sm">
-                                    Cambiar Imagen
+
+                            <div id="imagePreview" class="hidden relative z-10">
+                                <img id="previewImage" src="" alt="Preview" class="w-full h-48 object-cover rounded-lg shadow-lg border border-[#233554]">
+                                <button type="button" onclick="removeImage()" class="absolute top-2 right-2 bg-red-500/90 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-transform hover:scale-110 z-30 cursor-pointer">
+                                    <span class="material-symbols-outlined text-sm">close</span>
                                 </button>
                             </div>
                         </div>
 
-                        <div class="mb-6 bg-yellow-50 border-l-4 border-yellow-400 p-4">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-yellow-700">
-                                        Tu equipo será revisado por un administrador antes de ser aprobado y aparecer en la lista pública.
-                                    </p>
-                                </div>
+                        <div class="mb-8 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 flex items-start gap-3">
+                            <span class="material-symbols-outlined text-yellow-400 mt-0.5">info</span>
+                            <div class="text-sm text-yellow-200/80">
+                                <p class="font-bold text-yellow-400 mb-1">Proceso de Aprobación</p>
+                                <p>Tu equipo será revisado por un administrador antes de ser aprobado y aparecer públicamente en la plataforma.</p>
                             </div>
                         </div>
 
-                        <div class="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+                        <div class="flex flex-col-reverse sm:flex-row justify-end items-center gap-4 border-t border-[#233554] pt-6">
                             <a href="{{ route('equipos.index') }}"
-                               class="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-                                ← Volver a equipos
+                               class="w-full sm:w-auto text-center text-[#8892B0] hover:text-[#CCD6F6] font-medium transition-colors text-sm py-3">
+                                Cancelar
                             </a>
                             <button type="submit"
-                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded shadow-lg transition duration-200">
+                                class="w-full sm:w-auto inline-flex justify-center items-center gap-2 bg-[#64FFDA] hover:bg-[#52d6b3] text-[#0A192F] font-bold py-3 px-8 rounded-xl shadow-[0_0_15px_rgba(100,255,218,0.3)] transition-all transform hover:-translate-y-0.5">
+                                <span class="material-symbols-outlined text-lg">check</span>
                                 Crear Equipo
                             </button>
                         </div>
@@ -109,7 +122,8 @@
                 const previewImage = document.getElementById('previewImage');
 
                 previewImage.src = e.target.result;
-                placeholder.classList.add('hidden');
+                placeholder.classList.add('opacity-0', 'absolute'); // Ocultar con opacidad para mantener layout si fuera necesario, o display none
+                placeholder.style.display = 'none';
                 preview.classList.remove('hidden');
             };
 
@@ -123,9 +137,16 @@
             const placeholder = document.getElementById('bannerPlaceholder');
             const preview = document.getElementById('imagePreview');
 
-            input.value = '';
-            placeholder.classList.remove('hidden');
+            input.value = ''; // Limpiar input file
+            placeholder.style.display = 'flex';
+            placeholder.classList.remove('opacity-0', 'absolute');
             preview.classList.add('hidden');
+            
+            // Prevenir que el click se propague al input file de nuevo
+            event.stopPropagation();
+            event.preventDefault();
         }
     </script>
 </x-app-layout>
+
+

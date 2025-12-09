@@ -27,7 +27,6 @@ class JuezController extends Controller
         // Obtener evento desde el parámetro de query o usar el primero
         $eventoId = $request->query('evento');
         $evento = $eventosAsignados->firstWhere('id_evento', $eventoId) ?? $eventosAsignados->first();
-        $equipos = [];
 
         if ($evento) {
             // Obtener TODOS los equipos del evento asignado CON sus repositorios
@@ -35,7 +34,11 @@ class JuezController extends Controller
                 ->with(['participantes', 'lider', 'calificaciones', 'repositorio'])
                 ->orderBy('estado')
                 ->orderBy('nombre')
-                ->get();
+                ->paginate(12)
+                ->withQueryString();
+        } else {
+            // Paginator vacío cuando no hay evento
+            $equipos = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 12);
         }
 
         return view('juez.panel', compact('juez', 'evento', 'equipos', 'eventosAsignados'));

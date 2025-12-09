@@ -1,143 +1,195 @@
-<x-guest-layout>
-    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-black py-12 px-4">
-        <div class="w-full max-w-lg">
-            <!-- Título -->
-            <div class="text-center mb-10">
-                <h2 class="text-4xl font-bold text-white">Crea tu cuenta</h2>
-                <p class="mt-3 text-gray-400">Únete a la comunidad de CodeQuest</p>
+<!DOCTYPE html>  
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registro - CodeQuest</title>
+    
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    </style>
+</head>
+
+<body class="font-sans antialiased bg-[#0A192F] text-[#8892B0]">
+
+    <nav class="absolute top-0 left-0 w-full p-6">
+        <a href="/" class="text-2xl font-extrabold text-[#CCD6F6] tracking-tight hover:text-[#64FFDA] transition-colors">
+            CodeQuest
+        </a>
+    </nav>
+
+    <div class="min-h-screen flex flex-col justify-center items-center pt-20 px-4 relative overflow-hidden">
+        
+        <!-- EFECTOS -->
+        <div class="absolute top-[-10%] right-[-5%] w-96 h-96 bg-[#64FFDA] rounded-full mix-blend-multiply filter blur-[128px] opacity-10"></div>
+        <div class="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-[#112240] rounded-full mix-blend-multiply filter blur-[128px] opacity-20"></div>
+
+        <div class="w-full sm:max-w-3xl animate-fade-in-up relative z-10"> 
+            
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold text-[#CCD6F6] mb-3 tracking-tight">Únete a la comunidad</h2>
+                <p class="text-[#8892B0] text-lg">
+                    Crea tu cuenta y comienza a formar tu equipo ideal.
+                </p>
             </div>
 
-            <!-- Formulario con fondo y sombra -->
-            <div class="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 p-8">
+            <!-- CONTENEDOR PRINCIPAL -->
+            <div class="bg-[#112240] shadow-2xl rounded-3xl border border-[#233554] p-8 sm:p-10 relative overflow-hidden">
+                
                 <form method="POST" action="{{ route('register') }}" class="space-y-6">
                     @csrf
 
-                    <!-- Nombres en fila -->
+                    <!-- FILA NOMBRE - PATERNO - MATERNO -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <x-input-label for="nombre" :value="__('Nombre')" class="text-white/90 text-sm" />
-                            <x-text-input id="nombre" name="nombre" type="text" :value="old('nombre')" required autofocus
-                                          class="mt-1 block w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" 
-                                          placeholder="Juan" />
-                            <x-input-error :messages="$errors->get('nombre')" class="mt-1 text-red-400" />
+
+                        <!-- NOMBRE -->
+                        <div class="group">
+                            <label class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">NOMBRE</label>
+                            <input 
+                                id="nombre"
+                                name="nombre"
+                                type="text"
+                                required autofocus
+                                placeholder="Juan"
+                                :value="old('nombre')"
+                                class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554]
+                                       rounded-xl py-3.5 px-4 focus:border-[#64FFDA] focus:ring-1
+                                       focus:ring-[#64FFDA] placeholder-[#8892B0]/50 outline-none transition-all duration-200">
+                            <x-input-error :messages="$errors->get('nombre')" class="mt-2 text-red-400 text-xs" />
                         </div>
-                        <div>
-                            <x-input-label for="apellido_paterno" :value="__('Paterno')" class="text-white/90 text-sm" />
-                            <x-text-input id="apellido_paterno" name="apellido_paterno" type="text" :value="old('apellido_paterno')" required
-                                          class="mt-1 block w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                                          placeholder="Pérez" />
-                            <x-input-error :messages="$errors->get('apellido_paterno')" class="mt-1 text-red-400" />
+
+                        <!-- APELLIDO PATERNO -->
+                        <div class="group">
+                            <label class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">A. PATERNO</label>
+                            <input 
+                                id="apellido_paterno"
+                                name="apellido_paterno"
+                                type="text"
+                                required
+                                placeholder="Pérez"
+                                :value="old('apellido_paterno')"
+                                class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554]
+                                       rounded-xl py-3.5 px-4 focus:border-[#64FFDA] focus:ring-1
+                                       focus:ring-[#64FFDA] placeholder-[#8892B0]/50 outline-none transition-all duration-200">
+                            <x-input-error :messages="$errors->get('apellido_paterno')" class="mt-2 text-red-400 text-xs" />
                         </div>
-                        <div>
-                            <x-input-label for="apellido_materno" :value="__('Materno')" class="text-white/90 text-sm" />
-                            <x-text-input id="apellido_materno" name="apellido_materno" type="text" :value="old('apellido_materno')"
-                                          class="mt-1 block w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                                          placeholder="García" />
-                            <x-input-error :messages="$errors->get('apellido_materno')" class="mt-1 text-red-400" />
+
+                        <!-- APELLIDO MATERNO -->
+                        <div class="group">
+                            <label class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">A. MATERNO</label>
+                            <input 
+                                id="apellido_materno"
+                                name="apellido_materno"
+                                type="text"
+                                placeholder="García"
+                                :value="old('apellido_materno')"
+                                class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554]
+                                       rounded-xl py-3.5 px-4 focus:border-[#64FFDA] focus:ring-1
+                                       focus:ring-[#64FFDA] placeholder-[#8892B0]/50 outline-none transition-all duration-200">
+                            <x-input-error :messages="$errors->get('apellido_materno')" class="mt-2 text-red-400 text-xs" />
                         </div>
                     </div>
 
-                    <!-- Username -->
-                    <div>
-                        <x-input-label for="username" :value="__('Nombre de usuario')" class="text-white/90" />
-                        <div class="mt-1 relative">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-300">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                            </span>
-                            <x-text-input id="username" name="username" type="text" :value="old('username')" required
-                                          class="pl-12 block w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-gray-200 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500" />
+                    <!-- USERNAME - EMAIL -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div class="group">
+                            <label class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">USUARIO</label>
+                            <input 
+                                id="username"
+                                name="username"
+                                type="text"
+                                required
+                                placeholder="usuario123"
+                                :value="old('username')"
+                                class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554]
+                                       rounded-xl py-3.5 px-4 focus:border-[#64FFDA] focus:ring-1
+                                       focus:ring-[#64FFDA] placeholder-[#8892B0]/50 outline-none transition-all duration-200">
+                            <x-input-error :messages="$errors->get('username')" class="mt-2 text-red-400 text-xs" />
+                        </div>
+
+                        <div class="group">
+                            <label class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">CORREO</label>
+                            <input 
+                                id="email"
+                                name="email"
+                                type="email"
+                                required
+                                placeholder="correo@ejemplo.com"
+                                :value="old('email')"
+                                class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554]
+                                       rounded-xl py-3.5 px-4 focus:border-[#64FFDA] focus:ring-1
+                                       focus:ring-[#64FFDA] placeholder-[#8892B0]/50 outline-none transition-all duration-200">
+                            <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-400 text-xs" />
                         </div>
                     </div>
 
-                    <!-- Email -->
-                    <div>
-                        <x-input-label for="email" :value="__('Correo electrónico')" class="text-white/90" />
-                        <div class="mt-1 relative">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-300">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                            </span>
-                            <x-text-input id="email" name="email" type="email" :value="old('email')" required
-                                          class="pl-12 block w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500" />
+                    <!-- PASSWORD - CONFIRM -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div class="group">
+                            <label class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">CONTRASEÑA</label>
+                            <input 
+                                id="password"
+                                name="password"
+                                type="password"
+                                required
+                                placeholder="Mínimo 8 caracteres"
+                                class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554]
+                                       rounded-xl py-3.5 px-4 focus:border-[#64FFDA] focus:ring-1
+                                       focus:ring-[#64FFDA] placeholder-[#8892B0]/50 outline-none transition-all duration-200">
+                            <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-400 text-xs" />
                         </div>
+
+                        <div class="group">
+                            <label class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">CONFIRMAR</label>
+                            <input 
+                                id="password_confirmation"
+                                name="password_confirmation"
+                                type="password"
+                                required
+                                placeholder="Repite tu contraseña"
+                                class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554]
+                                       rounded-xl py-3.5 px-4 focus:border-[#64FFDA] focus:ring-1
+                                       focus:ring-[#64FFDA] placeholder-[#8892B0]/50 outline-none transition-all duration-200">
+                            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-red-400 text-xs" />
+                        </div>
+
                     </div>
 
-                    <!-- Contraseña -->
-                    <div>
-                        <x-input-label for="password" :value="__('Contraseña')" class="text-white/90" />
-                        <div class="mt-1 relative">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-300">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.1-.9-2-2-2s-2 .9-2 2 2 2 0 2 2-.9 2-2zm-7 9h14v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2z" />
-                                </svg>
-                            </span>
-                            <x-text-input id="password" name="password" type="password" required
-                                          class="pl-12 pr-12 block w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500" />
-                            <button type="button" onclick="togglePassword('password')" class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-300 hover:text-white">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                            </button>
-                        </div>
+                    <!-- BOTÓN -->
+                    <button class="w-full bg-[#64FFDA] hover:bg-[#52d6b3] text-[#0A192F] font-bold py-4 px-4 rounded-xl shadow-[0_0_15px_rgba(100,255,218,0.3)] hover:shadow-[0_0_25px_rgba(100,255,218,0.5)] transition-all duration-200 transform hover:-translate-y-0.5 uppercase tracking-wide text-sm">
+                        Crear cuenta
+                    </button>
+
+                    <!-- FOOTER -->
+                    <div class="flex items-center justify-center mt-6 pt-4 border-t border-[#233554]">
+                        <p class="text-sm text-[#8892B0]">
+                            ¿Ya tienes una cuenta?
+                            <a href="{{ route('login') }}" class="font-mono font-bold text-[#64FFDA] hover:text-[#CCD6F6] transition-colors ml-1">
+                                Inicia sesión aquí
+                            </a>
+                        </p>
                     </div>
 
-                    <!-- Confirmar contraseña -->
-                    <div>
-                        <x-input-label for="password_confirmation" :value="__('Confirmar contraseña')" class="text-white/90" />
-                        <div class="mt-1 relative">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-300">
-                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0-1.1-.9-2-2-2s-2 .9-2 2 2 2 0 2 2-.9 2-2zm-7 9h14v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2z" />
-                                </svg>
-                            </span>
-                            <x-text-input id="password_confirmation" name="password_confirmation" type="password" required
-                                          class="pl-12 block w-full px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500" />
-                        </div>
-                    </div>
-
-                    <!-- Botón -->
-                    <x-primary-button class="w-full justify-center py-4 text-lg font-bold rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg transform hover:scale-105 transition">
-                        Registrarse
-                    </x-primary-button>
-
-                    <!-- Separador -->
-                    <div class="relative my-8">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-white/20"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="px-4 bg-gray-900/50 text-gray-400">O regístrate con</span>
-                        </div>
-                    </div>
-
-                    <!-- Google -->
-                    <a href="{{ route('auth.google') }}" class="flex items-center justify-center w-full gap-3 py-4 bg-white/10 hover:bg-white/20 border border-white/30 rounded-xl text-white font-medium transition">
-                        <svg class="w-6 h-6" viewBox="0 0 24 24">...</svg>
-                        Continuar con Google
-                    </a>
-
-                    <!-- Ya tienes cuenta? -->
-                    <p class="text-center text-gray-400 mt-8">
-                        ¿Ya tienes una cuenta?
-                        <a href="{{ route('login')" class="text-indigo-400 hover:text-indigo-300 font-bold">
-                            Inicia sesión aquí
-                        </a>
-                    </p>
                 </form>
             </div>
+
+            <div class="mt-8 text-center text-xs text-[#8892B0] opacity-50">
+                &copy; {{ date('Y') }} CodeQuest. Todos los derechos reservados.
+            </div>
+
         </div>
     </div>
 
-    @push('scripts')
-    <script>
-        function togglePassword(id) {
-            const input = document.getElementById(id);
-            input.type = input.type === 'password' ? 'text' : 'password';
-        }
-    </script>
-    @endpush
-</x-guest-layout>
+</body>
+</html>

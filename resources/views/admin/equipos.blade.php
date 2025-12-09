@@ -1,148 +1,201 @@
 <!DOCTYPE html>
-<html lang="es"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Equipos - CodeQuest</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-<script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              primary: "#2998FF",
-              "background-light": "#F8FAFC",
-              "background-dark": "#18181B",
+<html lang="es" class="dark">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Equipos - CodeQuest</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        // PALETA "DARK TECH"
+                        primary: "#64FFDA", // Turquesa
+                        "background-dark": "#0A192F",  // Azul Muy Oscuro
+                        "card-dark": "#112240",        // Azul Profundo
+                        "text-dark": "#CCD6F6",        // Azul Claro
+                        "text-secondary-dark": "#8892B0", // Gris Azulado
+                        "border-dark": "#233554",      // Bordes
+                        "active-dark": "rgba(100, 255, 218, 0.1)", // Hover activo
+                    },
+                    fontFamily: {
+                        display: ["Roboto", "sans-serif"],
+                    },
+                },
             },
-            fontFamily: {
-              display: ["Inter", "sans-serif"],
-            },
-            borderRadius: {
-              DEFAULT: "0.75rem",
-            },
-          },
-        },
-      };
+        };
     </script>
-<style>
+    <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
         }
+        /* Scrollbar oscura */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0A192F; }
+        ::-webkit-scrollbar-thumb { background: #233554; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64FFDA; }
     </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
-<div class="flex h-screen flex-col">
-<div class="flex flex-1 overflow-hidden">
-<aside class="w-64 flex-shrink-0 p-6 flex flex-col justify-between">
-<div>
-<h1 class="text-2xl font-bold text-gray-900 dark:text-white">CodeQuest</h1>
-<nav class="mt-8 space-y-2">
-<a class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800" href="{{ route('dashboard') }}">
-<span class="material-symbols-outlined text-xl">home</span>
-<span class="font-medium">Panel De Control</span>
-</a>
-<a class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800" href="{{ route('admin.eventos') }}">
-<span class="material-symbols-outlined text-xl">calendar_today</span>
-<span class="font-medium">Eventos</span>
-</a>
-<a class="flex items-center gap-3 rounded-lg bg-gray-200 dark:bg-gray-800 px-4 py-2.5 text-gray-900 dark:text-white" href="{{ route('admin.equipos') }}">
-<span class="material-symbols-outlined text-xl">groups</span>
-<span class="font-medium">Equipos</span>
-</a>
-<a class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800" href="{{ route('admin.jueces') }}">
-<span class="material-symbols-outlined text-xl">gavel</span>
-<span class="font-medium">Jueces</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.resultados-panel') }}">
-  <span class="material-symbols-outlined">bar_chart</span>
-  <span>Resultados</span>
-</a>
-<a class="flex items-center gap-3 rounded-lg px-4 py-2.5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800" href="{{ route('admin.configuracion') }}">
-<span class="material-symbols-outlined text-xl">settings</span>
-<span class="font-medium">Configuración</span>
-</a>
-</nav>
-</div>
+<body class="font-display bg-background-dark text-text-dark antialiased">
 
-<div class="p-4 border-t border-border-light dark:border-border-dark">
+<div class="flex h-screen overflow-hidden">
+    
+    <aside class="w-64 bg-card-dark border-r border-border-dark flex flex-col shadow-xl z-20">
+         <div class="p-6 flex items-center gap-3">
+            <img src="{{ asset('log.png') }}" alt="CodeQuest Logo" class="h-20 w-auto">
+            
+            <h1 class="text-2xl font-bold text-text-dark tracking-tight">CodeQuest</h1>
+        </div>
+        <nav class="flex-grow px-4 py-4 overflow-y-auto">
+            <ul class="space-y-1">
+                <li>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200" href="{{ route('dashboard') }}">
+                        <span class="material-symbols-outlined">dashboard</span>
+                        <span>Panel de control</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200" href="{{ route('admin.eventos') }}">
+                        <span class="material-symbols-outlined">calendar_today</span>
+                        <span>Eventos</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary bg-active-dark font-medium border-l-2 border-primary" href="{{ route('admin.equipos') }}">
+                        <span class="material-symbols-outlined">groups</span>
+                        <span>Equipos</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200" href="{{ route('admin.jueces') }}">
+                        <span class="material-symbols-outlined">gavel</span>
+                        <span>Jueces</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200" href="{{ route('admin.resultados-panel') }}">
+                        <span class="material-symbols-outlined">bar_chart</span>
+                        <span>Resultados</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200" href="{{ route('admin.configuracion') }}">
+                        <span class="material-symbols-outlined">settings</span>
+                        <span>Configuración</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        
+        <div class="p-4 border-t border-border-dark">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-red-400 hover:bg-red-500/10 transition-colors">
                     <span class="material-symbols-outlined">logout</span>
                     <span>Cerrar sesión</span>
                 </button>
             </form>
         </div>
+    </aside>
 
-</aside>
-<main class="flex-1 overflow-y-auto bg-white dark:bg-zinc-900 p-8">
-<header class="mb-8 flex items-center justify-between">
-<div>
-<h2 class="text-4xl font-bold text-gray-900 dark:text-white">Equipos</h2>
-<p class="mt-2 text-gray-500 dark:text-gray-400">Gestiona los equipos y sus proyectos</p>
+    <main class="flex-1 p-8 overflow-y-auto bg-background-dark relative">
+        
+        <div class="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto">
+            
+            <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-3xl font-bold text-text-dark">Equipos</h2>
+                    <p class="text-text-secondary-dark text-sm mt-1">Gestiona los equipos inscritos y sus proyectos.</p>
+                </div>
+            </header>
+
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                <div class="relative w-full max-w-md">
+                    <form method="GET" action="{{ route('admin.equipos') }}" class="flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary-dark">search</span>
+                        <input name="search" value="{{ $search ?? request('search') }}" 
+                               class="w-full pl-10 pr-4 py-2.5 bg-card-dark border border-border-dark text-text-dark rounded-lg focus:ring-1 focus:ring-primary focus:border-primary placeholder-text-secondary-dark/50 outline-none transition-all" 
+                               placeholder="Buscar equipos..." type="text"/>
+                    </form>
+                </div>
+
+                <div class="flex gap-2 border-b border-border-dark w-full md:w-auto">
+                    <button class="px-4 py-2 text-sm font-medium border-b-2 border-primary text-primary">Todos los equipos</button>
+                </div>
+            </div>
+
+            <div class="bg-card-dark rounded-xl shadow-lg border border-border-dark overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-border-dark">
+                        <thead>
+                            <tr class="bg-[#0D1B2A]">
+                                <th class="px-6 py-4 text-left text-xs font-mono text-primary uppercase tracking-wider">Nombre del equipo</th>
+                                <th class="px-6 py-4 text-left text-xs font-mono text-primary uppercase tracking-wider">Proyecto</th>
+                                <th class="px-6 py-4 text-left text-xs font-mono text-primary uppercase tracking-wider">Miembros</th>
+                                <th class="px-6 py-4 text-left text-xs font-mono text-primary uppercase tracking-wider">Estado</th>
+                                <th class="px-6 py-4 text-left text-xs font-mono text-primary uppercase tracking-wider">Registro</th>
+                                <th class="px-6 py-4 text-left text-xs font-mono text-primary uppercase tracking-wider">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-border-dark bg-card-dark">
+                            @forelse($equipos ?? [] as $equipo)
+                            <tr class="hover:bg-white/5 transition-colors">
+                                <td class="px-6 py-4 text-sm font-medium text-text-dark">{{ $equipo->nombre }}</td>
+                                <td class="px-6 py-4 text-sm text-text-secondary-dark">{{ $equipo->nombre_proyecto ?: 'N/A' }}</td>
+                                <td class="px-6 py-4 text-sm text-text-secondary-dark">
+                                    <span class="bg-white/5 px-2 py-1 rounded text-xs">{{ $equipo->participantes()->count() }}</span>
+                                </td>
+                                <td class="px-6 py-4 text-sm">
+                                    @php
+                                        $badgeClass = match($equipo->estado) {
+                                            'aprobado' => 'bg-green-500/10 text-green-400 border-green-500/20',
+                                            'rechazado' => 'bg-red-500/10 text-red-400 border-red-500/20',
+                                            default => 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                        };
+                                    @endphp
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border {{ $badgeClass }}">
+                                        {{ ucfirst($equipo->estado) }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-text-secondary-dark font-mono text-xs">
+                                    {{ $equipo->created_at->format('d/m/Y') }}
+                                </td>
+                                <td class="px-6 py-4 text-sm font-medium">
+                                    <a href="{{ route('admin.equipos.show', $equipo->id_equipo) }}" class="text-primary hover:text-white transition-colors flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-lg">visibility</span> Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="text-center px-6 py-8 text-text-secondary-dark">
+                                    No hay equipos disponibles
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                @if(method_exists($equipos, 'links') && $equipos->hasPages())
+                <div class="px-4 py-3 border-t border-border-dark bg-card-dark text-text-secondary-dark">
+                    {{ $equipos->links() }}
+                </div>
+                @endif
+            </div>
+        </div>
+    </main>
 </div>
-<!-- <a href="{{ route('admin.equipos.create') }}" class="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition font-semibold">Nuevo equipo</a> -->
-</header>
-<div class="mb-6 flex items-center justify-between">
-  <form method="GET" action="{{ route('admin.equipos') }}" class="w-1/3 relative">
-    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500">search</span>
-    <input name="search" value="{{ $search ?? request('search') }}" class="w-full rounded-lg border-none bg-gray-100 dark:bg-zinc-800 py-3 pl-12 pr-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary" placeholder="Buscar equipos" type="text"/>
-  </form>
-</div>
-<div class="mb-6 flex items-center gap-2 border-b border-gray-200 dark:border-zinc-700">
-<button class="px-4 py-2 text-sm font-medium border-b-2 border-primary text-primary">Todos los eventos</button>
-</div>
-<div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-zinc-800">
-<table class="min-w-full divide-y divide-gray-200 dark:divide-zinc-800">
-<thead class="bg-gray-50 dark:bg-zinc-800/50">
-<tr>
-<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400" scope="col">Nombre del equipo</th>
-<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400" scope="col">Nombre del proyecto</th>
-<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400" scope="col">Miembros</th>
-<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400" scope="col">Estado</th>
-<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400" scope="col">Fecha de creación</th>
-<th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400" scope="col">Acciones</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-gray-200 dark:divide-zinc-800 bg-white dark:bg-zinc-900">
-@forelse($equipos ?? [] as $equipo)
-<tr>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">{{ $equipo->nombre }}</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $equipo->nombre_proyecto }}</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $equipo->participantes()->count() }} miembro(s)</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm">
-<span class="inline-flex items-center rounded-md px-2.5 py-0.5 text-sm font-medium
-{{ $equipo->estado === 'aprobado' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300' : 
-   ($equipo->estado === 'rechazado' ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' : 
-   'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300') }}">
-{{ ucfirst($equipo->estado) }}</span>
-</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-300">{{ $equipo->created_at->translatedFormat('d \d\e M \d\e Y') }}</td>
-<td class="whitespace-nowrap px-6 py-4 text-sm font-medium">
-<a href="{{ route('admin.equipos.show', $equipo->id_equipo) }}" class="text-primary hover:underline">Ver</a>
-</td>
-</tr>
-@empty
-<tr>
-<td colspan="6" class="text-center px-6 py-8 text-gray-500 dark:text-gray-400">No hay equipos disponibles</td>
-</tr>
-@endforelse
-</tbody>
-</table>
-</div>
-@if(method_exists($equipos, 'links') && $equipos->hasPages())
-  <div class="px-4 py-3 border-t border-gray-100 bg-white">
-    <div class="flex items-center justify-between">
-      <div class="text-sm text-gray-600">Mostrando {{ $equipos->firstItem() }} - {{ $equipos->lastItem() }} de {{ $equipos->total() }} equipos</div>
-      <div>
-        {{ $equipos->links() }}
-      </div>
-    </div>
-  </div>
-@endif
-</main>
-</div>
-</div>
-</body></html>
+
+</body>
+</html>

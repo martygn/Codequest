@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Evento;
 use App\Models\CalificacionEquipo;
+use App\Models\Notificacion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ResultadoController extends Controller
 {
@@ -172,19 +174,51 @@ class ResultadoController extends Controller
         // Contar jueces que calificaron
         $calificaciones_count = $calificacionesGanador->count();
 
+        // Si se solicita ver en navegador (HTML)
+        if ($request->has('preview')) {
+            return view('admin.resultados.constancia', compact(
+                'evento',
+                'equipo',
+                'calificacion',
+                'puntaje_final',
+                'calificaciones_count'
+            ));
+        }
+
         // Si se solicita enviar por correo
         if ($request->has('enviar_correo')) {
             return $this->enviarConstanciaPorCorreo($evento, $equipo, $calificacion, $puntaje_final, $calificaciones_count);
         }
 
-        // Retornar vista de constancia
-        return view('admin.resultados.constancia', compact(
+        // Generar PDF
+        $pdf = Pdf::loadView('admin.resultados.constancia', compact(
             'evento',
             'equipo',
             'calificacion',
             'puntaje_final',
             'calificaciones_count'
         ));
+
+        // Configurar PDF
+        $pdf->setPaper('a4', 'portrait');
+        $pdf->setOption('isHtml5ParserEnabled', true);
+        $pdf->setOption('isRemoteEnabled', true);
+
+        // Nombre del archivo
+        $nombreArchivo = 'Constancia_' . str_replace(' ', '_', $equipo->nombre) . '_' . str_replace(' ', '_', $evento->nombre) . '.pdf';
+
+        // Crear notificación para el líder del equipo
+        if ($equipo->lider) {
+            Notificacion::create([
+                'usuario_id' => $equipo->lider->id,
+                'titulo' => '¡Felicidades! Tu equipo ha ganado',
+                'mensaje' => "El equipo '{$equipo->nombre}' ha obtenido el primer lugar en el evento '{$evento->nombre}'. ¡Excelente trabajo!",
+                'tipo' => 'success',
+            ]);
+        }
+
+        // Descargar PDF
+        return $pdf->download($nombreArchivo);
     }
 
     /**
@@ -199,21 +233,38 @@ class ResultadoController extends Controller
                 return back()->with('error', '❌ El líder del equipo no tiene correo registrado.');
             }
 
-            // Generar HTML de la constancia
-            $html = view('admin.resultados.constancia', compact(
+            // Generar PDF
+            $pdf = Pdf::loadView('admin.resultados.constancia', compact(
                 'evento',
                 'equipo',
                 'calificacion',
                 'puntaje_final',
                 'calificaciones_count'
-            ))->render();
+            ));
 
-            // Enviar correo
-            \Illuminate\Support\Facades\Mail::send([], [], function ($message) use ($lider, $evento, $equipo, $html) {
+            $pdf->setPaper('a4', 'portrait');
+            $pdf->setOption('isHtml5ParserEnabled', true);
+            $pdf->setOption('isRemoteEnabled', true);
+
+            // Nombre del archivo PDF
+            $nombreArchivo = 'Constancia_' . str_replace(' ', '_', $equipo->nombre) . '.pdf';
+
+            // Enviar correo con PDF adjunto
+            \Illuminate\Support\Facades\Mail::send('emails.constancia', compact('equipo', 'evento'), function ($message) use ($lider, $evento, $pdf, $nombreArchivo) {
                 $message->to($lider->correo, $lider->nombre_completo)
                     ->subject('🏆 Constancia de Ganador - ' . $evento->nombre)
-                    ->html($html);
+                    ->attachData($pdf->output(), $nombreArchivo, [
+                        'mime' => 'application/pdf',
+                    ]);
             });
+
+            // Crear notificación para el líder del equipo
+            Notificacion::create([
+                'usuario_id' => $lider->id,
+                'titulo' => '¡Constancia de ganador enviada!',
+                'mensaje' => "Se ha enviado la constancia de ganador del evento '{$evento->nombre}' a tu correo {$lider->correo}. ¡Felicidades!",
+                'tipo' => 'success',
+            ]);
 
             return back()->with('success', '✅ Constancia enviada exitosamente al correo: ' . $lider->correo);
         } catch (\Exception $e) {

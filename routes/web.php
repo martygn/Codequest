@@ -44,6 +44,7 @@ Route::get('/auth/facebook/callback', [SocialAuthController::class, 'handleFaceb
 Route::get('/equipos/crear', [EquipoController::class, 'create'])->name('equipos.create');
 Route::post('/equipos', [EquipoController::class, 'store'])->name('equipos.store');
 
+
 // --- GRUPO DE RUTAS PROTEGIDAS (Requiere Login) ---
 Route::middleware(['auth'])->group(function () {
 
@@ -53,8 +54,11 @@ Route::middleware(['auth'])->group(function () {
     // ==========================================
     //       NOTIFICACIONES
     // ==========================================
+    Route::get('/notificaciones', [NotificacionController::class, 'index'])->name('notificaciones.index');
+    Route::get('/notificaciones/no-leidas', [NotificacionController::class, 'noLeidas'])->name('notificaciones.no-leidas');
     Route::post('/notificaciones/{notificacion}/marcar-leida', [NotificacionController::class, 'marcarLeida'])->name('notificaciones.marcar-leida');
     Route::post('/notificaciones/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasLeidas'])->name('notificaciones.marcar-todas-leidas');
+    Route::delete('/notificaciones/{notificacion}', [NotificacionController::class, 'eliminar'])->name('notificaciones.eliminar');
 
     // ==========================================
     //       RUTAS DEL JUGADOR / USUARIO
@@ -64,27 +68,26 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('player.perfil');
     Route::put('/mi-perfil', [UserProfileController::class, 'update'])->name('player.perfil.update');
 
-    // 2. MIS EQUIPOS
+    // Mis equipos
     Route::get('/mis-equipos', [EquipoController::class, 'misEquipos'])->name('player.equipos');
     Route::post('/mis-equipos/salir', [EquipoController::class, 'abandonarEquipo'])->name('player.equipos.salir');
     Route::post('/mis-equipos/{equipo}/expulsar/{usuario}', [EquipoController::class, 'expulsarMiembroDesdeMyTeam'])->name('player.equipos.expulsar');
 
-    // 3. MIS EVENTOS
+    // Mis eventos
     Route::get('/mis-eventos', [EventoController::class, 'misEventos'])->name('player.eventos');
     Route::get('/eventos/disponibles', [EventoController::class, 'disponibles'])->name('eventos.disponibles');
 
     // ==========================================
-    //       GESTIÓN DE EVENTOS (Resource)
+    //       GESTIÓN DE EVENTOS
     // ==========================================
     Route::resource('eventos', EventoController::class);
 
-    // Rutas extra de eventos
     Route::post('/eventos/{evento}/unirse', [EventoController::class, 'unirse'])->name('eventos.unirse');
     Route::get('/eventos/{evento}/inscribir-equipo', [EventoController::class, 'inscribirEquipo'])->name('eventos.inscribir-equipo');
     Route::post('/eventos/{evento}/seleccionar-equipo', [EventoController::class, 'seleccionarEquipoParaEvento'])->name('eventos.seleccionar-equipo');
 
     // ==========================================
-    //       GESTIÓN DE EQUIPOS (Resource)
+    //       GESTIÓN DE EQUIPOS
     // ==========================================
     Route::get('/equipos/buscar', [EquipoController::class, 'index'])->name('equipos.buscar');
 
@@ -92,7 +95,6 @@ Route::middleware(['auth'])->group(function () {
         'equipos' => 'equipo:id_equipo',
     ]);
 
-    // Rutas extra de equipos
     Route::post('/equipos/{equipo}/unirse', [EquipoController::class, 'unirse'])->name('equipos.unirse');
     Route::post('/equipos/{equipo}/participantes', [EquipoController::class, 'agregarParticipante'])->name('equipos.participantes.agregar');
     Route::delete('/equipos/{equipo}/participantes/{usuario}', [EquipoController::class, 'removerParticipante'])->name('equipos.participantes.remover');
@@ -133,27 +135,31 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/eventos/{evento}/ranking', [CalificacionController::class, 'ranking'])->name('calificaciones.ranking');
 
     // ==========================================
-    //      PERFIL DE LARAVEL (Breeze)
+    // PERFIL DE LARAVEL (Breeze)
     // ==========================================
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // ==========================================
-    //          RUTAS DE ADMINISTRADOR
+    //              RUTAS DE ADMIN
     // ==========================================
     Route::middleware(['is.admin'])->group(function () {
+
+        // Eventos
         Route::get('/admin/eventos', [AdminController::class, 'eventos'])->name('admin.eventos');
         Route::get('/admin/eventos/crear', [AdminController::class, 'crearEvento'])->name('admin.eventos.create');
         Route::post('/admin/eventos', [AdminController::class, 'guardarEvento'])->name('admin.eventos.store');
         Route::get('/admin/eventos/{evento}/detalles', [AdminController::class, 'verEvento'])->name('admin.eventos.show');
 
+        // Equipos
         Route::get('/admin/equipos', [AdminController::class, 'equipos'])->name('admin.equipos');
         Route::get('/admin/equipos/crear', [AdminController::class, 'crearEquipo'])->name('admin.equipos.create');
         Route::post('/admin/equipos', [AdminController::class, 'guardarEquipo'])->name('admin.equipos.store');
         Route::get('/admin/equipos/{equipo}/detalles', [AdminController::class, 'verEquipo'])->name('admin.equipos.show');
         Route::get('/admin/equipos/{equipo}/info', [EquipoController::class, 'verInfoEquipo'])->name('admin.equipos.info');
 
+        // Panel admin
         Route::get('/admin/perfil', [AdminController::class, 'perfil'])->name('admin.perfil');
         Route::get('/admin/configuracion', [AdminController::class, 'configuracion'])->name('admin.configuracion');
         Route::get('/admin/resultados-panel', [AdminController::class, 'resultados'])->name('admin.resultados-panel');
@@ -165,20 +171,20 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/admin/eventos/{evento}/status', [AdminController::class, 'updateEventoStatus'])->name('admin.eventos.update-status');
         Route::patch('/equipos/{equipo}/status', [AdminController::class, 'updateEquipoStatus'])->name('equipos.update-status');
 
-        // Jueces (Admin)
+        // Jueces
         Route::get('/admin/jueces', [AdminController::class, 'jueces'])->name('admin.jueces');
         Route::get('/admin/jueces/crear', [AdminController::class, 'crearJuez'])->name('admin.jueces.create');
         Route::post('/admin/jueces', [AdminController::class, 'guardarJuez'])->name('admin.jueces.store');
         Route::get('/admin/jueces/{juez}/asignar-eventos', [AdminController::class, 'asignarEventosJuez'])->name('admin.jueces.asignar-eventos');
         Route::post('/admin/jueces/{juez}/guardar-asignacion', [AdminController::class, 'guardarAsignacionEventosJuez'])->name('admin.jueces.guardar-asignacion');
 
-        // Repositorios & Calificaciones (Admin)
+        // Repositorios & Calificaciones
         Route::post('/repositorios/{repositorio}/verificar', [RepositorioController::class, 'verificar'])->name('repositorios.verificar');
         Route::post('/repositorios/{repositorio}/rechazar', [RepositorioController::class, 'rechazar'])->name('repositorios.rechazar');
         Route::delete('/repositorios/{repositorio}', [RepositorioController::class, 'destroy'])->name('repositorios.destroy');
         Route::delete('/calificaciones/{calificacion}', [CalificacionController::class, 'destroy'])->name('calificaciones.destroy');
 
-        // Resultados (Admin)
+        // Resultados
         Route::get('/admin/resultados', [ResultadoController::class, 'index'])->name('admin.resultados.index');
         Route::get('/admin/eventos/{evento}/resultados', [ResultadoController::class, 'show'])->name('admin.resultados.show');
         Route::post('/admin/eventos/{evento}/marcar-ganador', [ResultadoController::class, 'marcarGanador'])->name('admin.resultados.marcar-ganador');
@@ -187,7 +193,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // ==========================================
-    //          RUTAS DE JUEZ
+    //              RUTAS DE JUEZ
     // ==========================================
     Route::middleware(['is.juez'])->group(function () {
         // Panel principal

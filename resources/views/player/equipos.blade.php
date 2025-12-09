@@ -1,11 +1,6 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Mis Equipos') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
+    <div class="py-12 bg-[#0A192F] min-h-screen text-[#8892B0] font-sans" style="
+    padding-top: 120px;">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
             {{-- Mensaje de Éxito --}}
@@ -13,18 +8,33 @@
                 <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm">
                     {{ session('success') }}
                 </div>
-            @endif
+                <div>
+                    <h2 class="text-3xl font-bold text-[#CCD6F6] tracking-tight">Mis Equipos</h2>
+                    <p class="text-sm text-[#8892B0]">Gestiona tus equipos y participaciones</p>
+                </div>
+            </div>
 
-            {{-- Mensaje de Error --}}
-            @if(session('error'))
-                <div class="mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
-                    {{ session('error') }}
+            {{-- Mensajes Flash --}}
+            @if(session('success') || session('error'))
+                <div class="space-y-4 mb-8">
+                    @if(session('success'))
+                        <div class="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-xl flex items-center gap-2 shadow-lg animate-pulse">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <span>{{ session('success') }}</span>
+                        </div>
+                    @endif
+                    @if(session('error'))
+                        <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl flex items-center gap-2 shadow-lg animate-pulse">
+                            <span class="material-symbols-outlined">error</span>
+                            <span>{{ session('error') }}</span>
+                        </div>
+                    @endif
                 </div>
             @endif
 
             @if($misEquipos->count() > 0)
-                {{-- MOSTRAR TODOS LOS EQUIPOS --}}
-                <div class="space-y-6">
+                {{-- LISTA DE EQUIPOS --}}
+                <div class="space-y-8">
                     @foreach($misEquipos as $miEquipo)
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-8">
@@ -42,16 +52,23 @@
                                 <div class="md:flex justify-between items-start mb-8 border-b border-gray-100 pb-6">
                                     <div>
                                         <div class="flex items-center gap-3 mb-2">
-                                            <h3 class="text-3xl font-bold text-gray-900">{{ $miEquipo->nombre }}</h3>
-                                            <span class="px-3 py-1 {{ $estadoColors[$miEquipo->estado] ?? 'bg-gray-100 text-gray-800' }} text-xs font-semibold rounded-full uppercase tracking-wide">
+                                            <h3 class="text-3xl font-bold text-white">{{ $miEquipo->nombre }}</h3>
+                                            @php
+                                                $estadoBadge = match($miEquipo->estado) {
+                                                    'aprobado' => 'bg-green-500/10 text-green-400 border-green-500/20',
+                                                    'rechazado' => 'bg-red-500/10 text-red-400 border-red-500/20',
+                                                    default => 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                                };
+                                            @endphp
+                                            <span class="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wide border {{ $estadoBadge }}">
                                                 {{ ucfirst($miEquipo->estado ?? 'Activo') }}
                                             </span>
                                         </div>
                                         <p class="text-gray-500 max-w-2xl">{{ $miEquipo->descripcion ?? 'Sin descripción disponible.' }}</p>
 
                                         <div class="mt-4 flex items-center gap-2">
-                                            <span class="text-sm font-bold text-gray-700">Código de Acceso:</span>
-                                            <code class="bg-gray-100 px-2 py-1 rounded text-indigo-600 font-mono font-bold border border-gray-200">
+                                            <span class="text-xs font-bold text-[#64FFDA] uppercase tracking-wider">Código de Acceso:</span>
+                                            <code class="bg-[#0A192F] px-3 py-1 rounded text-[#CCD6F6] font-mono font-bold border border-[#233554] select-all">
                                                 {{ $miEquipo->codigo ?? 'N/A' }}
                                             </code>
                                         </div>
@@ -91,42 +108,42 @@
                                 </div>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <!-- Lista de Integrantes -->
+                                    
                                     <div>
-                                        <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                                            <span class="material-symbols-outlined mr-2">group</span> Integrantes
+                                        <h4 class="text-sm font-bold text-[#64FFDA] uppercase tracking-wider mb-4 flex items-center gap-2">
+                                            <span class="material-symbols-outlined">group</span> Integrantes
                                         </h4>
                                         <ul class="space-y-3">
                                             @foreach($miEquipo->participantes as $miembro)
-                                                <li class="flex items-center justify-between p-3 rounded-lg {{ $miembro->id === $user->id ? 'bg-indigo-50 border border-indigo-100' : 'bg-gray-50' }}">
+                                                <li class="flex items-center justify-between p-3 rounded-xl border border-[#233554] {{ $miembro->id === $user->id ? 'bg-[#0A192F]/80 border-[#64FFDA]/30' : 'bg-[#0A192F]/40' }}">
                                                     <div class="flex items-center">
-                                                        <div class="h-8 w-8 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-700 font-bold mr-3">
-                                                            {{ substr($miembro->name, 0, 1) }}
+                                                        <div class="h-10 w-10 rounded-full bg-[#112240] border border-[#233554] flex items-center justify-center text-[#64FFDA] font-bold mr-3 shadow-inner">
+                                                            {{ strtoupper(substr($miembro->name, 0, 1)) }}
                                                         </div>
                                                         <div>
-                                                            <p class="text-sm font-medium text-gray-900">
+                                                            <p class="text-sm font-bold text-white flex items-center gap-2">
                                                                 {{ $miembro->name }}
-                                                                @if($miembro->id === $user->id) <span class="text-xs text-indigo-600 font-bold">(Tú)</span> @endif
+                                                                @if($miembro->id === $user->id) <span class="text-[10px] text-[#64FFDA] bg-[#64FFDA]/10 px-1.5 rounded border border-[#64FFDA]/20">Tú</span> @endif
                                                             </p>
-                                                            <p class="text-xs text-gray-500">{{ $miembro->email }}</p>
+                                                            <p class="text-xs text-[#8892B0]">{{ $miembro->email }}</p>
                                                         </div>
                                                     </div>
 
                                                     <div class="flex items-center gap-2">
                                                         <div class="text-right">
                                                             @if(isset($miembro->pivot->posicion))
-                                                                <span class="text-xs font-medium px-2 py-1 rounded bg-white border border-gray-200 text-gray-600">
+                                                                <span class="text-[10px] font-bold px-2 py-1 rounded bg-[#112240] border border-[#233554] text-[#8892B0]">
                                                                     {{ $miembro->pivot->posicion }}
                                                                 </span>
                                                             @endif
 
                                                             {{-- Identificar Líder --}}
                                                             @if(isset($miEquipo->id_lider) && $miEquipo->id_lider == $miembro->id)
-                                                                <span class="ml-1 text-xs font-bold text-yellow-600" title="Líder del equipo">★</span>
+                                                                <span class="ml-1 text-xs font-bold text-yellow-400" title="Líder">★</span>
                                                             @endif
                                                         </div>
 
-                                                        {{-- Botón de expulsión para líderes --}}
+                                                        {{-- Botón Expulsar (Solo líder) --}}
                                                         @if($miEquipo->participantes()->wherePivot('usuario_id', $user->id)->wherePivot('posicion', 'Líder')->exists() && $miembro->id !== $user->id)
                                                             <button type="button" onclick="abrirModalExpulsar{{ $miEquipo->id_equipo }}({{ $miembro->id }}, '{{ addslashes($miembro->name) }}')"
                                                                 class="ml-2 px-2 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition">
@@ -139,10 +156,9 @@
                                         </ul>
                                     </div>
 
-                                    <!-- Información del Proyecto/Evento -->
-                                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-100">
-                                        <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                                            <span class="material-symbols-outlined mr-2">rocket_launch</span> Proyecto
+                                    <div class="bg-[#0A192F] p-6 rounded-xl border border-[#233554]">
+                                        <h4 class="text-sm font-bold text-[#64FFDA] uppercase tracking-wider mb-4 flex items-center gap-2">
+                                            <span class="material-symbols-outlined">rocket_launch</span> Proyecto
                                         </h4>
                                         <div class="mb-4">
                                             <p class="text-sm font-bold text-gray-600">Nombre del Proyecto</p>
@@ -172,21 +188,24 @@
 
                                         @if($miEquipo->evento)
                                         <div>
-                                            <p class="text-sm font-bold text-gray-600">Participando en Evento</p>
-                                            <a href="{{ route('eventos.show', $miEquipo->evento->id_evento) }}"
-                                             class="text-indigo-600 hover:text-indigo-800 font-medium hover:underline">
+                                            @if($miEquipo->evento)
+                                                <p class="text-xs font-mono text-[#8892B0] mb-1">EVENTO</p>
+                                                <a href="{{ route('eventos.show', $miEquipo->evento->id_evento) }}"
+                                                   class="text-[#64FFDA] hover:text-white font-bold text-lg hover:underline decoration-[#64FFDA] decoration-2 underline-offset-4 transition-all">
                                                     {{ $miEquipo->evento->nombre }}
                                                 </a>
-                                            </div>
-                                        @else
-                                            <div class="bg-yellow-50 border border-yellow-100 p-3 rounded text-sm text-yellow-700">
-                                                Este equipo aún no está inscrito en ningún evento.
-                                            </div>
-                                        @endif
+                                            @else
+                                                <div class="bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-lg text-xs text-yellow-200/80 flex items-start gap-2">
+                                                    <span class="material-symbols-outlined text-base text-yellow-400">warning</span>
+                                                    Este equipo aún no está inscrito en ningún evento.
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
+
                                 </div>
 
-                                {{-- Sección de solicitudes pendientes para el líder --}}
+                                {{-- Solicitudes Pendientes (Líder) --}}
                                 @php
                                     $solicitudesPendientes = $miEquipo->solicitudes_pendientes ?? [];
                                     $esLiderDelEquipo = $miEquipo->participantes()->wherePivot('usuario_id', $user->id)->wherePivot('posicion', 'Líder')->exists();
@@ -200,33 +219,27 @@
 
                                         <div class="space-y-3">
                                             @foreach($solicitudesPendientes as $usuarioId)
-                                                @php
-                                                    $solicitante = App\Models\Usuario::find($usuarioId);
-                                                @endphp
+                                                @php $solicitante = App\Models\Usuario::find($usuarioId); @endphp
                                                 @if($solicitante)
-                                                <div class="flex items-center justify-between p-4 bg-white rounded-lg border border-yellow-200 hover:shadow-md transition">
-                                                    <div class="flex items-center flex-1">
-                                                        <div class="h-10 w-10 rounded-full bg-yellow-200 flex items-center justify-center text-yellow-700 font-bold mr-4">
-                                                            {{ strtoupper(substr($solicitante->nombre, 0, 1)) }}
+                                                <div class="flex items-center justify-between p-4 bg-[#0A192F] rounded-lg border border-[#233554]">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="h-10 w-10 bg-[#112240] rounded-full flex items-center justify-center border border-[#233554]">
+                                                            <span class="text-[#64FFDA] font-bold">{{ strtoupper(substr($solicitante->nombre, 0, 1)) }}</span>
                                                         </div>
                                                         <div>
-                                                            <p class="text-sm font-bold text-gray-900">{{ $solicitante->nombre_completo }}</p>
-                                                            <p class="text-xs text-gray-600">{{ $solicitante->correo }}</p>
+                                                            <h4 class="font-bold text-white text-sm">{{ $solicitante->nombre_completo }}</h4>
+                                                            <p class="text-xs text-[#8892B0]">{{ $solicitante->correo }}</p>
                                                         </div>
                                                     </div>
 
                                                     <div class="flex gap-2 ml-4">
                                                         <form action="{{ route('equipos.aceptar-solicitud-lider', [$miEquipo->id_equipo, $solicitante->id]) }}" method="POST" class="inline">
                                                             @csrf
-                                                            <button type="submit" class="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition">
-                                                                ✓ Aceptar
-                                                            </button>
+                                                            <button type="submit" class="px-3 py-1.5 bg-green-500/20 text-green-400 text-xs font-bold rounded hover:bg-green-500/30 border border-green-500/30 transition-colors">Aceptar</button>
                                                         </form>
-                                                        <form action="{{ route('equipos.rechazar-solicitud-lider', [$miEquipo->id_equipo, $solicitante->id]) }}" method="POST" class="inline">
+                                                        <form action="{{ route('equipos.rechazar-solicitud-lider', [$miEquipo->id_equipo, $solicitante->id]) }}" method="POST">
                                                             @csrf
-                                                            <button type="submit" class="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition">
-                                                                ✕ Rechazar
-                                                            </button>
+                                                            <button type="submit" class="px-3 py-1.5 bg-red-500/20 text-red-400 text-xs font-bold rounded hover:bg-red-500/30 border border-red-500/30 transition-colors">Rechazar</button>
                                                         </form>
                                                     </div>
                                                 </div>
@@ -236,13 +249,15 @@
                                     </div>
                                 @endif
 
-                                {{-- Modal de expulsión --}}
-                                <div id="modalExpulsar{{ $miEquipo->id_equipo }}" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50" onclick="if(event.target === this) cerrarModalExpulsar{{ $miEquipo->id_equipo }}()">
-                                    <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" onclick="event.stopPropagation()">
-                                        <div class="px-6 py-4 border-b border-gray-200">
-                                            <h3 class="text-lg font-bold text-gray-900">Expulsar Miembro</h3>
+                                {{-- Modal Expulsión --}}
+                                <div id="modalExpulsar{{ $miEquipo->id_equipo }}" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm" onclick="if(event.target === this) cerrarModalExpulsar{{ $miEquipo->id_equipo }}()">
+                                    <div class="bg-[#112240] rounded-xl shadow-2xl max-w-md w-full mx-4 border border-[#233554]" onclick="event.stopPropagation()">
+                                        <div class="px-6 py-4 border-b border-[#233554]">
+                                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                                <span class="material-symbols-outlined text-red-400">person_remove</span> Expulsar Miembro
+                                            </h3>
                                         </div>
-                                        <form id="formExpulsar{{ $miEquipo->id_equipo }}" method="POST" class="p-6">
+                                        <form id="formExpulsar{{ $miEquipo->id_equipo }}" method="POST" class="p-6 space-y-4">
                                             @csrf
                                             <p class="text-gray-700 mb-4">¿Estás seguro de que deseas expulsar a <strong id="miembroNombre{{ $miEquipo->id_equipo }}"></strong> del equipo?</p>
 
@@ -272,22 +287,14 @@
                                         document.getElementById('formExpulsar{{ $miEquipo->id_equipo }}').action = '/mis-equipos/{{ $miEquipo->id_equipo }}/expulsar/' + usuarioId;
                                         document.getElementById('modalExpulsar{{ $miEquipo->id_equipo }}').classList.remove('hidden');
                                     }
-
                                     function cerrarModalExpulsar{{ $miEquipo->id_equipo }}() {
                                         document.getElementById('modalExpulsar{{ $miEquipo->id_equipo }}').classList.add('hidden');
                                     }
-
-                                    document.addEventListener('keydown', function(event) {
-                                        if (event.key === 'Escape') {
-                                            cerrarModalExpulsar{{ $miEquipo->id_equipo }}();
-                                        }
-                                    });
                                 </script>
                             </div>
                         </div>
                     @endforeach
                 </div>
-
             @else
                 {{-- ESTADO: USUARIO SIN EQUIPOS --}}
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
