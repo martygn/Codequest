@@ -54,10 +54,13 @@
 <body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
 <div class="flex h-screen">
     <!-- Sidebar -->
-    <aside class="w-64 bg-card-light dark:bg-card-dark border-r border-border-light dark:border-border-dark flex flex-col">
-        <div class="p-6">
-            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">CodeQuest</h1>
+    <aside class="w-64 bg-card-dark border-r border-border-dark flex flex-col shadow-xl z-20">
+         <div class="p-6 flex items-center gap-3">
+            <img src="{{ asset('log.png') }}" alt="CodeQuest Logo" class="h-20 w-auto">
+            
+            <h1 class="text-2xl font-bold text-text-dark tracking-tight">CodeQuest</h1>
         </div>
+        
         <nav class="flex-grow px-4">
             <ul class="space-y-2">
                 <li>
@@ -207,7 +210,7 @@
                     <div class="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-12 text-center">
                         <p class="text-4xl mb-4">📭</p>
                         <p class="text-xl text-gray-700 dark:text-gray-300">No hay eventos con calificaciones aún</p>
-                        <p class="text-gray-600 dark:text-gray-400 mt-2">Los resultados aparecerán aquí cuando se registren calificaciones de jueces</p>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Los resultados aparecerán aquí cuando se registren calificaciones de jueces hola</p>
                     </div>
                 @endif
             </div>
