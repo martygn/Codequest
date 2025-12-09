@@ -1,5 +1,6 @@
 <x-app-layout>
-    <div class="min-h-screen bg-[#0A192F] py-12 text-[#8892B0] font-sans">
+    <div class="min-h-screen bg-[#0A192F] py-12 text-[#8892B0] font-sans" style="
+    padding-top: 120px;">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10" style="height: 130px;">
             
