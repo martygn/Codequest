@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\DashboardController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\EventoController;
 use App\Http\Controllers\JuezController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\RepositorioController;
 use App\Http\Controllers\ResultadoController;
 use App\Http\Controllers\UserProfileController;
@@ -26,7 +28,6 @@ Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
     }
-
     return redirect()->route('login');
 });
 
@@ -63,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
     //       RUTAS DEL JUGADOR / USUARIO
     // ==========================================
 
+    // 1. MI PERFIL
     Route::get('/mi-perfil', [UserProfileController::class, 'show'])->name('player.perfil');
     Route::put('/mi-perfil', [UserProfileController::class, 'update'])->name('player.perfil.update');
 
@@ -102,16 +104,30 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/equipos/{equipo}/aceptar-solicitud/{usuario}', [EquipoController::class, 'aceptarSolicitudLider'])->name('equipos.aceptar-solicitud-lider');
     Route::post('/equipos/{equipo}/rechazar-solicitud/{usuario}', [EquipoController::class, 'rechazarSolicitudLider'])->name('equipos.rechazar-solicitud-lider');
     Route::post('/equipos/{equipo}/salir', [EquipoController::class, 'salir'])->name('equipos.salir');
-
     Route::post('/equipos/{equipo}/quitar-evento', [EquipoController::class, 'quitarEvento'])->name('equipos.quitar-evento');
+    Route::patch('/equipos/{equipo}/update-status', [EquipoController::class, 'updateStatus'])->name('equipos.update-status');
 
     // ==========================================
-    //    REPOSITORIOS & CALIFICACIONES
+    //    PROYECTOS / REPOSITORIOS
     // ==========================================
+
+    // Rutas para proyectos
+    Route::prefix('proyecto')->name('proyecto.')->group(function () {
+        Route::get('/equipo/{equipo}/subir', [ProyectoController::class, 'create'])->name('create');
+        Route::post('/equipo/{equipo}/subir', [ProyectoController::class, 'store'])->name('store');
+    });
+
+    // Rutas para descargar proyectos
+    Route::get('/proyectos/{repositorio}/download', [ProyectoController::class, 'download'])->name('proyectos.download');
+
+    // Rutas legacy para repositorios (mantener por compatibilidad)
     Route::get('/equipos/{equipo}/repositorio', [RepositorioController::class, 'show'])->name('repositorios.show');
     Route::post('/equipos/{equipo}/repositorio', [RepositorioController::class, 'store'])->name('repositorios.store');
     Route::post('/repositorios/{repositorio}/descargar', [RepositorioController::class, 'descargar'])->name('repositorios.descargar');
 
+    // ==========================================
+    //    CALIFICACIONES
+    // ==========================================
     Route::get('/equipos/{equipo}/calificar', [CalificacionController::class, 'show'])->name('calificaciones.show');
     Route::post('/equipos/{equipo}/calificar', [CalificacionController::class, 'store'])->name('calificaciones.store');
     Route::post('/calificaciones/{calificacion}', [CalificacionController::class, 'update'])->name('calificaciones.update');
@@ -180,11 +196,25 @@ Route::middleware(['auth'])->group(function () {
     //              RUTAS DE JUEZ
     // ==========================================
     Route::middleware(['is.juez'])->group(function () {
+        // Panel principal
         Route::get('/juez/panel', [JuezController::class, 'panel'])->name('juez.panel');
         Route::get('/juez/constancias', [JuezController::class, 'historialConstancias'])->name('juez.constancias');
         Route::get('/juez/configuracion', [JuezController::class, 'configuracion'])->name('juez.configuracion');
         Route::put('/juez/updateInfo', [JuezController::class, 'updateInfo'])->name('juez.updateInfo');
         Route::put('/juez/updatePassword', [JuezController::class, 'updatePassword'])->name('juez.updatePassword');
+
+        Route::prefix('juez')->name('proyecto.juez.')->group(function () {
+            Route::get('/eventos/{evento}/proyectos', [ProyectoController::class, 'listarJuez'])->name('listar-juez');
+            Route::get('/proyectos/{repositorio}', [ProyectoController::class, 'verJuez'])->name('ver-juez'); // ← Esta es la ruta
+            Route::get('/proyectos/{repositorio}/calificar', [ProyectoController::class, 'calificarJuez'])->name('calificar-juez');
+            Route::post('/proyectos/{repositorio}/calificar', [ProyectoController::class, 'guardarCalificacion'])->name('guardar-calificacion');
+        });
     });
 
+    // ==========================================
+    //    RUTAS LEGACY - MANTENER COMPATIBILIDAD
+    // ==========================================
+    Route::resource('calificaciones', CalificacionController::class)->except(['create', 'edit']);
+    Route::resource('repositorios', RepositorioController::class)->except(['index', 'create']);
+    Route::resource('resultados', ResultadoController::class)->only(['index', 'show']);
 });

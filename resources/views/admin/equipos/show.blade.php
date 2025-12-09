@@ -105,18 +105,12 @@
                         <span class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
                         Volver a Equipos
                     </a>
-                    
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <h1 class="text-4xl font-bold text-text-dark tracking-tight">{{ $equipo->nombre }}</h1>
-                        
-                        @php
-                            $badgeColor = match($equipo->estado) {
-                                'aprobado' => 'bg-green-500/10 text-green-400 border-green-500/20',
-                                'rechazado' => 'bg-red-500/10 text-red-400 border-red-500/20',
-                                default => 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                            };
-                        @endphp
-                        <span class="inline-flex items-center px-4 py-2 text-sm font-bold rounded-full border {{ $badgeColor }}">
+                    <h1 class="text-4xl font-bold text-gray-900 dark:text-white mt-4">{{ $equipo->nombre }}</h1>
+                    <div class="mt-4 flex items-center gap-4">
+                        <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full
+                            {{ $equipo->estado === 'aprobado' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' :
+                               ($equipo->estado === 'rechazado' ? 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300' :
+                               'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300') }}">
                             {{ ucfirst($equipo->estado) }}
                         </span>
                     </div>
@@ -170,13 +164,30 @@
                         @endif
                     </div>
 
-                    <div class="lg:col-span-1">
-                        <section class="bg-card-dark rounded-xl shadow-lg border border-border-dark p-6 sticky top-6">
-                            <div class="flex justify-between items-center mb-6 border-b border-border-dark pb-4">
-                                <h3 class="text-lg font-bold text-text-dark">Miembros</h3>
-                                <span class="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded border border-primary/20">
-                                    {{ count($equipo->participantes) }}
-                                </span>
+                    <!-- Participantes -->
+                    <section class="bg-white dark:bg-zinc-800 rounded-lg shadow border border-gray-200 dark:border-zinc-700 p-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Miembros del Equipo ({{ count($equipo->participantes) }})</h3>
+
+                        @if(count($equipo->participantes) > 0)
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="border-b border-gray-200 dark:border-zinc-700">
+                                        <tr>
+                                            <th class="text-left p-3 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Nombre</th>
+                                            <th class="text-left p-3 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Email</th>
+                                            <th class="text-left p-3 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Posición</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($equipo->participantes as $participante)
+                                        <tr class="border-b border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition">
+                                            <td class="p-3 text-gray-900 dark:text-white font-semibold">{{ $participante->nombre }}</td>
+                                            <td class="p-3 text-gray-600 dark:text-gray-400">{{ $participante->email }}</td>
+                                            <td class="p-3 text-gray-600 dark:text-gray-400">{{ ucfirst($participante->pivot->posicion) }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
 
                             @if(count($equipo->participantes) > 0)

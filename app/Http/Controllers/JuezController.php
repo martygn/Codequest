@@ -29,10 +29,9 @@ class JuezController extends Controller
         $evento = $eventosAsignados->firstWhere('id_evento', $eventoId) ?? $eventosAsignados->first();
 
         if ($evento) {
-            // Obtener equipos del evento asignado con sus calificaciones (paginado)
-            // La restricción de calificación se aplica en el frontend y en CalificacionController
+            // Obtener TODOS los equipos del evento asignado CON sus repositorios
             $equipos = Equipo::where('id_evento', $evento->id_evento)
-                ->with('participantes', 'lider', 'calificaciones')
+                ->with(['participantes', 'lider', 'calificaciones', 'repositorio'])
                 ->orderBy('estado')
                 ->orderBy('nombre')
                 ->paginate(12)
