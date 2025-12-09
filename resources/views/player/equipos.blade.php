@@ -7,7 +7,7 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
+
             {{-- Mensaje de Éxito --}}
             @if(session('success'))
                 <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm">
@@ -34,8 +34,11 @@
                                         'aprobado' => 'bg-green-100 text-green-800',
                                         'rechazado' => 'bg-red-100 text-red-800',
                                     ];
+                                    $now = \Carbon\Carbon::now();
+                                    $eventoEnCurso = $miEquipo->evento && $now->between($miEquipo->evento->fecha_inicio, $miEquipo->evento->fecha_fin);
+                                    $tieneProyectoSubido = $miEquipo->repositorio && $miEquipo->repositorio->estado === 'enviado';
                                 @endphp
-                                
+
                                 <div class="md:flex justify-between items-start mb-8 border-b border-gray-100 pb-6">
                                     <div>
                                         <div class="flex items-center gap-3 mb-2">
@@ -45,7 +48,7 @@
                                             </span>
                                         </div>
                                         <p class="text-gray-500 max-w-2xl">{{ $miEquipo->descripcion ?? 'Sin descripción disponible.' }}</p>
-                                        
+
                                         <div class="mt-4 flex items-center gap-2">
                                             <span class="text-sm font-bold text-gray-700">Código de Acceso:</span>
                                             <code class="bg-gray-100 px-2 py-1 rounded text-indigo-600 font-mono font-bold border border-gray-200">
@@ -53,35 +56,37 @@
                                             </code>
                                         </div>
                                     </div>
-                                    
-                                    <div class="mt-4 md:mt-0">
+
+                                    <div class="mt-4 md:mt-0 flex items-center gap-2">
                                         <button type="button" onclick="openConfirmModal('salirEquipo{{ $miEquipo->id_equipo }}')" class="inline-flex items-center px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold text-xs uppercase tracking-widest hover:bg-red-100 focus:outline-none focus:border-red-300 focus:ring ring-red-200 active:bg-red-200 disabled:opacity-25 transition ease-in-out duration-150">
                                             Salir del Equipo
                                         </button>
 
-                                        <!-- Modal de Confirmación -->
-                                        <div id="salirEquipo{{ $miEquipo->id_equipo }}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onclick="if(event.target === this) closeConfirmModal('salirEquipo{{ $miEquipo->id_equipo }}')">
-                                            <div class="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4" onclick="event.stopPropagation()">
-                                                <div class="px-6 py-4 border-b border-gray-200">
-                                                    <h3 class="text-lg font-bold text-gray-900">Confirmar acción</h3>
-                                                </div>
-                                                <div class="px-6 py-4">
-                                                    <p class="text-gray-700">¿Estás seguro de que quieres abandonar este equipo? Esta acción no se puede deshacer.</p>
-                                                </div>
-                                                <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-                                                    <button type="button" onclick="closeConfirmModal('salirEquipo{{ $miEquipo->id_equipo }}')" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 font-semibold transition">
-                                                        Cancelar
-                                                    </button>
-                                                    <form action="{{ route('player.equipos.salir') }}" method="POST" class="inline">
-                                                        @csrf
-                                                        <input type="hidden" name="equipo_id" value="{{ $miEquipo->id_equipo }}">
-                                                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold transition">
-                                                            Abandonar
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    @if($miEquipo->id_lider == $user->id && $eventoEnCurso)
+                                        @if($tieneProyectoSubido)
+                                            <!-- Botón para VER PROYECTO (si ya subió) -->
+                                            <a href="{{ route('proyecto.create', $miEquipo) }}"
+                                               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition ml-3">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                </svg>
+                                                Ver Proyecto
+                                            </a>
+                                        @else
+                                            <!-- Botón para SUBIR PROYECTO (si no ha subido) -->
+                                            <a href="{{ route('proyecto.create', $miEquipo) }}"
+                                               class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition ml-3">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                </svg>
+                                                Subir Proyecto
+                                            </a>
+                                        @endif
+                                    @endif
                                     </div>
                                 </div>
 
@@ -106,7 +111,7 @@
                                                             <p class="text-xs text-gray-500">{{ $miembro->email }}</p>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="flex items-center gap-2">
                                                         <div class="text-right">
                                                             @if(isset($miembro->pivot->posicion))
@@ -114,7 +119,7 @@
                                                                     {{ $miembro->pivot->posicion }}
                                                                 </span>
                                                             @endif
-                                                            
+
                                                             {{-- Identificar Líder --}}
                                                             @if(isset($miEquipo->id_lider) && $miEquipo->id_lider == $miembro->id)
                                                                 <span class="ml-1 text-xs font-bold text-yellow-600" title="Líder del equipo">★</span>
@@ -123,7 +128,7 @@
 
                                                         {{-- Botón de expulsión para líderes --}}
                                                         @if($miEquipo->participantes()->wherePivot('usuario_id', $user->id)->wherePivot('posicion', 'Líder')->exists() && $miembro->id !== $user->id)
-                                                            <button type="button" onclick="abrirModalExpulsar{{ $miEquipo->id_equipo }}({{ $miembro->id }}, '{{ addslashes($miembro->name) }}')" 
+                                                            <button type="button" onclick="abrirModalExpulsar{{ $miEquipo->id_equipo }}({{ $miembro->id }}, '{{ addslashes($miembro->name) }}')"
                                                                 class="ml-2 px-2 py-1 bg-red-100 text-red-700 rounded text-xs hover:bg-red-200 transition">
                                                                 Expulsar
                                                             </button>
@@ -142,8 +147,29 @@
                                         <div class="mb-4">
                                             <p class="text-sm font-bold text-gray-600">Nombre del Proyecto</p>
                                             <p class="text-gray-900">{{ $miEquipo->nombre_proyecto ?? 'Aún no definido' }}</p>
+
+                                            <!-- Estado del proyecto -->
+                                            @if($tieneProyectoSubido)
+                                                <div class="mt-2">
+                                                    @if($miEquipo->repositorio->calificacion_total)
+                                                        <div class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                            </svg>
+                                                            Calificado: {{ $miEquipo->repositorio->calificacion_total }}/100
+                                                        </div>
+                                                    @else
+                                                        <div class="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                            </svg>
+                                                            En espera de evaluación
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         </div>
-                                        
+
                                         @if($miEquipo->evento)
                                         <div>
                                             <p class="text-sm font-bold text-gray-600">Participando en Evento</p>
@@ -168,10 +194,10 @@
                                 @if($esLiderDelEquipo && count($solicitudesPendientes) > 0)
                                     <div class="mt-8 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-6">
                                         <h4 class="text-lg font-bold text-yellow-900 mb-4 flex items-center">
-                                            <span class="material-symbols-outlined mr-2">mail</span> 
+                                            <span class="material-symbols-outlined mr-2">mail</span>
                                             Solicitudes Pendientes ({{ count($solicitudesPendientes) }})
                                         </h4>
-                                        
+
                                         <div class="space-y-3">
                                             @foreach($solicitudesPendientes as $usuarioId)
                                                 @php
@@ -188,7 +214,7 @@
                                                             <p class="text-xs text-gray-600">{{ $solicitante->correo }}</p>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="flex gap-2 ml-4">
                                                         <form action="{{ route('equipos.aceptar-solicitud-lider', [$miEquipo->id_equipo, $solicitante->id]) }}" method="POST" class="inline">
                                                             @csrf
@@ -219,19 +245,19 @@
                                         <form id="formExpulsar{{ $miEquipo->id_equipo }}" method="POST" class="p-6">
                                             @csrf
                                             <p class="text-gray-700 mb-4">¿Estás seguro de que deseas expulsar a <strong id="miembroNombre{{ $miEquipo->id_equipo }}"></strong> del equipo?</p>
-                                            
+
                                             <div class="mb-4">
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">Razón de expulsión (opcional)</label>
-                                                <textarea name="razon" placeholder="Especifica el motivo de la expulsión..." 
+                                                <textarea name="razon" placeholder="Especifica el motivo de la expulsión..."
                                                     class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500" rows="3"></textarea>
                                             </div>
 
                                             <div class="flex gap-3">
-                                                <button type="button" onclick="cerrarModalExpulsar{{ $miEquipo->id_equipo }}()" 
+                                                <button type="button" onclick="cerrarModalExpulsar{{ $miEquipo->id_equipo }}()"
                                                     class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition">
                                                     Cancelar
                                                 </button>
-                                                <button type="submit" 
+                                                <button type="submit"
                                                     class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition">
                                                     Expulsar
                                                 </button>
@@ -274,7 +300,7 @@
                             <p class="text-gray-500 mb-8 max-w-md mx-auto">
                                 Para participar en los hackathons necesitas unirte a un equipo existente o crear el tuyo propio.
                             </p>
-                            
+
                             <div class="flex justify-center gap-4">
                                 <a href="{{ route('equipos.index') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg transition duration-150 ease-in-out">
                                     <span class="material-symbols-outlined mr-2">search</span>
@@ -292,4 +318,14 @@
 
         </div>
     </div>
+
+    <script>
+        function openConfirmModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeConfirmModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+    </script>
 </x-app-layout>

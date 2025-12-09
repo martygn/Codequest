@@ -30,10 +30,9 @@ class JuezController extends Controller
         $equipos = [];
 
         if ($evento) {
-            // Obtener TODOS los equipos del evento asignado con sus calificaciones
-            // La restricción de calificación se aplica en el frontend y en CalificacionController
+            // Obtener TODOS los equipos del evento asignado CON sus repositorios
             $equipos = Equipo::where('id_evento', $evento->id_evento)
-                ->with('participantes', 'lider', 'calificaciones')
+                ->with(['participantes', 'lider', 'calificaciones', 'repositorio'])
                 ->orderBy('estado')
                 ->orderBy('nombre')
                 ->get();

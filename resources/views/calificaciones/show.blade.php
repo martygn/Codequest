@@ -80,7 +80,7 @@
                 </a>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Calificar Equipo</h1>
                 <p class="text-gray-600 dark:text-gray-400 mt-2">
-                    Evento: <strong>{{ $evento->nombre }}</strong> | 
+                    Evento: <strong>{{ $evento->nombre }}</strong> |
                     Equipo: <strong>{{ $equipo->nombre }}</strong>
                 </p>
             </div>
@@ -100,6 +100,35 @@
         </div>
     </div>
 
+    @if($proyecto && $proyecto->archivo_path)
+<div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+    <h3 class="font-semibold text-blue-700 mb-2">📁 Proyecto del equipo:</h3>
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <svg class="w-8 h-8 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <div>
+                <p class="font-medium text-gray-900">{{ $proyecto->archivo_nombre }}</p>
+                <p class="text-sm text-gray-600">
+                    Subido el: {{ $proyecto->enviado_en->format('d/m/Y H:i') }}
+                </p>
+            </div>
+        </div>
+        <div>
+            <a href="{{ route('proyectos.download', $proyecto) }}"
+               target="_blank"
+               class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Descargar Proyecto
+            </a>
+        </div>
+    </div>
+</div>
+@endif
+
     <!-- Formulario de calificación -->
     <form action="{{ route('calificaciones.store', $equipo->id_equipo) }}" method="POST" class="bg-white dark:bg-slate-900 rounded-lg shadow-md p-8 border border-gray-200 dark:border-slate-800">
         @csrf
@@ -113,11 +142,11 @@
                     </label>
                     <span id="valor_creatividad" class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) }}</span>
                 </div>
-                <input type="range" 
-                       id="puntaje_creatividad" 
-                       name="puntaje_creatividad" 
-                       min="1" 
-                       max="10" 
+                <input type="range"
+                       id="puntaje_creatividad"
+                       name="puntaje_creatividad"
+                       min="1"
+                       max="10"
                        value="{{ old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) }}"
                        class="w-full h-2 bg-blue-200 dark:bg-blue-800 rounded-lg appearance-none cursor-pointer"
                        oninput="actualizarValor('creatividad')">
@@ -136,11 +165,11 @@
                     </label>
                     <span id="valor_funcionalidad" class="text-2xl font-bold text-green-600 dark:text-green-400">{{ old('puntaje_funcionalidad', $calificacion->puntaje_funcionalidad ?? 5) }}</span>
                 </div>
-                <input type="range" 
-                       id="puntaje_funcionalidad" 
-                       name="puntaje_funcionalidad" 
-                       min="1" 
-                       max="10" 
+                <input type="range"
+                       id="puntaje_funcionalidad"
+                       name="puntaje_funcionalidad"
+                       min="1"
+                       max="10"
                        value="{{ old('puntaje_funcionalidad', $calificacion->puntaje_funcionalidad ?? 5) }}"
                        class="w-full h-2 bg-green-200 dark:bg-green-800 rounded-lg appearance-none cursor-pointer"
                        oninput="actualizarValor('funcionalidad')">
@@ -159,11 +188,11 @@
                     </label>
                     <span id="valor_diseño" class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ old('puntaje_diseño', $calificacion->puntaje_diseño ?? 5) }}</span>
                 </div>
-                <input type="range" 
-                       id="puntaje_diseño" 
-                       name="puntaje_diseño" 
-                       min="1" 
-                       max="10" 
+                <input type="range"
+                       id="puntaje_diseño"
+                       name="puntaje_diseño"
+                       min="1"
+                       max="10"
                        value="{{ old('puntaje_diseño', $calificacion->puntaje_diseño ?? 5) }}"
                        class="w-full h-2 bg-purple-200 dark:bg-purple-800 rounded-lg appearance-none cursor-pointer"
                        oninput="actualizarValor('diseño')">
@@ -182,11 +211,11 @@
                     </label>
                     <span id="valor_presentacion" class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) }}</span>
                 </div>
-                <input type="range" 
-                       id="puntaje_presentacion" 
-                       name="puntaje_presentacion" 
-                       min="1" 
-                       max="10" 
+                <input type="range"
+                       id="puntaje_presentacion"
+                       name="puntaje_presentacion"
+                       min="1"
+                       max="10"
                        value="{{ old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) }}"
                        class="w-full h-2 bg-orange-200 dark:bg-orange-800 rounded-lg appearance-none cursor-pointer"
                        oninput="actualizarValor('presentacion')">
@@ -205,11 +234,11 @@
                     </label>
                     <span id="valor_documentacion" class="text-2xl font-bold text-red-600 dark:text-red-400">{{ old('puntaje_documentacion', $calificacion->puntaje_documentacion ?? 5) }}</span>
                 </div>
-                <input type="range" 
-                       id="puntaje_documentacion" 
-                       name="puntaje_documentacion" 
-                       min="1" 
-                       max="10" 
+                <input type="range"
+                       id="puntaje_documentacion"
+                       name="puntaje_documentacion"
+                       min="1"
+                       max="10"
                        value="{{ old('puntaje_documentacion', $calificacion->puntaje_documentacion ?? 5) }}"
                        class="w-full h-2 bg-red-200 dark:bg-red-800 rounded-lg appearance-none cursor-pointer"
                        oninput="actualizarValor('documentacion')">
@@ -224,10 +253,10 @@
             <div class="bg-gradient-to-r from-blue-50 dark:from-blue-900/20 to-purple-50 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-6">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">📊 Puntuación Final</h3>
                 <div class="text-4xl font-bold text-blue-600 dark:text-blue-400" id="puntaje_final">
-                    {{ number_format((old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) + 
-                                      old('puntaje_funcionalidad', $calificacion->puntaje_funcionalidad ?? 5) + 
-                                      old('puntaje_diseño', $calificacion->puntaje_diseño ?? 5) + 
-                                      old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) + 
+                    {{ number_format((old('puntaje_creatividad', $calificacion->puntaje_creatividad ?? 5) +
+                                      old('puntaje_funcionalidad', $calificacion->puntaje_funcionalidad ?? 5) +
+                                      old('puntaje_diseño', $calificacion->puntaje_diseño ?? 5) +
+                                      old('puntaje_presentacion', $calificacion->puntaje_presentacion ?? 5) +
                                       old('puntaje_documentacion', $calificacion->puntaje_documentacion ?? 5)) / 5, 2) }}
                 </div>
             </div>
@@ -237,8 +266,8 @@
                 <label for="observaciones" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
                     💬 Observaciones (opcional)
                 </label>
-                <textarea id="observaciones" 
-                          name="observaciones" 
+                <textarea id="observaciones"
+                          name="observaciones"
                           rows="4"
                           placeholder="Añade tus observaciones sobre el proyecto..."
                           class="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">{{ old('observaciones', $calificacion->observaciones ?? '') }}</textarea>
@@ -249,8 +278,8 @@
                 <label for="recomendaciones" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
                     💡 Recomendaciones (opcional)
                 </label>
-                <textarea id="recomendaciones" 
-                          name="recomendaciones" 
+                <textarea id="recomendaciones"
+                          name="recomendaciones"
                           rows="4"
                           placeholder="Sugiere mejoras y recomendaciones..."
                           class="w-full px-4 py-2 border border-gray-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">{{ old('recomendaciones', $calificacion->recomendaciones ?? '') }}</textarea>
@@ -284,11 +313,11 @@ function actualizarValor(campo) {
         'presentacion': 'puntaje_presentacion',
         'documentacion': 'puntaje_documentacion'
     };
-    
+
     const input = document.getElementById(valores[campo]);
     const display = document.getElementById(`valor_${campo}`);
     display.textContent = input.value;
-    
+
     calcularPromedio();
 }
 

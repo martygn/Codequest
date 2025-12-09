@@ -16,6 +16,15 @@ class CalificacionController extends Controller
     public function show(Equipo $equipo)
     {
         $usuario = Auth::user();
+
+        // Cargar la relación evento si no está cargada
+        $equipo->load('evento');
+
+        // Verificar que el equipo tenga evento
+        if (!$equipo->evento) {
+            abort(404, 'El equipo no está asociado a ningún evento.');
+        }
+
         $evento = $equipo->evento;
 
         // Verificar que el usuario sea juez del evento
@@ -32,10 +41,9 @@ class CalificacionController extends Controller
         // Obtener o crear calificación
         $calificacion = CalificacionEquipo::where('juez_id', $usuario->id)
             ->where('equipo_id', $equipo->id_equipo)
-            ->where('evento_id', $evento->id_evento)
             ->first();
 
-        if (! $calificacion) {
+        if (!$calificacion) {
             $calificacion = new CalificacionEquipo([
                 'juez_id' => $usuario->id,
                 'equipo_id' => $equipo->id_equipo,
@@ -43,7 +51,7 @@ class CalificacionController extends Controller
             ]);
         }
 
-        return view('calificaciones.show', compact('equipo', 'evento', 'calificacion'));
+        return view('juez.calificaciones.calificar', compact('equipo', 'calificacion', 'evento'));
     }
 
     /**

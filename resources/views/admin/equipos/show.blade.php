@@ -70,8 +70,8 @@
                     <h1 class="text-4xl font-bold text-gray-900 dark:text-white mt-4">{{ $equipo->nombre }}</h1>
                     <div class="mt-4 flex items-center gap-4">
                         <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full
-                            {{ $equipo->estado === 'aprobado' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 
-                               ($equipo->estado === 'rechazado' ? 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300' : 
+                            {{ $equipo->estado === 'aprobado' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' :
+                               ($equipo->estado === 'rechazado' ? 'bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300' :
                                'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300') }}">
                             {{ ucfirst($equipo->estado) }}
                         </span>
@@ -121,7 +121,7 @@
                     <!-- Participantes -->
                     <section class="bg-white dark:bg-zinc-800 rounded-lg shadow border border-gray-200 dark:border-zinc-700 p-6">
                         <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Miembros del Equipo ({{ count($equipo->participantes) }})</h3>
-                        
+
                         @if(count($equipo->participantes) > 0)
                             <div class="overflow-x-auto">
                                 <table class="w-full">
