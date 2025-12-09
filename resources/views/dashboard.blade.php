@@ -1,6 +1,7 @@
 <x-app-layout>
 
-    <div class="min-h-screen bg-[#0A192F] py-12 text-[#8892B0] font-sans">
+    <div class="min-h-screen bg-[#0A192F] py-12 text-[#8892B0] font-sans" style="
+    padding-top: 120px;">
         
         {{-- Hero Section (DISEÑO MEJORADO) --}}
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
