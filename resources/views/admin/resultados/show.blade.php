@@ -268,15 +268,19 @@
                 </div>
 
                 <!-- Opciones de admin -->
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
                     <a href="{{ route('admin.resultados.exportar', $evento->id_evento) }}" target="_blank" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
                         <span class="material-symbols-outlined">picture_as_pdf</span>
-                        <span>Exportar a PDF</span>
+                        <span>Exportar Resultados</span>
                     </a>
                     @if ($ganador)
-                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}" target="_blank" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined">workspace_premium</span>
+                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?preview=1" target="_blank" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">visibility</span>
                             <span>Ver Constancia</span>
+                        </a>
+                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}" class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined">download</span>
+                            <span>Descargar PDF</span>
                         </a>
                         <button onclick="openEmailModal()" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined">forward_to_inbox</span>
