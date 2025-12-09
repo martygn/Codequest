@@ -84,9 +84,22 @@
                                                 <span>{{ $evento->lugar ?? 'Online' }}</span>
                                             </div>
 
-                                            <a href="{{ route('eventos.show', $evento->id_evento) }}" class="block w-full text-center bg-[#112240] hover:bg-[#64FFDA] hover:text-[#0A192F] text-[#64FFDA] font-bold py-2.5 rounded-lg border border-[#233554] hover:border-[#64FFDA] transition-all duration-300 text-sm uppercase tracking-wide">
-                                                Ver Detalles
-                                            </a>
+                                            <div class="flex gap-2">
+                                                <a href="{{ route('eventos.show', $evento->id_evento) }}" class="flex-1 text-center bg-[#112240] hover:bg-[#64FFDA] hover:text-[#0A192F] text-[#64FFDA] font-bold py-2.5 rounded-lg border border-[#233554] hover:border-[#64FFDA] transition-all duration-300 text-sm uppercase tracking-wide">
+                                                    Ver Detalles
+                                                </a>
+                                                
+                                                @if(isset($equiposPorEvento[$evento->id_evento]))
+                                                    <form action="{{ route('equipos.quitar-evento', $equiposPorEvento[$evento->id_evento]->id_equipo) }}" method="POST" class="flex-1">
+                                                        @csrf
+                                                        @method('POST')
+                                                        <button type="submit" class="w-full text-center bg-red-500/10 hover:bg-red-500/30 text-red-400 hover:text-red-300 font-bold py-2.5 rounded-lg border border-red-500/30 hover:border-red-400 transition-all duration-300 text-sm uppercase tracking-wide"
+                                                            onclick="return confirm('¿Estás seguro de que deseas salir de este evento?')">
+                                                            Salir del Evento
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

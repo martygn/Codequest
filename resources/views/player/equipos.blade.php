@@ -31,7 +31,7 @@
                 {{-- LISTA DE EQUIPOS --}}
                 <div class="space-y-8">
                     @foreach($misEquipos as $miEquipo)
-                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="bg-[#112240] overflow-hidden shadow-sm sm:rounded-lg border border-[#233554]">
                             <div class="p-8">
                                 @php
                                     $estadoColors = [
@@ -44,10 +44,10 @@
                                     $tieneProyectoSubido = $miEquipo->repositorio && $miEquipo->repositorio->estado === 'enviado';
                                 @endphp
 
-                                <div class="md:flex justify-between items-start mb-8 border-b border-gray-100 pb-6">
+                                <div class="md:flex justify-between items-start mb-8 border-b border-[#233554] pb-6">
                                     <div>
                                         <div class="flex items-center gap-3 mb-2">
-                                            <h3 class="text-3xl font-bold text-white">{{ $miEquipo->nombre }}</h3>
+                                            <h3 class="text-3xl font-bold text-[#CCD6F6]">{{ $miEquipo->nombre }}</h3>
                                             @php
                                                 $estadoBadge = match($miEquipo->estado) {
                                                     'aprobado' => 'bg-green-500/10 text-green-400 border-green-500/20',
@@ -59,7 +59,7 @@
                                                 {{ ucfirst($miEquipo->estado ?? 'Activo') }}
                                             </span>
                                         </div>
-                                        <p class="text-gray-500 max-w-2xl">{{ $miEquipo->descripcion ?? 'Sin descripción disponible.' }}</p>
+                                        <p class="text-[#8892B0] max-w-2xl">{{ $miEquipo->descripcion ?? 'Sin descripción disponible.' }}</p>
 
                                         <div class="mt-4 flex items-center gap-2">
                                             <span class="text-xs font-bold text-[#64FFDA] uppercase tracking-wider">Código de Acceso:</span>
@@ -116,7 +116,7 @@
                                                             {{ strtoupper(substr($miembro->name, 0, 1)) }}
                                                         </div>
                                                         <div>
-                                                            <p class="text-sm font-bold text-white flex items-center gap-2">
+                                                            <p class="text-sm font-bold text-[#CCD6F6] flex items-center gap-2">
                                                                 {{ $miembro->name }}
                                                                 @if($miembro->id === $user->id) <span class="text-[10px] text-[#64FFDA] bg-[#64FFDA]/10 px-1.5 rounded border border-[#64FFDA]/20">Tú</span> @endif
                                                             </p>
@@ -156,8 +156,8 @@
                                             <span class="material-symbols-outlined">rocket_launch</span> Proyecto
                                         </h4>
                                         <div class="mb-4">
-                                            <p class="text-sm font-bold text-gray-600">Nombre del Proyecto</p>
-                                            <p class="text-gray-900">{{ $miEquipo->nombre_proyecto ?? 'Aún no definido' }}</p>
+                                            <p class="text-sm font-bold text-[#8892B0]">Nombre del Proyecto</p>
+                                            <p class="text-[#CCD6F6]">{{ $miEquipo->nombre_proyecto ?? 'Aún no definido' }}</p>
 
                                             <!-- Estado del proyecto -->
                                             @if($tieneProyectoSubido)
@@ -205,8 +205,8 @@
                                     $esLiderDelEquipo = $miEquipo->participantes()->wherePivot('usuario_id', $user->id)->wherePivot('posicion', 'Líder')->exists();
                                 @endphp
                                 @if($esLiderDelEquipo && count($solicitudesPendientes) > 0)
-                                    <div class="mt-8 bg-yellow-50 border-l-4 border-yellow-400 rounded-lg p-6">
-                                        <h4 class="text-lg font-bold text-yellow-900 mb-4 flex items-center">
+                                    <div class="mt-8 bg-yellow-500/10 border-l-4 border-yellow-400 rounded-lg p-6">
+                                        <h4 class="text-lg font-bold text-yellow-400 mb-4 flex items-center">
                                             <span class="material-symbols-outlined mr-2">mail</span>
                                             Solicitudes Pendientes ({{ count($solicitudesPendientes) }})
                                         </h4>
@@ -221,7 +221,7 @@
                                                             <span class="text-[#64FFDA] font-bold">{{ strtoupper(substr($solicitante->nombre, 0, 1)) }}</span>
                                                         </div>
                                                         <div>
-                                                            <h4 class="font-bold text-white text-sm">{{ $solicitante->nombre_completo }}</h4>
+                                                            <h4 class="font-bold text-[#CCD6F6] text-sm">{{ $solicitante->nombre_completo }}</h4>
                                                             <p class="text-xs text-[#8892B0]">{{ $solicitante->correo }}</p>
                                                         </div>
                                                     </div>
@@ -253,17 +253,17 @@
                                         </div>
                                         <form id="formExpulsar{{ $miEquipo->id_equipo }}" method="POST" class="p-6 space-y-4">
                                             @csrf
-                                            <p class="text-gray-700 mb-4">¿Estás seguro de que deseas expulsar a <strong id="miembroNombre{{ $miEquipo->id_equipo }}"></strong> del equipo?</p>
+                                            <p class="text-[#8892B0] mb-4">¿Estás seguro de que deseas expulsar a <strong class="text-[#CCD6F6]" id="miembroNombre{{ $miEquipo->id_equipo }}"></strong> del equipo?</p>
 
                                             <div class="mb-4">
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">Razón de expulsión (opcional)</label>
+                                                <label class="block text-sm font-medium text-[#64FFDA] mb-2">Razón de expulsión (opcional)</label>
                                                 <textarea name="razon" placeholder="Especifica el motivo de la expulsión..."
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500" rows="3"></textarea>
+                                                    class="w-full px-3 py-2 border border-[#233554] bg-[#0A192F] text-[#CCD6F6] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary" rows="3"></textarea>
                                             </div>
 
                                             <div class="flex gap-3">
                                                 <button type="button" onclick="cerrarModalExpulsar{{ $miEquipo->id_equipo }}()"
-                                                    class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition">
+                                                    class="flex-1 px-4 py-2 text-sm font-medium text-[#8892B0] bg-[#0A192F] border border-[#233554] rounded-md hover:text-[#CCD6F6] hover:border-[#64FFDA] transition">
                                                     Cancelar
                                                 </button>
                                                 <button type="submit"
@@ -285,29 +285,73 @@
                                         document.getElementById('modalExpulsar{{ $miEquipo->id_equipo }}').classList.add('hidden');
                                     }
                                 </script>
+
+                                {{-- Modal Salir del Equipo --}}
+                                <div id="salirEquipo{{ $miEquipo->id_equipo }}" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm" onclick="if(event.target === this) closeConfirmModal('salirEquipo{{ $miEquipo->id_equipo }}')">
+                                    <div class="bg-[#112240] rounded-xl shadow-2xl max-w-md w-full mx-4 border border-[#233554]" onclick="event.stopPropagation()">
+                                        <div class="px-6 py-4 border-b border-[#233554]">
+                                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                                <span class="material-symbols-outlined text-yellow-400">warning</span> Confirmar Salida
+                                            </h3>
+                                        </div>
+                                        <form action="{{ route('player.equipos.salir') }}" method="POST" class="p-6 space-y-4">
+                                            @csrf
+                                            <input type="hidden" name="equipo_id" value="{{ $miEquipo->id_equipo }}">
+
+                                            @php
+                                                $esLiderDelEquipoActual = $miEquipo->participantes()->wherePivot('usuario_id', $user->id)->wherePivot('posicion', 'Líder')->exists();
+                                            @endphp
+
+                                            @if($esLiderDelEquipoActual)
+                                                <div class="bg-red-500/10 border border-red-500/30 p-4 rounded-lg">
+                                                    <p class="text-red-400 text-sm font-bold mb-2 flex items-center gap-2">
+                                                        <span class="material-symbols-outlined text-lg">error</span>
+                                                        ¡Eres el líder del equipo!
+                                                    </p>
+                                                    <p class="text-[#8892B0] text-sm">
+                                                        Al salir del equipo como líder, el equipo será <strong class="text-white">completamente disuelto</strong> y todos los miembros serán removidos. Se les enviará una notificación.
+                                                    </p>
+                                                </div>
+                                            @else
+                                                <p class="text-[#8892B0]">¿Estás seguro de que deseas salir del equipo <strong class="text-white">{{ $miEquipo->nombre }}</strong>?</p>
+                                            @endif
+
+                                            <div class="flex gap-3 pt-2">
+                                                <button type="button" onclick="closeConfirmModal('salirEquipo{{ $miEquipo->id_equipo }}')"
+                                                    class="flex-1 px-4 py-2 text-sm font-medium text-[#8892B0] bg-[#0A192F] border border-[#233554] rounded-md hover:text-white hover:border-[#64FFDA] transition">
+                                                    Cancelar
+                                                </button>
+                                                <button type="submit"
+                                                    class="flex-1 px-4 py-2 text-sm font-medium text-white {{ $esLiderDelEquipoActual ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700' }} rounded-md transition">
+                                                    {{ $esLiderDelEquipoActual ? 'Disolver Equipo' : 'Salir del Equipo' }}
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             @else
                 {{-- ESTADO: USUARIO SIN EQUIPOS --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-[#112240] overflow-hidden shadow-sm sm:rounded-lg border border-[#233554]">
                     <div class="p-8">
                         <div class="text-center py-16">
-                            <div class="bg-indigo-50 h-24 w-24 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <span class="material-symbols-outlined text-5xl text-indigo-400">groups</span>
+                            <div class="bg-primary/10 h-24 w-24 rounded-full flex items-center justify-center mx-auto mb-6 border border-primary/20">
+                                <span class="material-symbols-outlined text-5xl text-primary">groups</span>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Aún no tienes equipos!</h3>
-                            <p class="text-gray-500 mb-8 max-w-md mx-auto">
+                            <h3 class="text-2xl font-bold text-[#CCD6F6] mb-2">¡Aún no tienes equipos!</h3>
+                            <p class="text-[#8892B0] mb-8 max-w-md mx-auto">
                                 Para participar en los hackathons necesitas unirte a un equipo existente o crear el tuyo propio.
                             </p>
 
                             <div class="flex justify-center gap-4">
-                                <a href="{{ route('equipos.index') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg transition duration-150 ease-in-out">
+                                <a href="{{ route('equipos.index') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-background-dark bg-primary hover:bg-primary/90 shadow-lg transition duration-150 ease-in-out">
                                     <span class="material-symbols-outlined mr-2">search</span>
                                     Buscar Equipo
                                 </a>
-                                <a href="{{ route('equipos.create') }}" class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition duration-150 ease-in-out">
+                                <a href="{{ route('equipos.create') }}" class="inline-flex items-center px-6 py-3 border border-border-dark text-base font-medium rounded-md text-text-secondary-dark bg-card-dark hover:text-primary hover:border-primary shadow-sm transition duration-150 ease-in-out">
                                     <span class="material-symbols-outlined mr-2">add</span>
                                     Crear Equipo
                                 </a>
