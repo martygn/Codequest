@@ -183,4 +183,5 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/juez/panel', [JuezController::class, 'panel'])->name('juez.panel');
         Route::get('/juez/constancias', [JuezController::class, 'historialConstancias'])->name('juez.constancias');
     });
+    
 });

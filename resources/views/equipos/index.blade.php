@@ -1,170 +1,164 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Equipos') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
+    <div class="min-h-screen bg-[#0A192F] py-12 text-[#8892B0] font-sans">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-
-            {{-- Título y botón en la misma línea (responsive) --}}
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10" style="height: 130px;">
+            
+          
                 <div>
-                    <h2 class="text-3xl font-bold text-gray-900">Equipos</h2>
-                    <p class="text-gray-600 mt-1">Gestiona los equipos y sus proyectos</p>
+                    <h2 class="text-3xl font-bold text-[#CCD6F6] tracking-tight">Equipos</h2>
+                    <p class="text-sm text-[#8892B0] mt-1">Explora, únete o crea equipos para competir.</p>
                 </div>
 
                 <a href="{{ route('equipos.create') }}"
-                   class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-md transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
+                   class="inline-flex items-center gap-2 px-6 py-3 bg-[#64FFDA] hover:bg-[#52d6b3] text-[#0A192F] font-bold rounded-xl shadow-[0_0_15px_rgba(100,255,218,0.3)] transition-all transform hover:-translate-y-0.5">
+                    <span class="material-symbols-outlined text-xl">group_add</span>
                     Crear Nuevo Equipo
                 </a>
             </div>
 
-            {{-- Filtros y búsqueda --}}
-            <div class="bg-white shadow-sm sm:rounded-lg mb-8 border border-gray-200">
-                <div class="p-6">
+            {{-- Panel de Control (Filtros y Buscador) --}}
+            <div class="bg-[#112240] rounded-2xl shadow-xl border border-[#233554] overflow-hidden mb-8">
+                <div class="p-6 md:p-8">
 
                     {{-- Buscador --}}
                     <form method="GET" action="{{ route('equipos.index') }}" class="mb-8">
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                                </svg>
+                        <div class="relative max-w-lg">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#8892B0]">
+                                <span class="material-symbols-outlined">search</span>
                             </div>
                             <input type="text" name="search" value="{{ request('search') }}"
-                                   class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
-                                   placeholder="Buscar equipos o proyectos">
+                                   class="w-full pl-11 pr-4 py-3 bg-[#0A192F] border border-[#233554] rounded-xl text-[#CCD6F6] placeholder-[#8892B0]/50 focus:border-[#64FFDA] focus:ring-1 focus:ring-[#64FFDA] outline-none transition-all"
+                                   placeholder="Buscar por nombre o proyecto...">
                         </div>
                     </form>
 
-                    {{-- Pestañas de filtro --}}
-                    <div class="flex space-x-8 border-b border-gray-200">
+                    {{-- Pestañas de Filtro --}}
+                    <div class="flex flex-wrap gap-2 border-b border-[#233554] pb-1">
                         @php
                             $currentFilter = request('filtro', 'todos');
+                            $activeClass = 'border-[#64FFDA] text-[#64FFDA]';
+                            $inactiveClass = 'border-transparent text-[#8892B0] hover:text-[#CCD6F6] hover:border-[#233554]';
                         @endphp
 
                         <a href="{{ route('equipos.index', ['filtro' => 'todos']) }}"
-                           class="pb-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200
-                           {{ $currentFilter === 'todos' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                           class="px-4 py-2 border-b-2 font-bold text-sm transition-all {{ $currentFilter === 'todos' ? $activeClass : $inactiveClass }}">
                             Todos los equipos
                         </a>
                         <a href="{{ route('equipos.index', ['filtro' => 'mis_eventos']) }}"
-                           class="pb-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200
-                           {{ $currentFilter === 'mis_eventos' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                           class="px-4 py-2 border-b-2 font-bold text-sm transition-all {{ $currentFilter === 'mis_eventos' ? $activeClass : $inactiveClass }}">
                             Mis equipos
                         </a>
                         <a href="{{ route('equipos.index', ['filtro' => 'eventos_pasados']) }}"
-                           class="pb-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200
-                           {{ $currentFilter === 'eventos_pasados' ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
-                            Equipos pasados
+                           class="px-4 py-2 border-b-2 font-bold text-sm transition-all {{ $currentFilter === 'eventos_pasados' ? $activeClass : $inactiveClass }}">
+                            Historial
                         </a>
                     </div>
                 </div>
             </div>
 
-            {{-- Tabla de equipos --}}
-            <div class="bg-white shadow-sm sm:rounded-lg border border-gray-200 overflow-hidden">
+            {{-- Tabla de Equipos --}}
+            <div class="bg-[#112240] rounded-2xl shadow-xl border border-[#233554] overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
+                    <table class="min-w-full divide-y divide-[#233554]">
+                        <thead class="bg-[#0D1B2A]">
                             <tr>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
-                                    Nombre del equipo
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-mono font-bold text-[#64FFDA] uppercase tracking-wider">
+                                    Equipo
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
-                                    Nombre del proyecto
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-mono font-bold text-[#64FFDA] uppercase tracking-wider">
+                                    Proyecto
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-mono font-bold text-[#64FFDA] uppercase tracking-wider">
                                     Evento
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-mono font-bold text-[#64FFDA] uppercase tracking-wider">
                                     Estado
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-mono font-bold text-[#64FFDA] uppercase tracking-wider">
                                     Miembros
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
-                                    Fecha de creación
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-mono font-bold text-[#64FFDA] uppercase tracking-wider">
+                                    Creación
                                 </th>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-900 uppercase tracking-wider">
+                                <th scope="col" class="px-6 py-4 text-center text-xs font-mono font-bold text-[#64FFDA] uppercase tracking-wider">
                                     Acciones
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
+                        <tbody class="bg-[#112240] divide-y divide-[#233554]">
                             @forelse ($equipos as $equipo)
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {{ $equipo->nombre }}
+                                <tr class="hover:bg-[#0A192F]/50 transition-colors group">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-bold text-[#CCD6F6] group-hover:text-white transition-colors">
+                                            {{ $equipo->nombre }}
+                                        </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $equipo->nombre_proyecto ?? 'Sin proyecto' }}
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-[#8892B0]">
+                                            {{ $equipo->nombre_proyecto ?? '—' }}
+                                        </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {{ $equipo->evento?->nombre ?? 'Sin evento' }}
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-[#8892B0]">
+                                            {{ $equipo->evento?->nombre ?? 'Sin Asignar' }}
+                                        </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    <td class="px-6 py-4 whitespace-nowrap">
                                         @php
-                                            $estadoColors = [
-                                                'en revisión' => 'bg-yellow-100 text-yellow-800',
-                                                'aprobado'    => 'bg-green-100 text-green-800',
-                                                'rechazado'   => 'bg-red-100 text-red-800',
-                                            ];
+                                            $estadoClass = match($equipo->estado) {
+                                                'aprobado' => 'bg-green-500/10 text-green-400 border-green-500/20',
+                                                'rechazado' => 'bg-red-500/10 text-red-400 border-red-500/20',
+                                                default => 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                                            };
                                         @endphp
-                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full {{ $estadoColors[$equipo->estado] ?? 'bg-gray-100 text-gray-800' }}">
+                                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full border {{ $estadoClass }}">
                                             {{ ucfirst(str_replace('_', ' ', $equipo->estado)) }}
                                         </span>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
-                                        @php
-                                            $totalMiembros = $equipo->participantes()->count();
-                                        @endphp
-                                        <span class="inline-flex items-center">
-                                            <svg class="w-5 h-5 mr-1 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9A6.5 6.5 0 0112 3.5 6.5 6.5 0 0118.5 10z"/>
-                                            </svg>
-                                            {{ $totalMiembros }} / 4
-                                        </span>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8892B0]">
+                                        <div class="flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-base text-[#64FFDA]">group</span>
+                                            {{ $equipo->participantes()->count() }} / 4
+                                        </div>
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8892B0] font-mono text-xs">
                                         {{ $equipo->created_at->format('d/m/Y') }}
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-y-2">
-                                        <div>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                                        <div class="flex flex-col items-center gap-2">
                                             <a href="{{ route('equipos.show', $equipo->id_equipo) }}"
-                                               class="text-blue-600 hover:text-blue-900 font-bold transition-colors">
-                                                Ver
+                                               class="text-[#64FFDA] hover:text-white transition-colors hover:underline decoration-2 underline-offset-4">
+                                                Ver Detalles
                                             </a>
-                                        </div>
 
-                                        {{-- Solicitar unirse --}}
-                                        @if(auth()->user()->tipo === 'participante' &&
-                                            !$equipo->tieneMiembro(auth()->id()) &&
-                                            !$equipo->tieneSolicitudPendiente(auth()->id()) &&
-                                            $equipo->participantes()->count() < 4 &&
-                                            $equipo->estaAprobado())
-                                            <form action="{{ route('equipos.solicitar-unirse', $equipo->id_equipo) }}" method="POST" class="inline">
-                                                @csrf
-                                                <button type="submit"
-                                                        class="text-green-600 hover:text-green-900 font-bold transition-colors">
-                                                    Solicitar unirse
-                                                </button>
-                                            </form>
-                                        @elseif(auth()->user()->tipo === 'participante' && $equipo->tieneSolicitudPendiente(auth()->id()))
-                                            <span class="text-yellow-600 text-sm font-medium">Solicitud enviada</span>
-                                        @endif
+                                            @if(auth()->user()->tipo === 'participante' &&
+                                                !$equipo->tieneMiembro(auth()->id()) &&
+                                                !$equipo->tieneSolicitudPendiente(auth()->id()) &&
+                                                $equipo->participantes()->count() < 4 &&
+                                                $equipo->estaAprobado())
+                                                
+                                                <form action="{{ route('equipos.solicitar-unirse', $equipo->id_equipo) }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="text-xs bg-[#64FFDA]/10 text-[#64FFDA] px-2 py-1 rounded border border-[#64FFDA]/30 hover:bg-[#64FFDA] hover:text-[#0A192F] transition-all">
+                                                        Solicitar Unirse
+                                                    </button>
+                                                </form>
+
+                                            @elseif(auth()->user()->tipo === 'participante' && $equipo->tieneSolicitudPendiente(auth()->id()))
+                                                <span class="text-xs text-yellow-400 italic">Solicitud enviada</span>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-16 text-center text-gray-500">
-                                        No se encontraron equipos en esta sección.
+                                    <td colspan="7" class="px-6 py-16 text-center">
+                                        <div class="flex flex-col items-center justify-center text-[#8892B0]">
+                                            <div class="p-4 bg-[#0A192F] rounded-full border border-[#233554] mb-3">
+                                                <span class="material-symbols-outlined text-4xl opacity-50">group_off</span>
+                                            </div>
+                                            <p class="text-sm font-medium">No se encontraron equipos con este filtro.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforelse
@@ -173,9 +167,11 @@
                 </div>
 
                 {{-- Paginación --}}
-                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                @if($equipos->hasPages())
+                <div class="px-6 py-4 border-t border-[#233554] bg-[#0A192F]">
                     {{ $equipos->links() }}
                 </div>
+                @endif
             </div>
 
         </div>
