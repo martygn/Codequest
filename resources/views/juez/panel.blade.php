@@ -13,9 +13,13 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: "#2998FF",
-                        "background-light": "#F8FAFC",
-                        "background-dark": "#18181B",
+                        primary: "#64FFDA",
+                        "background-dark": "#0A192F",
+                        "card-dark": "#112240",
+                        "text-dark": "#CCD6F6",
+                        "text-secondary-dark": "#8892B0",
+                        "border-dark": "#233554",
+                        "active-dark": "rgba(100, 255, 218, 0.1)",
                     },
                     fontFamily: {
                         display: ["Inter", "sans-serif"],
@@ -25,24 +29,29 @@
         };
     </script>
 </head>
-<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<body class="bg-background-dark font-display text-text-secondary-dark">
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 flex-shrink-0 bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800 p-6 flex flex-col justify-between">
+        <aside class="w-64 flex-shrink-0 bg-card-dark border-r border-border-dark p-6 flex flex-col justify-between shadow-xl">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">CodeQuest</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Panel del Juez</p>
+                <div class="flex items-center gap-3 mb-6">
+                    <img src="{{ asset('log.png') }}" alt="CodeQuest Logo" class="h-12 w-auto">
+                    <div>
+                        <h1 class="text-2xl font-bold text-text-dark">CodeQuest</h1>
+                        <p class="text-xs text-text-secondary-dark">Panel del Juez</p>
+                    </div>
+                </div>
 
                 <nav class="mt-8 space-y-2">
-                    <a class="flex items-center gap-3 px-4 py-2 text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800 rounded font-semibold" href="{{ route('juez.panel') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 text-primary bg-active-dark rounded-lg font-semibold border-l-2 border-primary" href="{{ route('juez.panel') }}">
                         <span class="material-symbols-outlined">dashboard</span>
                         <span>Dashboard</span>
                     </a>
-                    <a class="flex items-center gap-3 px-4 py-2 text-gray-600 dark:text-gray-400 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition" href="{{ route('juez.constancias') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 text-text-secondary-dark rounded-lg hover:bg-border-dark hover:text-primary transition" href="{{ route('juez.constancias') }}">
                         <span class="material-symbols-outlined">description</span>
                         <span>Constancias</span>
                     </a>
-                    <a class="flex items-center gap-3 px-4 py-2 text-gray-600 dark:text-gray-400 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition" href="{{ route('juez.configuracion') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 text-text-secondary-dark rounded-lg hover:bg-border-dark hover:text-primary transition" href="{{ route('juez.configuracion') }}">
                         <span class="material-symbols-outlined">settings</span>
                         <span>Configuración</span>
                     </a>
@@ -50,36 +59,36 @@
             </div>
 
             <!-- Usuario -->
-            <div class="pt-6 border-t border-gray-200 dark:border-zinc-800">
+            <div class="pt-6 border-t border-border-dark">
                 <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-white font-bold">
+                    <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-background-dark font-bold">
                         {{ substr($juez->nombre, 0, 1) }}
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $juez->nombre }}</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Juez</p>
+                        <p class="text-sm font-semibold text-text-dark">{{ $juez->nombre }}</p>
+                        <p class="text-xs text-text-secondary-dark">Juez</p>
                     </div>
                 </div>
             </div>
         </aside>
 
         <!-- Contenido principal -->
-        <main class="flex-1 overflow-y-auto bg-white dark:bg-zinc-900 p-8">
+        <main class="flex-1 overflow-y-auto bg-background-dark p-8">
             <!-- Header -->
             <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Panel de Evaluación</h1>
-                <p class="text-gray-500 dark:text-gray-400 mt-2">Evalúa los equipos asignados en los eventos</p>
+                <h1 class="text-3xl font-bold text-text-dark">Panel de Evaluación</h1>
+                <p class="text-text-secondary-dark mt-2">Evalúa los equipos asignados en los eventos</p>
             </div>
 
             <!-- Selector de Evento -->
             @if($eventosAsignados->count() > 0)
             <div class="mb-6">
-                <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-                    <label class="block text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">Evento Activo</label>
+                <div class="bg-primary/10 border border-primary/30 rounded-lg p-4">
+                    <label class="block text-sm font-semibold text-primary mb-2">Evento Activo</label>
                     <div class="flex flex-wrap gap-2">
                         @foreach($eventosAsignados as $eventoItem)
                         <a href="{{ route('juez.panel', ['evento' => $eventoItem->id_evento]) }}"
-                           class="px-4 py-2 rounded-lg text-sm font-medium transition {{ $evento && $evento->id_evento == $eventoItem->id_evento ? 'bg-primary text-white' : 'bg-white dark:bg-zinc-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700' }}">
+                           class="px-4 py-2 rounded-lg text-sm font-medium transition {{ $evento && $evento->id_evento == $eventoItem->id_evento ? 'bg-primary text-background-dark' : 'bg-card-dark text-text-secondary-dark border border-border-dark hover:bg-border-dark hover:text-primary' }}">
                             {{ $eventoItem->nombre }}
                             @if($eventoItem->id_evento == $evento->id_evento)
                             <span class="ml-1">✓</span>
@@ -93,22 +102,22 @@
 
             @if($evento)
             <!-- Información del Evento -->
-            <div class="mb-8 bg-white dark:bg-zinc-800 rounded-lg shadow border border-gray-200 dark:border-zinc-700 p-6">
+            <div class="mb-8 bg-card-dark rounded-lg shadow-xl border border-border-dark p-6">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ $evento->nombre }}</h2>
-                        <p class="text-gray-500 dark:text-gray-400 mt-1">{{ $evento->descripcion }}</p>
+                        <h2 class="text-2xl font-bold text-text-dark">{{ $evento->nombre }}</h2>
+                        <p class="text-text-secondary-dark mt-1">{{ $evento->descripcion }}</p>
 
                         <div class="mt-4 flex items-center gap-6 text-sm">
                             <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-gray-400">event</span>
-                                <span class="text-gray-600 dark:text-gray-400">
+                                <span class="material-symbols-outlined text-text-secondary-dark">event</span>
+                                <span class="text-text-secondary-dark">
                                     Inicia: {{ \Carbon\Carbon::parse($evento->fecha_inicio)->translatedFormat('d M Y, H:i') }}
                                 </span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="material-symbols-outlined text-gray-400">event_available</span>
-                                <span class="text-gray-600 dark:text-gray-400">
+                                <span class="material-symbols-outlined text-text-secondary-dark">event_available</span>
+                                <span class="text-text-secondary-dark">
                                     Finaliza: {{ \Carbon\Carbon::parse($evento->fecha_fin)->translatedFormat('d M Y, H:i') }}
                                 </span>
                             </div>
@@ -120,32 +129,32 @@
                             {{ $evento->estado === 'publicado' ? 'bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300' : 'bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300' }}">
                             {{ ucfirst($evento->estado) }}
                         </span>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ $equipos->count() }} equipos asignados</p>
+                        <p class="text-xs text-text-secondary-dark mt-2">{{ $equipos->count() }} equipos asignados</p>
                     </div>
                 </div>
             </div>
 
             <!-- Tabla de Equipos -->
-            <div class="bg-white dark:bg-zinc-800 rounded-lg shadow border border-gray-200 dark:border-zinc-700 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200 dark:border-zinc-700">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Equipos para Evaluar</h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Haz clic en "Ver Proyecto" para revisar y calificar</p>
+            <div class="bg-card-dark rounded-lg shadow border border-border-dark overflow-hidden">
+                <div class="px-6 py-4 border-b border-border-dark">
+                    <h3 class="text-lg font-bold text-text-dark">Equipos para Evaluar</h3>
+                    <p class="text-sm text-text-secondary-dark">Haz clic en "Ver Proyecto" para revisar y calificar</p>
                 </div>
 
                 @if($equipos->count() > 0)
                 <div class="overflow-x-auto">
                     <table class="w-full">
-                        <thead class="bg-gray-50 dark:bg-zinc-900">
+                        <thead class="bg-background-dark">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Equipo</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Proyecto</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Estado</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Miembros</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Calificación</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Acciones</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary-dark uppercase tracking-wider">Equipo</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary-dark uppercase tracking-wider">Proyecto</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary-dark uppercase tracking-wider">Estado</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary-dark uppercase tracking-wider">Miembros</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary-dark uppercase tracking-wider">Calificación</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-text-secondary-dark uppercase tracking-wider">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-zinc-700">
+                        <tbody class="divide-y divide-border-dark">
                             @foreach($equipos as $equipo)
                             @php
                                 // Determinar si el juez ya calificó este proyecto
@@ -157,25 +166,25 @@
                                     }
                                 }
                             @endphp
-                            <tr class="hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition">
+                            <tr class="hover:bg-border-dark transition">
                                 <!-- Nombre del Equipo -->
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-300 font-bold mr-3">
+                                        <div class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold mr-3">
                                             {{ substr($equipo->nombre, 0, 1) }}
                                         </div>
                                         <div>
-                                            <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $equipo->nombre }}</p>
-                                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ $equipo->nombre_proyecto }}</p>
+                                            <p class="text-sm font-semibold text-text-dark">{{ $equipo->nombre }}</p>
+                                            <p class="text-xs text-text-secondary-dark">{{ $equipo->nombre_proyecto }}</p>
                                         </div>
                                     </div>
                                 </td>
 
                                 <!-- Columna de Proyecto -->
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary-dark">
                                     @if($equipo->repositorio && $equipo->repositorio->estado === 'enviado')
                                         <a href="{{ route('proyecto.juez.ver-juez', $equipo->repositorio) }}"
-                                           class="text-blue-600 hover:text-blue-900 hover:underline">
+                                           class="text-primary hover:text-primary/80 hover:underline">
                                             Ver Proyecto
                                             @if($equipo->repositorio->calificacion_total)
                                                 <span class="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
@@ -203,10 +212,10 @@
                                 </td>
 
                                 <!-- Miembros -->
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-text-secondary-dark">
                                     <div class="flex -space-x-2">
                                         @foreach($equipo->participantes->take(3) as $participante)
-                                        <div class="h-8 w-8 rounded-full border-2 border-white dark:border-zinc-800 bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-700 dark:text-gray-300"
+                                        <div class="h-8 w-8 rounded-full border-2 border-card-dark bg-border-dark flex items-center justify-center text-xs font-bold text-text-dark"
                                              title="{{ $participante->nombre }}">
                                             {{ substr($participante->nombre, 0, 1) }}
                                         </div>
@@ -223,13 +232,13 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if($equipo->repositorio && $equipo->repositorio->calificacion_total)
                                     <div class="flex items-center">
-                                        <div class="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-3">
+                                        <div class="w-24 bg-border-dark rounded-full h-2 mr-3">
                                             <div class="bg-green-500 h-2 rounded-full" style="width: {{ $equipo->repositorio->calificacion_total }}%"></div>
                                         </div>
-                                        <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ $equipo->repositorio->calificacion_total }}/100</span>
+                                        <span class="text-sm font-semibold text-text-dark">{{ $equipo->repositorio->calificacion_total }}/100</span>
                                     </div>
                                     @else
-                                    <span class="text-sm text-gray-400 dark:text-gray-500">Sin calificar</span>
+                                    <span class="text-sm text-text-secondary-dark">Sin calificar</span>
                                     @endif
                                 </td>
 
@@ -252,9 +261,9 @@
                 </div>
                 @else
                 <div class="px-6 py-12 text-center">
-                    <span class="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-500 mb-4">group_remove</span>
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No hay equipos asignados</h3>
-                    <p class="text-gray-500 dark:text-gray-400">Este evento aún no tiene equipos aprobados para evaluar.</p>
+                    <span class="material-symbols-outlined text-4xl text-text-secondary-dark mb-4">group_remove</span>
+                    <h3 class="text-lg font-medium text-text-dark mb-2">No hay equipos asignados</h3>
+                    <p class="text-text-secondary-dark">Este evento aún no tiene equipos aprobados para evaluar.</p>
                 </div>
                 @endif
             </div>
@@ -282,40 +291,40 @@
                 }
             @endphp
             <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white dark:bg-zinc-800 rounded-lg shadow border border-gray-200 dark:border-zinc-700 p-6">
+                <div class="bg-card-dark rounded-lg shadow border border-border-dark p-6">
                     <div class="flex items-center">
                         <div class="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mr-4">
                             <span class="material-symbols-outlined text-blue-600 dark:text-blue-300">groups</span>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Equipos Totales</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">{{ $equipos->count() }}</p>
+                            <p class="text-sm text-text-secondary-dark">Equipos Totales</p>
+                            <p class="text-2xl font-bold text-text-dark">{{ $equipos->count() }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-zinc-800 rounded-lg shadow border border-gray-200 dark:border-zinc-700 p-6">
+                <div class="bg-card-dark rounded-lg shadow border border-border-dark p-6">
                     <div class="flex items-center">
                         <div class="h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center mr-4">
                             <span class="material-symbols-outlined text-green-600 dark:text-green-300">check_circle</span>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Proyectos calificados por ti</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                            <p class="text-sm text-text-secondary-dark">Proyectos calificados por ti</p>
+                            <p class="text-2xl font-bold text-text-dark">
                                 {{ $proyectosCalificados }}
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white dark:bg-zinc-800 rounded-lg shadow border border-gray-200 dark:border-zinc-700 p-6">
+                <div class="bg-card-dark rounded-lg shadow border border-border-dark p-6">
                     <div class="flex items-center">
                         <div class="h-12 w-12 rounded-full bg-yellow-100 dark:bg-yellow-900/50 flex items-center justify-center mr-4">
                             <span class="material-symbols-outlined text-yellow-600 dark:text-yellow-300">pending</span>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Proyectos pendientes</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-white">
+                            <p class="text-sm text-text-secondary-dark">Proyectos pendientes</p>
+                            <p class="text-2xl font-bold text-text-dark">
                                 {{ $proyectosPendientes }}
                             </p>
                         </div>
@@ -326,10 +335,10 @@
 
             @else
             <!-- Sin evento seleccionado -->
-            <div class="bg-white dark:bg-zinc-800 rounded-lg shadow border border-gray-200 dark:border-zinc-700 p-12 text-center">
-                <span class="material-symbols-outlined text-6xl text-gray-400 dark:text-gray-500 mb-4">calendar_today</span>
-                <h3 class="text-xl font-medium text-gray-900 dark:text-white mb-2">No hay evento seleccionado</h3>
-                <p class="text-gray-500 dark:text-gray-400 mb-6">Selecciona un evento de la lista para comenzar a evaluar equipos.</p>
+            <div class="bg-card-dark rounded-lg shadow border border-border-dark p-12 text-center">
+                <span class="material-symbols-outlined text-6xl text-text-secondary-dark mb-4">calendar_today</span>
+                <h3 class="text-xl font-medium text-text-dark mb-2">No hay evento seleccionado</h3>
+                <p class="text-text-secondary-dark mb-6">Selecciona un evento de la lista para comenzar a evaluar equipos.</p>
 
                 @if($eventosAsignados->count() === 0)
                 <div class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700">

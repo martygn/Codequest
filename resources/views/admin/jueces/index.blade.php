@@ -18,6 +18,11 @@
                     colors: {
                         // PALETA "DARK TECH"
                         primary: "#64FFDA", // Turquesa
+                        "card-dark": "#112240",
+                        "text-dark": "#CCD6F6",
+                        "text-secondary-dark": "#8892B0",
+                        "border-dark": "#233554",
+                        "active-dark": "rgba(100, 255, 218, 0.1)",
                         "background-dark": "#0A192F",  // Azul Muy Oscuro
                         "card-dark": "#112240",        // Azul Profundo
                         "text-dark": "#CCD6F6",        // Azul Claro

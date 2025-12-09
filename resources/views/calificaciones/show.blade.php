@@ -13,9 +13,14 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: "#3b82f6",
-                        "background-light": "#f8fafc",
-                        "background-dark": "#0f172a",
+                        primary: "#64FFDA",
+                        "card-dark": "#112240",
+                        "text-dark": "#CCD6F6",
+                        "text-secondary-dark": "#8892B0",
+                        "border-dark": "#233554",
+                        "active-dark": "rgba(100, 255, 218, 0.1)",
+                        "background-dark": "#0A192F",
+                        "background-dark": "#0A192F",
                     },
                     fontFamily: {
                         display: ["Inter", "sans-serif"],
@@ -37,32 +42,32 @@
         }
     </style>
 </head>
-<body class="font-display bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200">
+<body class="font-display bg-background-dark text-text-secondary-dark">
 <div class="flex h-screen">
     <!-- Sidebar del Juez -->
-    <aside class="w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 flex flex-col justify-between">
+    <aside class="w-64 flex-shrink-0 bg-card-dark border-r border-border-dark p-6 flex flex-col justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">CodeQuest</h1>
+            <h1 class="text-2xl font-bold text-text-dark">CodeQuest</h1>
             <nav class="mt-8 space-y-2">
-                <a class="flex items-center gap-3 px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 rounded font-semibold" href="{{ route('juez.panel') }}">
+                <a class="flex items-center gap-3 px-4 py-2 text-text-dark bg-active-dark text-primary border-l-2 border-primary rounded font-semibold" href="{{ route('juez.panel') }}">
                     <span class="material-symbols-outlined">calendar_today</span>
                     <span>Eventos</span>
                 </a>
-                <a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('juez.constancias') }}">
+                <a class="flex items-center gap-3 px-4 py-2 text-text-secondary-dark rounded hover:bg-border-dark hover:text-primary transition-colors" href="{{ route('juez.constancias') }}">
                     <span class="material-symbols-outlined">description</span>
                     <span>Historial de Constancias</span>
                 </a>
-                <a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('juez.configuracion') }}">
+                <a class="flex items-center gap-3 px-4 py-2 text-text-secondary-dark rounded hover:bg-border-dark hover:text-primary transition-colors" href="{{ route('juez.configuracion') }}">
                     <span class="material-symbols-outlined">settings</span>
                     <span>Configuración</span>
                 </a>
             </nav>
         </div>
 
-        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+        <div class="p-4 border-t border-border-dark">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:bg-border-dark hover:text-primary transition-colors">
                     <span class="material-symbols-outlined">logout</span>
                     <span>Cerrar sesión</span>
                 </button>
@@ -130,7 +135,7 @@
 @endif
 
     <!-- Formulario de calificación -->
-    <form action="{{ route('calificaciones.store', $equipo->id_equipo) }}" method="POST" class="bg-white dark:bg-slate-900 rounded-lg shadow-md p-8 border border-gray-200 dark:border-slate-800">
+    <form action="{{ route('calificaciones.store', $equipo->id_equipo) }}" method="POST" class="bg-card-dark rounded-lg shadow-md p-8 border border-gray-200 dark:border-slate-800">
         @csrf
 
         <div class="space-y-8">
