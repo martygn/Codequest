@@ -201,6 +201,12 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        @if($equipos->hasPages())
+                            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+                                {{ $equipos->links() }}
+                            </div>
+                        @endif
                     @else
                         <div class="p-6 text-center text-slate-500 dark:text-slate-400">
                             <span class="material-symbols-outlined text-4xl mb-4 block">assignment</span>
