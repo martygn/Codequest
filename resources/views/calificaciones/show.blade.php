@@ -39,7 +39,36 @@
 </head>
 <body class="font-display bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200">
 <div class="flex h-screen">
-    @include('admin._sidebar')
+    <!-- Sidebar del Juez -->
+    <aside class="w-64 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 p-6 flex flex-col justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">CodeQuest</h1>
+            <nav class="mt-8 space-y-2">
+                <a class="flex items-center gap-3 px-4 py-2 text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 rounded font-semibold" href="{{ route('juez.panel') }}">
+                    <span class="material-symbols-outlined">calendar_today</span>
+                    <span>Eventos</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('juez.constancias') }}">
+                    <span class="material-symbols-outlined">description</span>
+                    <span>Historial de Constancias</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-2 text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="{{ route('juez.configuracion') }}">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Configuración</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                    <span class="material-symbols-outlined">logout</span>
+                    <span>Cerrar sesión</span>
+                </button>
+            </form>
+        </div>
+    </aside>
 
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-y-auto">

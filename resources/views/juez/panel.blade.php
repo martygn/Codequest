@@ -61,6 +61,10 @@
                     <span class="material-symbols-outlined">description</span>
                     <span>Historial de Constancias</span>
                 </a>
+                <a class="flex items-center gap-3 px-4 py-2 {{ request()->routeIs('juez.configuracion') ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 rounded font-semibold' : 'text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors' }}" href="{{ route('juez.configuracion') }}">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Configuración</span>
+                </a>
             </nav>
         </div>
 
@@ -82,6 +86,21 @@
                 <h2 class="text-4xl font-bold text-slate-900 dark:text-white">Panel de Juez</h2>
                 <p class="text-slate-500 dark:text-slate-400 mt-1">Bienvenido, {{ $juez->nombre_completo }}</p>
             </header>
+
+            {{-- Mensajes de éxito y error --}}
+            @if(session('success'))
+                <div class="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-200 px-4 py-3 rounded mb-6 shadow-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <span>{{ session('success') }}</span>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-200 px-4 py-3 rounded mb-6 shadow-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined">error</span>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
 
             @if($evento)
                 <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 p-6 mb-8">
@@ -108,8 +127,11 @@
 
                 <div class="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
                     <div class="p-6 border-b border-slate-200 dark:border-slate-800">
-                        <h3 class="text-2xl font-semibold text-slate-900 dark:text-white">Equipos a Evaluar</h3>
-                        <p class="text-slate-500 dark:text-slate-400 mt-1">Total: {{ $equipos->count() }} equipo(s)</p>
+                        <h3 class="text-2xl font-semibold text-slate-900 dark:text-white">Equipos del Evento</h3>
+                        <p class="text-slate-500 dark:text-slate-400 mt-1">
+                            Total: {{ $equipos->count() }} equipo(s) |
+                            Aprobados: {{ $equipos->where('estado', 'aprobado')->count() }}
+                        </p>
                     </div>
 
                     @if($equipos->count() > 0)
@@ -121,33 +143,57 @@
                                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Proyecto</th>
                                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Líder</th>
                                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Miembros</th>
-                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Estado</th>
+                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Estado del Equipo</th>
+                                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Calificación</th>
                                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600 dark:text-slate-400">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($equipos as $equipo)
-                                    <tr class="border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+                                    <tr class="border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition {{ $equipo->estado !== 'aprobado' ? 'opacity-60' : '' }}">
                                         <td class="px-6 py-4 text-slate-900 dark:text-white font-medium">{{ $equipo->nombre }}</td>
                                         <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $equipo->nombre_proyecto ?? '-' }}</td>
                                         <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $equipo->lider->nombre_completo ?? '-' }}</td>
                                         <td class="px-6 py-4 text-slate-700 dark:text-slate-300">{{ $equipo->participantes->count() }}</td>
                                         <td class="px-6 py-4">
-                                            <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full 
-                                                {{ $equipo->estado === 'aprobado' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : 
-                                                   ($equipo->estado === 'rechazado' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' : 
+                                            <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full
+                                                {{ $equipo->estado === 'aprobado' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' :
+                                                   ($equipo->estado === 'rechazado' ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' :
                                                    'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300') }}">
-                                                {{ $equipo->estado }}
+                                                {{ ucfirst($equipo->estado) }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4">
                                             @php
                                                 $calificacion = $equipo->calificaciones?->firstWhere('juez_id', $juez->id);
                                             @endphp
-                                            @if($calificacion)
-                                                <a href="{{ route('calificaciones.show', ['equipo' => $equipo->id_equipo]) }}" class="text-primary hover:underline font-medium">Editar Puntuación</a>
+                                            @if($equipo->estado === 'aprobado')
+                                                @if($calificacion)
+                                                    <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300">
+                                                        Calificado
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300">
+                                                        Pendiente
+                                                    </span>
+                                                @endif
                                             @else
-                                                <a href="{{ route('calificaciones.show', ['equipo' => $equipo->id_equipo]) }}" class="text-primary hover:underline font-medium">Calificar</a>
+                                                <span class="inline-flex items-center px-3 py-1 text-sm font-medium rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+                                                    No disponible
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            @if($equipo->estado === 'aprobado')
+                                                @if($calificacion)
+                                                    <a href="{{ route('calificaciones.show', ['equipo' => $equipo->id_equipo]) }}" class="text-primary hover:underline font-medium">Ver / Editar</a>
+                                                @else
+                                                    <a href="{{ route('calificaciones.show', ['equipo' => $equipo->id_equipo]) }}" class="text-primary hover:underline font-medium">Calificar</a>
+                                                @endif
+                                            @else
+                                                <span class="text-gray-400 dark:text-gray-600 text-sm cursor-not-allowed" title="El equipo debe estar aprobado para ser calificado">
+                                                    No disponible
+                                                </span>
                                             @endif
                                         </td>
                                     </tr>
@@ -157,7 +203,9 @@
                         </div>
                     @else
                         <div class="p-6 text-center text-slate-500 dark:text-slate-400">
-                            <p>No hay equipos asignados para este evento.</p>
+                            <span class="material-symbols-outlined text-4xl mb-4 block">assignment</span>
+                            <p class="font-semibold text-lg mb-2">No hay equipos registrados en este evento</p>
+                            <p class="text-sm">Aún no se han registrado equipos para este evento.</p>
                         </div>
                     @endif
                 </div>

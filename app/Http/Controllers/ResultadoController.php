@@ -6,6 +6,7 @@ use App\Models\Evento;
 use App\Models\CalificacionEquipo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ResultadoController extends Controller
 {
@@ -134,17 +135,16 @@ class ResultadoController extends Controller
                 'calificaciones_count' => count($califs),
                 'ganador' => $grupoEquipo->first()->ganador ?? false
             ];
-        })->sortByDesc('puntaje_promedio');
+        })->sortByDesc('puntaje_promedio')->values();
 
-        // Aquí se integraría con una librería como DomPDF o mPDF
-        // Por ahora, retornamos vista para generar PDF
-        return view('admin.resultados.pdf', compact('evento', 'ranking'))->render();
+        // Retornar vista HTML que se puede imprimir como PDF
+        return view('admin.resultados.pdf', compact('evento', 'ranking'));
     }
 
     /**
      * Generar constancia para equipo ganador
      */
-    public function generarConstancia(Evento $evento)
+    public function generarConstancia(Request $request, Evento $evento)
     {
         $usuario = Auth::user();
 
@@ -152,22 +152,105 @@ class ResultadoController extends Controller
             abort(403, 'Solo administradores pueden generar constancias.');
         }
 
-        $ganador = CalificacionEquipo::where('evento_id', $evento->id_evento)
+        // Buscar calificaciones del equipo ganador
+        $calificacionesGanador = CalificacionEquipo::where('evento_id', $evento->id_evento)
             ->where('ganador', true)
-            ->with('equipo')
-            ->first();
+            ->with(['equipo.lider', 'equipo.participantes'])
+            ->get();
 
-        if (!$ganador) {
+        if ($calificacionesGanador->isEmpty()) {
             return back()->with('error', '❌ No hay ganador definido para este evento.');
         }
 
-        return view('admin.resultados.constancia', [
-            'evento' => $evento,
-            'ganador' => $ganador->equipo,
-            'puntaje_final' => CalificacionEquipo::where('evento_id', $evento->id_evento)
-                ->where('equipo_id', $ganador->equipo_id)
-                ->avg('puntaje_final')
-        ]);
+        $equipo = $calificacionesGanador->first()->equipo;
+
+        // Calcular puntuación final (promedio de todos los jueces)
+        $puntaje_final = round($calificacionesGanador->avg('puntaje_final'), 2);
+
+        // Obtener una calificación representativa para mostrar detalles
+        $calificacion = $calificacionesGanador->first();
+
+        // Contar jueces que calificaron
+        $calificaciones_count = $calificacionesGanador->count();
+
+        // Si se solicita ver en navegador (HTML)
+        if ($request->has('preview')) {
+            return view('admin.resultados.constancia', compact(
+                'evento',
+                'equipo',
+                'calificacion',
+                'puntaje_final',
+                'calificaciones_count'
+            ));
+        }
+
+        // Si se solicita enviar por correo
+        if ($request->has('enviar_correo')) {
+            return $this->enviarConstanciaPorCorreo($evento, $equipo, $calificacion, $puntaje_final, $calificaciones_count);
+        }
+
+        // Generar PDF
+        $pdf = Pdf::loadView('admin.resultados.constancia', compact(
+            'evento',
+            'equipo',
+            'calificacion',
+            'puntaje_final',
+            'calificaciones_count'
+        ));
+
+        // Configurar PDF
+        $pdf->setPaper('a4', 'portrait');
+        $pdf->setOption('isHtml5ParserEnabled', true);
+        $pdf->setOption('isRemoteEnabled', true);
+
+        // Nombre del archivo
+        $nombreArchivo = 'Constancia_' . str_replace(' ', '_', $equipo->nombre) . '_' . str_replace(' ', '_', $evento->nombre) . '.pdf';
+
+        // Descargar PDF
+        return $pdf->download($nombreArchivo);
+    }
+
+    /**
+     * Enviar constancia por correo al líder del equipo
+     */
+    private function enviarConstanciaPorCorreo(Evento $evento, $equipo, $calificacion, $puntaje_final, $calificaciones_count)
+    {
+        try {
+            $lider = $equipo->lider;
+
+            if (!$lider || !$lider->correo) {
+                return back()->with('error', '❌ El líder del equipo no tiene correo registrado.');
+            }
+
+            // Generar PDF
+            $pdf = Pdf::loadView('admin.resultados.constancia', compact(
+                'evento',
+                'equipo',
+                'calificacion',
+                'puntaje_final',
+                'calificaciones_count'
+            ));
+
+            $pdf->setPaper('a4', 'portrait');
+            $pdf->setOption('isHtml5ParserEnabled', true);
+            $pdf->setOption('isRemoteEnabled', true);
+
+            // Nombre del archivo PDF
+            $nombreArchivo = 'Constancia_' . str_replace(' ', '_', $equipo->nombre) . '.pdf';
+
+            // Enviar correo con PDF adjunto
+            \Illuminate\Support\Facades\Mail::send('emails.constancia', compact('equipo', 'evento'), function ($message) use ($lider, $evento, $pdf, $nombreArchivo) {
+                $message->to($lider->correo, $lider->nombre_completo)
+                    ->subject('🏆 Constancia de Ganador - ' . $evento->nombre)
+                    ->attachData($pdf->output(), $nombreArchivo, [
+                        'mime' => 'application/pdf',
+                    ]);
+            });
+
+            return back()->with('success', '✅ Constancia enviada exitosamente al correo: ' . $lider->correo);
+        } catch (\Exception $e) {
+            return back()->with('error', '❌ Error al enviar el correo: ' . $e->getMessage());
+        }
     }
 
     /**
