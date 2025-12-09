@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Resultados Detallados - Administrador</title>
+    <title>Resultados - CodeQuest</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
@@ -13,22 +13,14 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: "#007BFF",
-                        "background-light": "#F7F8FC",
-                        "background-dark": "#121212",
-                        "card-light": "#FFFFFF",
-                        "card-dark": "#1E1E1E",
-                        "text-light": "#111827",
-                        "text-dark": "#E5E7EB",
-                        "text-secondary-light": "#6B7280",
-                        "text-secondary-dark": "#9CA3AF",
-                        "border-light": "#E5E7EB",
-                        "border-dark": "#374151",
-                        "active-light": "#E9F2FF",
-                        "active-dark": "#253448",
-                        normal: "#3B82F6",
-                        moderately: "#DC2626",
-                        severely: "#84CC16"
+                        // PALETA "DARK TECH"
+                        primary: "#64FFDA", // Turquesa
+                        "background-dark": "#0A192F",  // Azul Muy Oscuro
+                        "card-dark": "#112240",        // Azul Profundo
+                        "text-dark": "#CCD6F6",        // Azul Claro
+                        "text-secondary-dark": "#8892B0", // Gris Azulado
+                        "border-dark": "#233554",      // Bordes
+                        "active-dark": "rgba(100, 255, 218, 0.1)", // Hover activo
                     },
                     fontFamily: {
                         display: ["Roboto", "sans-serif"],
@@ -51,57 +43,60 @@
         }
     </style>
 </head>
-<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+<body class="font-display bg-background-dark text-text-dark">
 <div class="flex h-screen">
     <!-- Sidebar -->
-    <aside class="w-64 bg-card-light dark:bg-card-dark border-r border-border-light dark:border-border-dark flex flex-col">
-        <div class="p-6">
-            <h1 class="text-2xl font-bold text-slate-900 dark:text-white">CodeQuest</h1>
+    <aside class="w-64 bg-card-dark border-r border-border-dark flex flex-col shadow-xl z-20">
+        <div class="p-6 flex items-center gap-3">
+            <img src="{{ asset('log.png') }}" alt="CodeQuest Logo" class="h-20 w-auto">
+            <h1 class="text-2xl font-bold text-text-dark tracking-tight">CodeQuest</h1>
         </div>
-        <nav class="flex-grow px-4">
-            <ul class="space-y-2">
+
+        <nav class="flex-grow px-4 py-4 overflow-y-auto">
+            <ul class="space-y-1">
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('dashboard') }}">
-                        <span class="material-symbols-outlined">home</span>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200" href="{{ route('dashboard') }}">
+                        <span class="material-symbols-outlined">dashboard</span>
                         <span>Panel de control</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.eventos') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200" href="{{ route('admin.eventos') }}">
                         <span class="material-symbols-outlined">calendar_today</span>
                         <span>Eventos</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.equipos') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200" href="{{ route('admin.equipos') }}">
                         <span class="material-symbols-outlined">groups</span>
                         <span>Equipos</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.jueces') }}">
-                        <span class="material-symbols-outlined">person</span>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200" href="{{ route('admin.jueces') }}">
+                        <span class="material-symbols-outlined">gavel</span>
                         <span>Jueces</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-primary text-white font-semibold" href="{{ route('admin.resultados-panel') }}">
-                        <span class="material-symbols-outlined">assessment</span>
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary bg-active-dark font-medium border-l-2 border-primary" href="{{ route('admin.resultados-panel') }}">
+                        <span class="material-symbols-outlined">bar_chart</span>
                         <span>Resultados</span>
                     </a>
                 </li>
                 <li>
-                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" href="{{ route('admin.configuracion') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200" href="{{ route('admin.configuracion') }}">
                         <span class="material-symbols-outlined">settings</span>
                         <span>Configuración</span>
                     </a>
                 </li>
             </ul>
         </nav>
-        <div class="p-4 border-t border-border-light dark:border-border-dark">
+
+        <div class="p-4 border-t border-border-dark">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-text-secondary-light dark:text-text-secondary-dark hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all duration-200">
                     <span class="material-symbols-outlined">logout</span>
                     <span>Cerrar sesión</span>
                 </button>
@@ -110,84 +105,90 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto">
+    <main class="flex-1 overflow-y-auto bg-background-dark">
         <div class="p-8">
             <div class="max-w-7xl mx-auto">
                 <!-- Encabezado -->
                 <div class="mb-8">
-                    <h1 class="text-4xl font-bold text-text-light dark:text-white">
+                    <h1 class="text-4xl font-bold text-text-dark">
                         📊 Resultados - {{ $evento->nombre }}
                     </h1>
-                    <p class="text-text-secondary-light dark:text-text-secondary-dark mt-2">📅 {{ $evento->fecha_inicio->format('d/m/Y') }} - {{ $evento->fecha_fin->format('d/m/Y') }}</p>
+                    <p class="text-text-secondary-dark mt-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">calendar_today</span>
+                        {{ $evento->fecha_inicio->format('d/m/Y') }} - {{ $evento->fecha_fin->format('d/m/Y') }}
+                    </p>
                 </div>
 
                 <!-- Estadísticas de resumen -->
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div class="bg-card-light dark:bg-card-dark rounded-lg p-6 shadow-md border border-border-light dark:border-border-dark">
-                        <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-semibold mb-2">Equipos Participantes</p>
+                    <div class="bg-card-dark rounded-lg p-6 border border-border-dark hover:border-primary/50 transition-all duration-200">
+                        <p class="text-text-secondary-dark text-sm font-semibold mb-2">Equipos Participantes</p>
                         <p class="text-4xl font-bold text-primary">{{ $ranking->count() }}</p>
                     </div>
-                    <div class="bg-card-light dark:bg-card-dark rounded-lg p-6 shadow-md border border-border-light dark:border-border-dark">
-                        <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-semibold mb-2">Total de Calificaciones</p>
-                        <p class="text-4xl font-bold text-green-600">{{ $calificaciones->count() }}</p>
+                    <div class="bg-card-dark rounded-lg p-6 border border-border-dark hover:border-primary/50 transition-all duration-200">
+                        <p class="text-text-secondary-dark text-sm font-semibold mb-2">Total de Calificaciones</p>
+                        <p class="text-4xl font-bold text-green-400">{{ $calificaciones->count() }}</p>
                     </div>
-                    <div class="bg-card-light dark:bg-card-dark rounded-lg p-6 shadow-md border border-border-light dark:border-border-dark">
-                        <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-semibold mb-2">Promedio General</p>
-                        <p class="text-4xl font-bold text-purple-600">{{ number_format($calificaciones->avg('puntaje_final') ?? 0, 2) }}</p>
+                    <div class="bg-card-dark rounded-lg p-6 border border-border-dark hover:border-primary/50 transition-all duration-200">
+                        <p class="text-text-secondary-dark text-sm font-semibold mb-2">Promedio General</p>
+                        <p class="text-4xl font-bold text-purple-400">{{ number_format($calificaciones->avg('puntaje_final') ?? 0, 2) }}</p>
                     </div>
-                    <div class="bg-card-light dark:bg-card-dark rounded-lg p-6 shadow-md border border-border-light dark:border-border-dark">
-                        <p class="text-text-secondary-light dark:text-text-secondary-dark text-sm font-semibold mb-2">Equipo Ganador</p>
-                        <p class="text-xl font-bold text-yellow-600">{{ $ganador['equipo']->nombre ?? 'No asignado' }}</p>
+                    <div class="bg-card-dark rounded-lg p-6 border border-border-dark hover:border-primary/50 transition-all duration-200">
+                        <p class="text-text-secondary-dark text-sm font-semibold mb-2">Equipo Ganador</p>
+                        <p class="text-xl font-bold text-yellow-400">{{ $ganador['equipo']->nombre ?? 'No asignado' }}</p>
                     </div>
                 </div>
 
                 <!-- Ranking principal -->
-                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-md overflow-hidden mb-8 border border-border-light dark:border-border-dark">
-                    <div class="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4 text-white">
-                        <h2 class="text-2xl font-bold">🏆 Ranking Completo</h2>
+                <div class="bg-card-dark rounded-lg overflow-hidden mb-8 border border-border-dark">
+                    <div class="bg-gradient-to-r from-primary/20 to-purple-500/20 px-6 py-4 border-b border-border-dark">
+                        <h2 class="text-2xl font-bold text-text-dark flex items-center gap-2">
+                            <span class="material-symbols-outlined text-yellow-400">emoji_events</span>
+                            Ranking Completo
+                        </h2>
                     </div>
 
                     <div class="overflow-x-auto">
                         <table class="w-full">
-                            <thead class="bg-gray-100 dark:bg-gray-800 border-b-2 border-border-light dark:border-border-dark">
+                            <thead class="bg-background-dark border-b-2 border-border-dark">
                                 <tr>
-                                    <th class="px-6 py-3 text-left font-semibold text-text-light dark:text-text-dark">Posición</th>
-                                    <th class="px-6 py-3 text-left font-semibold text-text-light dark:text-text-dark">Equipo</th>
-                                    <th class="px-6 py-3 text-center font-semibold text-text-light dark:text-text-dark">Puntuación Promedio</th>
-                                    <th class="px-6 py-3 text-center font-semibold text-text-light dark:text-text-dark">Desviación Est.</th>
-                                    <th class="px-6 py-3 text-center font-semibold text-text-light dark:text-text-dark">Calificaciones</th>
-                                    <th class="px-6 py-3 text-center font-semibold text-text-light dark:text-text-dark">Estado</th>
+                                    <th class="px-6 py-3 text-left font-semibold text-text-dark">Posición</th>
+                                    <th class="px-6 py-3 text-left font-semibold text-text-dark">Equipo</th>
+                                    <th class="px-6 py-3 text-center font-semibold text-text-dark">Puntuación Promedio</th>
+                                    <th class="px-6 py-3 text-center font-semibold text-text-dark">Desviación Est.</th>
+                                    <th class="px-6 py-3 text-center font-semibold text-text-dark">Calificaciones</th>
+                                    <th class="px-6 py-3 text-center font-semibold text-text-dark">Estado</th>
                                     @if (Auth::user()->esAdmin())
-                                        <th class="px-6 py-3 text-center font-semibold text-text-light dark:text-text-dark">Acciones</th>
+                                        <th class="px-6 py-3 text-center font-semibold text-text-dark">Acciones</th>
                                     @endif
                                 </tr>
                             </thead>
                             <tbody>
                                 @forelse ($ranking as $index => $item)
-                                    <tr class="border-b border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-900 transition">
+                                    <tr class="border-b border-border-dark hover:bg-white/5 transition">
                                         <td class="px-6 py-4 font-bold text-primary">{{ $index + 1 }}</td>
                                         <td class="px-6 py-4">
-                                            <p class="font-semibold text-text-light dark:text-white">{{ $item['equipo']->nombre }}</p>
-                                            <p class="text-sm text-text-secondary-light dark:text-text-secondary-dark">Líder: {{ $item['equipo']->lider->nombre }}</p>
+                                            <p class="font-semibold text-text-dark">{{ $item['equipo']->nombre }}</p>
+                                            <p class="text-sm text-text-secondary-dark">Líder: {{ $item['equipo']->lider->nombre }}</p>
                                         </td>
                                         <td class="px-6 py-4 text-center">
-                                            <span class="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full font-bold">
+                                            <span class="inline-block px-3 py-1 bg-primary/20 text-primary rounded-full font-bold">
                                                 {{ number_format($item['puntaje_promedio'], 2) }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-center text-text-light dark:text-text-dark">{{ number_format($item['desviacion_estandar'], 2) }}</td>
+                                        <td class="px-6 py-4 text-center text-text-dark">{{ number_format($item['desviacion_estandar'], 2) }}</td>
                                         <td class="px-6 py-4 text-center">
-                                            <span class="inline-block px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full">
+                                            <span class="inline-block px-3 py-1 bg-green-500/20 text-green-400 rounded-full">
                                                 {{ $item['calificaciones_count'] }}
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-center">
                                             @if ($item['ganador'])
-                                                <span class="inline-block px-3 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded-full font-semibold">
+                                                <span class="inline-block px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full font-semibold">
                                                     🏆 GANADOR
                                                 </span>
                                             @else
-                                                <span class="inline-block px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-full">
+                                                <span class="inline-block px-3 py-1 bg-gray-500/20 text-gray-400 rounded-full">
                                                     Participante
                                                 </span>
                                             @endif
@@ -198,12 +199,12 @@
                                                     @csrf
                                                     @if (!$item['ganador'])
                                                         <input type="hidden" name="equipo_id" value="{{ $item['equipo']->id_equipo }}">
-                                                        <button type="submit" class="text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-300 font-semibold transition">
+                                                        <button type="submit" class="text-primary hover:text-primary/80 font-semibold transition">
                                                             Marcar como ganador
                                                         </button>
                                                     @else
                                                         <input type="hidden" name="equipo_id" value="">
-                                                        <button type="submit" class="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-300 font-semibold transition">
+                                                        <button type="submit" class="text-text-secondary-dark hover:text-text-dark font-semibold transition">
                                                             Desmarcar ganador
                                                         </button>
                                                     @endif
@@ -213,7 +214,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-6 py-8 text-center text-text-secondary-light dark:text-text-secondary-dark">
+                                        <td colspan="7" class="px-6 py-8 text-center text-text-secondary-dark">
                                             No hay equipos con calificaciones
                                         </td>
                                     </tr>
@@ -224,9 +225,12 @@
                 </div>
 
                 <!-- Tabla de calificaciones individuales -->
-                <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-md overflow-hidden mb-8 border border-border-light dark:border-border-dark">
-                    <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 text-white">
-                        <h2 class="text-2xl font-bold">📋 Calificaciones por Juez</h2>
+                <div class="bg-card-dark rounded-lg overflow-hidden mb-8 border border-border-dark">
+                    <div class="bg-gradient-to-r from-purple-500/20 to-pink-500/20 px-6 py-4 border-b border-border-dark">
+                        <h2 class="text-2xl font-bold text-text-dark flex items-center gap-2">
+                            <span class="material-symbols-outlined text-purple-400">assignment</span>
+                            Calificaciones por Juez
+                        </h2>
                     </div>
 
                     <div class="overflow-x-auto">
