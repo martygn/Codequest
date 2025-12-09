@@ -75,7 +75,7 @@
 <div class="flex h-screen overflow-hidden">
     
     <aside class="w-64 bg-card-dark border-r border-border-dark flex flex-col shadow-xl z-20">
-       <div class="p-6 flex items-center gap-3">
+        <div class="p-6 flex items-center gap-3">
             <img src="{{ asset('log.png') }}" alt="CodeQuest Logo" class="h-20 w-auto">
             
             <h1 class="text-2xl font-bold text-text-dark tracking-tight">CodeQuest</h1>
