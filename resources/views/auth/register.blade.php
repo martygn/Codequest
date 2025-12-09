@@ -49,18 +49,44 @@
                     @csrf
 
                     <div class="group">
-                        <label for="name" class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">NOMBRE COMPLETO</label>
+                        <label for="nombre" class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">NOMBRE</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-[#8892B0] group-focus-within:text-[#64FFDA] transition-colors">
                                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                             </div>
-                            <input id="name" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" 
-                                   placeholder="Ej. Juan Pérez"
-                                   class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554] rounded-xl py-3.5 pl-12 pr-4 
+                            <input id="nombre" type="text" name="nombre" value="{{ old('nombre') }}" required autofocus autocomplete="given-name"
+                                   placeholder="Ej. Juan"
+                                   class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554] rounded-xl py-3.5 pl-12 pr-4
                                           focus:border-[#64FFDA] focus:ring-1 focus:ring-[#64FFDA] focus:bg-[#0A192F]
                                           transition-all duration-200 outline-none placeholder-[#8892B0]/50" />
                         </div>
-                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('nombre')" class="mt-2" />
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="group">
+                            <label for="apellido_paterno" class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">APELLIDO PATERNO</label>
+                            <div class="relative">
+                                <input id="apellido_paterno" type="text" name="apellido_paterno" value="{{ old('apellido_paterno') }}" required autocomplete="family-name"
+                                       placeholder="Ej. Pérez"
+                                       class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554] rounded-xl py-3.5 px-4
+                                              focus:border-[#64FFDA] focus:ring-1 focus:ring-[#64FFDA] focus:bg-[#0A192F]
+                                              transition-all duration-200 outline-none placeholder-[#8892B0]/50" />
+                            </div>
+                            <x-input-error :messages="$errors->get('apellido_paterno')" class="mt-2" />
+                        </div>
+
+                        <div class="group">
+                            <label for="apellido_materno" class="block text-xs font-mono text-[#64FFDA] mb-2 ml-1">APELLIDO MATERNO</label>
+                            <div class="relative">
+                                <input id="apellido_materno" type="text" name="apellido_materno" value="{{ old('apellido_materno') }}" autocomplete="family-name"
+                                       placeholder="Opcional"
+                                       class="w-full bg-[#0A192F] text-[#CCD6F6] font-medium border border-[#233554] rounded-xl py-3.5 px-4
+                                              focus:border-[#64FFDA] focus:ring-1 focus:ring-[#64FFDA] focus:bg-[#0A192F]
+                                              transition-all duration-200 outline-none placeholder-[#8892B0]/50" />
+                            </div>
+                            <x-input-error :messages="$errors->get('apellido_materno')" class="mt-2" />
+                        </div>
                     </div>
 
                     <div class="group">
