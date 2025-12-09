@@ -3,15 +3,10 @@
     padding-top: 120px;">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
-            {{-- Mensaje de Éxito --}}
-            @if(session('success'))
-                <div class="mb-6 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm">
-                    {{ session('success') }}
-                </div>
-                <div>
-                    <h2 class="text-3xl font-bold text-[#CCD6F6] tracking-tight">Mis Equipos</h2>
-                    <p class="text-sm text-[#8892B0]">Gestiona tus equipos y participaciones</p>
-                </div>
+            {{-- Header --}}
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-[#CCD6F6] tracking-tight">Mis Equipos</h2>
+                <p class="text-sm text-[#8892B0]">Gestiona tus equipos y participaciones</p>
             </div>
 
             {{-- Mensajes Flash --}}
@@ -186,7 +181,6 @@
                                             @endif
                                         </div>
 
-                                        @if($miEquipo->evento)
                                         <div>
                                             @if($miEquipo->evento)
                                                 <p class="text-xs font-mono text-[#8892B0] mb-1">EVENTO</p>
