@@ -74,55 +74,55 @@ class EquipoController extends Controller
     }
 
     /**
- * Store a newly created resource in storage.
- */
-public function store(Request $request)
-{
-    // Validación de datos corregida
-    $validated = $request->validate([
-        'nombre' => 'required|string|max:255|unique:equipos',
-        'nombre_proyecto' => 'required|string|max:255',
-        'descripcion' => 'required|string|min:10',
-        'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
-    ]);
-
-    // Establecer al creador como líder automáticamente
-    $validated['id_lider'] = Auth::id();
-    $validated['estado'] = 'en revisión';
-    $validated['aprobado'] = false;
-
-    // Manejar la carga del banner
-    if ($request->hasFile('banner')) {
-        $validated['banner'] = $request->file('banner')->store('equipos/banners', 'public');
-    }
-
-    // Crear el equipo
-    try {
-        $equipo = Equipo::create($validated);
-
-        // Agregar al creador como participante (líder)
-        $equipo->participantes()->attach(Auth::id(), ['posicion' => 'Líder']);
-
-        \Log::info('Equipo creado exitosamente', [
-            'equipo_id' => $equipo->id_equipo,
-            'usuario_id' => Auth::id(),
-            'nombre' => $equipo->nombre
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        // Validación de datos corregida
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255|unique:equipos',
+            'nombre_proyecto' => 'required|string|max:255',
+            'descripcion' => 'required|string|min:10',
+            'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
         ]);
 
-        return redirect()->route('equipos.show', $equipo->id_equipo)
-            ->with('success', '🎉 ¡Equipo creado exitosamente! Tu equipo está ahora en revisión y será visible después de ser aprobado por un administrador.');
+        // Establecer al creador como líder automáticamente
+        $validated['id_lider'] = Auth::id();
+        $validated['estado'] = 'en revisión';
+        $validated['aprobado'] = false;
 
-    } catch (\Exception $e) {
-        \Log::error('Error al crear equipo', [
-            'error' => $e->getMessage(),
-            'usuario_id' => Auth::id(),
-            'data' => $validated
-        ]);
+        // Manejar la carga del banner
+        if ($request->hasFile('banner')) {
+            $validated['banner'] = $request->file('banner')->store('equipos/banners', 'public');
+        }
 
-        return back()->with('error', '❌ Ocurrió un error al crear el equipo. Por favor, intenta nuevamente.')
-                    ->withInput();
+        // Crear el equipo
+        try {
+            $equipo = Equipo::create($validated);
+
+            // Agregar al creador como participante (líder)
+            $equipo->participantes()->attach(Auth::id(), ['posicion' => 'Líder']);
+
+            \Log::info('Equipo creado exitosamente', [
+                'equipo_id' => $equipo->id_equipo,
+                'usuario_id' => Auth::id(),
+                'nombre' => $equipo->nombre
+            ]);
+
+            return redirect()->route('equipos.show', $equipo->id_equipo)
+                ->with('success', '🎉 ¡Equipo creado exitosamente! Tu equipo está ahora en revisión y será visible después de ser aprobado por un administrador.');
+
+        } catch (\Exception $e) {
+            \Log::error('Error al crear equipo', [
+                'error' => $e->getMessage(),
+                'usuario_id' => Auth::id(),
+                'data' => $validated
+            ]);
+
+            return back()->with('error', '❌ Ocurrió un error al crear el equipo. Por favor, intenta nuevamente.')
+                        ->withInput();
+        }
     }
-}
 
     /**
      * Display the specified resource.
@@ -624,7 +624,7 @@ public function aprobar(Equipo $equipo)
             3 => 'Diseñador'
         ];
 
-        $indice = $numeroDeMiembros; 
+        $indice = $numeroDeMiembros;
         $posicion = $posiciones[$indice] ?? 'Miembro';
 
         $equipo->participantes()->attach($usuario->id, [
@@ -789,12 +789,20 @@ public function aprobar(Equipo $equipo)
         /** @var \App\Models\Usuario $user */
         $user = Auth::user();
 
-        // Obtenemos TODOS los equipos donde el usuario es participante
         $misEquipos = Equipo::whereHas('participantes', function($q) use ($user) {
             $q->where('usuario_id', $user->id);
-        })->with(['participantes', 'evento'])->get();
+        })->with(['evento', 'repositorio', 'participantes']) // <- Asegúrate que sea 'participantes'
+        ->get();
 
-        // Pasamos 'misEquipos' a la vista
+        // Agregar verificación de estado del evento para cada equipo
+        foreach ($misEquipos as $equipo) {
+            if ($equipo->evento) {
+                $now = \Carbon\Carbon::now();
+                $equipo->evento_en_curso = $now->between($equipo->evento->fecha_inicio, $equipo->evento->fecha_fin);
+                $equipo->evento_finalizado = $now->greaterThan($equipo->evento->fecha_fin);
+            }
+        }
+
         return view('player.equipos', compact('misEquipos', 'user'));
     }
 
@@ -808,7 +816,7 @@ public function aprobar(Equipo $equipo)
 
         // Obtener el equipo_id del request
         $equipoId = $request->input('equipo_id');
-        
+
         // Si no viene en el request, buscar el primer equipo del usuario (compatibilidad)
         if (!$equipoId) {
             $equipo = Equipo::whereHas('participantes', function($q) use ($user) {
@@ -854,7 +862,7 @@ public function aprobar(Equipo $equipo)
             } else {
                 // Si no es el líder, simplemente retirarse del equipo
                 $equipo->participantes()->detach($user->id);
-                
+
                 return back()->with('success', 'Has salido del equipo correctamente.');
             }
         }

@@ -27,12 +27,15 @@ class Repositorio extends Model
         'estado',
         'verificado_por',
         'enviado_en',
-        'vencimiento_envio'
+        'vencimiento_envio',
+        'calificacion_total',
+        'calificacion_detalle',
     ];
 
     protected $casts = [
         'enviado_en' => 'datetime',
         'vencimiento_envio' => 'datetime',
+        'calificacion_detalle' => 'array',
     ];
 
     /**
@@ -80,9 +83,9 @@ class Repositorio extends Model
      */
     public function obtenerUrl()
     {
-        return $this->url_personalizado 
-            ?? $this->url_github 
-            ?? $this->url_gitlab 
+        return $this->url_personalizado
+            ?? $this->url_github
+            ?? $this->url_gitlab
             ?? $this->url_bitbucket;
     }
 
@@ -126,5 +129,48 @@ class Repositorio extends Model
     {
         $this->estado = 'rechazado';
         return $this->save();
+    }
+
+    /**
+     * Verificar si el repositorio fue calificado
+     */
+    public function estaCalificado()
+    {
+        return $this->calificacion_total !== null;
+    }
+
+    /**
+     * Obtener calificación formateada
+     */
+    public function obtenerCalificacion()
+    {
+        return $this->calificacion_total ? number_format($this->calificacion_total, 1) : 'Sin calificar';
+    }
+
+    /**
+     * Verificar si puede ser calificado (solo para jueces del evento)
+     */
+    public function puedeSerCalificadoPor($usuarioId)
+    {
+        return $this->evento->jueces()->where('usuario_id', $usuarioId)->exists();
+    }
+
+    // Agregar al modelo Repositorio:
+    public function getCalificacionFormateadaAttribute()
+    {
+        if ($this->calificacion_total === null) {
+            return 'Sin calificar';
+        }
+
+        return number_format($this->calificacion_total, 1) . '/100';
+    }
+
+    public function getDetalleCalificacionAttribute()
+    {
+        if (!$this->calificacion_detalle) {
+            return null;
+        }
+
+        return json_decode($this->calificacion_detalle, true);
     }
 }

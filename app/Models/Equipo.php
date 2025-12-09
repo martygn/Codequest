@@ -88,9 +88,9 @@ class Equipo extends Model
      */
     public function participantes()
     {
-        return $this->belongsToMany(Usuario::class, 'participante_equipo', 'equipo_id', 'usuario_id', 'id_equipo')
-            ->withPivot('posicion')
-            ->withTimestamps();
+        return $this->belongsToMany(Usuario::class, 'participante_equipo', 'equipo_id', 'usuario_id')
+                    ->withPivot('posicion')
+                    ->withTimestamps();
     }
 
     /**
