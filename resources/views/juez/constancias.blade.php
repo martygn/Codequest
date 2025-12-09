@@ -52,6 +52,10 @@
                     <span class="material-symbols-outlined">description</span>
                     <span>Historial de Constancias</span>
                 </a>
+                <a class="flex items-center gap-3 px-4 py-2 {{ request()->routeIs('juez.configuracion') ? 'text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 rounded font-semibold' : 'text-slate-600 dark:text-slate-400 rounded hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors' }}" href="{{ route('juez.configuracion') }}">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>Configuración</span>
+                </a>
             </nav>
         </div>
 
