@@ -9,9 +9,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Agregar opción 'juez' al enum 'tipo' en tabla usuarios.
-        // Usamos DB::statement para soportar MySQL enums.
-        DB::statement("ALTER TABLE `usuarios` MODIFY `tipo` ENUM('administrador','participante','juez') NOT NULL DEFAULT 'participante'");
+        // Cambiar la columna 'tipo' a VARCHAR para soportar el nuevo valor 'juez'
+        // Esto funciona en cualquier base de datos (MySQL, PostgreSQL, SQLite, etc.)
+        Schema::table('usuarios', function (Blueprint $table) {
+            // Cambiar de ENUM a VARCHAR si es necesario para compatibilidad
+            $table->string('tipo', 50)->default('participante')->change();
+        });
 
         // Crear tabla pivote para asignar jueces a eventos
         if (!Schema::hasTable('juez_evento')) {
@@ -30,8 +33,10 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Revertir enum (dejar como estaba: administrador, participante)
-        DB::statement("ALTER TABLE `usuarios` MODIFY `tipo` ENUM('administrador','participante') NOT NULL DEFAULT 'participante'");
+        // Revertir tipo a VARCHAR con valores anteriores
+        Schema::table('usuarios', function (Blueprint $table) {
+            $table->string('tipo', 50)->default('participante')->change();
+        });
 
         Schema::dropIfExists('juez_evento');
     }
