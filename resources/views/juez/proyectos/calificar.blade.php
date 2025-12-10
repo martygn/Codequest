@@ -130,8 +130,6 @@
                     <ol class="flex items-center gap-2 text-sm">
                         <li><a href="{{ route('juez.panel') }}" class="text-text-secondary-dark hover:text-primary transition-colors">Panel</a></li>
                         <li class="text-text-secondary-dark">/</li>
-                        <li><a href="{{ route('proyecto.juez.listar-juez', $repositorio->evento_id) }}" class="text-text-secondary-dark hover:text-primary transition-colors">Proyectos</a></li>
-                        <li class="text-text-secondary-dark">/</li>
                         <li><a href="{{ route('proyecto.juez.ver-juez', $repositorio) }}" class="text-text-secondary-dark hover:text-primary transition-colors">Ver Proyecto</a></li>
                         <li class="text-text-secondary-dark">/</li>
                         <li class="text-primary">Calificar</li>
@@ -145,9 +143,9 @@
                             <h1 class="text-3xl font-bold text-text-dark">Calificar Proyecto</h1>
                             <p class="text-text-secondary-dark mt-2">{{ $repositorio->equipo->nombre }} - {{ $repositorio->equipo->nombre_proyecto }}</p>
                         </div>
-                        <a href="{{ route('proyecto.juez.ver-juez', $repositorio) }}" class="inline-flex items-center px-4 py-2 text-sm font-bold rounded-lg bg-card-dark border border-border-dark text-text-secondary-dark hover:text-primary hover:border-primary transition-all">
+                        <a href="{{ route('juez.panel') }}" class="inline-flex items-center px-4 py-2 text-sm font-bold rounded-lg bg-card-dark border border-border-dark text-text-secondary-dark hover:text-primary hover:border-primary transition-all">
                             <span class="material-symbols-outlined text-sm mr-2">arrow_back</span>
-                            Volver al proyecto
+                            Volver al panel
                         </a>
                     </div>
                 </div>

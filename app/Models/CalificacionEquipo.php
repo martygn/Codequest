@@ -17,7 +17,9 @@ class CalificacionEquipo extends Model
         'equipo_id',
         'evento_id',
         'puntaje_creatividad',
+        'puntaje_innovacion',
         'puntaje_funcionalidad',
+        'puntaje_impacto',
         'puntaje_diseño',
         'puntaje_presentacion',
         'puntaje_documentacion',
@@ -31,6 +33,8 @@ class CalificacionEquipo extends Model
     protected $casts = [
         'puntaje_final' => 'decimal:2',
         'promedio_jueces' => 'decimal:2',
+        'puntaje_innovacion' => 'decimal:2',
+        'puntaje_impacto' => 'decimal:2',
         'ganador' => 'boolean',
     ];
 
@@ -59,26 +63,23 @@ class CalificacionEquipo extends Model
     }
 
     /**
-     * Calcular puntaje final (promedio de todos los criterios)
+     * Calcular puntaje final (suma directa de la rúbrica actual)
      */
     public function calcularPuntajeFinal()
     {
-        $puntajes = [
-            $this->puntaje_creatividad,
-            $this->puntaje_funcionalidad,
-            $this->puntaje_diseño,
-            $this->puntaje_presentacion,
-            $this->puntaje_documentacion
-        ];
+        // Usar la nueva rúbrica: Innovación (30) + Funcionalidad (30) + Impacto (20) + Presentación (20) = 100
+        $innovacion = $this->puntaje_innovacion ?? 0;
+        $funcionalidad = $this->puntaje_funcionalidad ?? 0;
+        $impacto = $this->puntaje_impacto ?? 0;
+        $presentacion = $this->puntaje_presentacion ?? 0;
 
-        // Filtrar valores null
-        $puntajes = array_filter($puntajes, fn($p) => $p !== null);
-
-        if (empty($puntajes)) {
+        // Si todos son cero o null, retornar null
+        if ($innovacion == 0 && $funcionalidad == 0 && $impacto == 0 && $presentacion == 0) {
             return null;
         }
 
-        return round(array_sum($puntajes) / count($puntajes), 2);
+        // Retornar la suma total de puntos
+        return round($innovacion + $funcionalidad + $impacto + $presentacion, 2);
     }
 
     /**
