@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Evento;
 use App\Models\CalificacionEquipo;
 use App\Models\Notificacion;
+use App\Models\Constancia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -277,6 +278,15 @@ class ResultadoController extends Controller
                 'titulo' => '¡Constancia de ganador enviada!',
                 'mensaje' => "Se ha enviado la constancia de ganador del evento '{$evento->nombre}' a tu correo {$lider->correo}. ¡Felicidades!",
                 'tipo' => 'success',
+            ]);
+
+            // Guardar registro de constancia en la BD
+            Constancia::create([
+                'id_evento' => $evento->id_evento,
+                'id_equipo' => $equipo->id_equipo,
+                'id_juez' => Auth::id(),
+                'ruta_pdf' => null,
+                'fecha_envio' => now(),
             ]);
 
             return back()->with('success', '✅ Constancia enviada exitosamente al correo: ' . $lider->correo);
