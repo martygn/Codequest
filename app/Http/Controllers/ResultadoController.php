@@ -110,6 +110,19 @@ class ResultadoController extends Controller
             ->where('equipo_id', $validated['equipo_id'])
             ->update(['ganador' => true]);
 
+        // Crear notificación para el líder del equipo ganador
+        $equipo = \App\Models\Equipo::find($validated['equipo_id']);
+        if ($equipo && $equipo->lider) {
+            $notificacion = new Notificacion();
+            $notificacion->usuario_id = $equipo->lider->id;
+            $notificacion->tipo = 'ganador';
+            $notificacion->titulo = '🏆 ¡Tu equipo es ganador!';
+            $notificacion->mensaje = 'El equipo "' . $equipo->nombre . '" ha sido marcado como ganador en el evento "' . $evento->nombre . '".';
+            $notificacion->enlace = route('admin.resultados.show', $evento->id_evento);
+            $notificacion->leida = false;
+            $notificacion->save();
+        }
+
         return back()->with('success', '✅ Ganador marcado exitosamente.');
     }
 
