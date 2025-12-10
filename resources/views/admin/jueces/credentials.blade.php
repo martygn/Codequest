@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -13,9 +13,14 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: "#3b82f6",
-                        "background-light": "#f8fafc",
-                        "background-dark": "#0f172a",
+                        primary: "#64FFDA",
+                        "card-dark": "#112240",
+                        "text-dark": "#CCD6F6",
+                        "text-secondary-dark": "#8892B0",
+                        "border-dark": "#233554",
+                        "active-dark": "rgba(100, 255, 218, 0.1)",
+                        "background-dark": "#0A192F",
+                        "background-dark": "#0A192F",
                     },
                     fontFamily: {
                         display: ["Inter", "sans-serif"],
@@ -37,11 +42,11 @@
         }
     </style>
 </head>
-<body class="font-display bg-background-light dark:bg-background-dark text-slate-800 dark:text-slate-200">
+<body class="font-display bg-background-dark text-text-secondary-dark">
 <div class="flex h-screen items-center justify-center p-4">
     <div class="w-full max-w-md">
         <!-- Tarjeta principal -->
-        <div class="bg-white dark:bg-slate-900 rounded-lg shadow-lg border border-slate-200 dark:border-slate-800 p-8">
+        <div class="bg-card-dark rounded-lg shadow-lg border border-border-dark p-8">
             <!-- Encabezado con icono -->
             <div class="flex items-center justify-center mb-6">
                 <div class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
@@ -49,8 +54,8 @@
                 </div>
             </div>
 
-            <h1 class="text-2xl font-bold text-center text-slate-900 dark:text-white mb-2">¡Juez Creado!</h1>
-            <p class="text-center text-slate-500 dark:text-slate-400 mb-6">Las credenciales se han generado correctamente</p>
+            <h1 class="text-2xl font-bold text-center text-text-dark mb-2">¡Juez Creado!</h1>
+            <p class="text-center text-text-secondary-dark mb-6">Las credenciales se han generado correctamente</p>
 
             @if(!$emailEnviado)
             <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
@@ -69,28 +74,28 @@
             <!-- Datos del juez -->
             <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 mb-6 space-y-4">
                 <div>
-                    <label class="text-sm font-semibold text-slate-600 dark:text-slate-400">Nombre Completo</label>
-                    <p class="text-slate-900 dark:text-white font-medium">{{ $juez->nombre_completo }}</p>
+                    <label class="text-sm font-semibold text-text-secondary-dark">Nombre Completo</label>
+                    <p class="text-text-dark font-medium">{{ $juez->nombre_completo }}</p>
                 </div>
 
                 <div>
-                    <label class="text-sm font-semibold text-slate-600 dark:text-slate-400">Correo (Usuario)</label>
+                    <label class="text-sm font-semibold text-text-secondary-dark">Correo (Usuario)</label>
                     <div class="flex items-center gap-2 mt-1">
-                        <input type="text" id="emailInput" value="{{ $juez->correo }}" readonly class="flex-1 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white text-sm"/>
-                        <button onclick="copiarAlPortapapeles('emailInput')" class="p-2 bg-primary text-white rounded hover:bg-blue-600 transition">
+                        <input type="text" id="emailInput" value="{{ $juez->correo }}" readonly class="flex-1 px-3 py-2 bg-card-dark border border-slate-300 dark:border-slate-600 rounded text-text-dark text-sm"/>
+                        <button onclick="copiarAlPortapapeles('emailInput')" class="p-2 bg-primary text-background-dark rounded hover:bg-primary/80 transition">
                             <span class="material-symbols-outlined text-lg">content_copy</span>
                         </button>
                     </div>
                 </div>
 
                 <div>
-                    <label class="text-sm font-semibold text-slate-600 dark:text-slate-400">Contraseña (Temporal)</label>
+                    <label class="text-sm font-semibold text-text-secondary-dark">Contraseña (Temporal)</label>
                     <div class="flex items-center gap-2 mt-1">
-                        <input type="password" id="passwordInput" value="{{ $password }}" readonly class="flex-1 px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded text-slate-900 dark:text-white text-sm"/>
-                        <button onclick="alternarMostrarContraseña()" class="p-2 bg-slate-300 dark:bg-slate-700 text-slate-900 dark:text-white rounded hover:bg-slate-400 dark:hover:bg-slate-600 transition">
+                        <input type="password" id="passwordInput" value="{{ $password }}" readonly class="flex-1 px-3 py-2 bg-card-dark border border-slate-300 dark:border-slate-600 rounded text-text-dark text-sm"/>
+                        <button onclick="alternarMostrarContraseña()" class="p-2 bg-slate-300 dark:bg-slate-700 text-text-dark rounded hover:bg-slate-400 dark:hover:bg-slate-600 transition">
                             <span class="material-symbols-outlined text-lg" id="eyeIcon">visibility</span>
                         </button>
-                        <button onclick="copiarAlPortapapeles('passwordInput')" class="p-2 bg-primary text-white rounded hover:bg-blue-600 transition">
+                        <button onclick="copiarAlPortapapeles('passwordInput')" class="p-2 bg-primary text-background-dark rounded hover:bg-primary/80 transition">
                             <span class="material-symbols-outlined text-lg">content_copy</span>
                         </button>
                     </div>
@@ -103,17 +108,17 @@
 
             <!-- Botones de acción -->
             <div class="flex flex-col gap-3">
-                <a href="{{ route('admin.jueces') }}" class="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition font-semibold text-center">
+                <a href="{{ route('admin.jueces') }}" class="w-full px-4 py-2 bg-primary text-background-dark rounded-lg hover:bg-primary/80 transition font-semibold text-center">
                     Volver al Listado de Jueces
                 </a>
-                <a href="{{ route('admin.jueces.create') }}" class="w-full px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-700 transition font-semibold text-center">
+                <a href="{{ route('admin.jueces.create') }}" class="w-full px-4 py-2 bg-card-dark border border-border-dark text-text-dark rounded-lg hover:bg-border-dark transition font-semibold text-center">
                     Crear Otro Juez
                 </a>
             </div>
 
             <!-- Enlace de acceso -->
-            <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800 text-center">
-                <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">El juez puede acceder aquí:</p>
+            <div class="mt-6 pt-6 border-t border-border-dark text-center">
+                <p class="text-sm text-text-secondary-dark mb-2">El juez puede acceder aquí:</p>
                 <a href="{{ route('login') }}" class="text-primary hover:underline font-medium">
                     {{ url('login') }}
                 </a>
