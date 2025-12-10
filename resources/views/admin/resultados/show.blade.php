@@ -119,6 +119,21 @@
                     </p>
                 </div>
 
+                <!-- Mensajes de éxito y error -->
+                @if(session('success'))
+                    <div class="mb-6 bg-green-500/10 border border-green-500/30 text-green-400 px-6 py-4 rounded-xl flex items-center gap-3 shadow-lg">
+                        <span class="material-symbols-outlined text-2xl">check_circle</span>
+                        <span class="font-semibold">{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="mb-6 bg-red-500/10 border border-red-500/30 text-red-400 px-6 py-4 rounded-xl flex items-center gap-3 shadow-lg">
+                        <span class="material-symbols-outlined text-2xl">error</span>
+                        <span class="font-semibold">{{ session('error') }}</span>
+                    </div>
+                @endif
+
                 <!-- Estadísticas de resumen -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="bg-card-dark rounded-lg p-6 border border-border-dark hover:border-primary/50 transition-all duration-200">
