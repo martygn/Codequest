@@ -131,24 +131,71 @@
     function copiarAlPortapapeles(elementId) {
         const elemento = document.getElementById(elementId);
         const texto = elemento.value;
-        
-        navigator.clipboard.writeText(texto).then(() => {
-            // Mostrar retroalimentación visual
-            const boton = event.target.closest('button');
-            const textoOriginal = boton.innerHTML;
-            boton.innerHTML = '<span class="material-symbols-outlined text-lg">check</span>';
-            setTimeout(() => {
-                boton.innerHTML = textoOriginal;
-            }, 2000);
-        }).catch(() => {
-            alert('No se pudo copiar el texto');
-        });
+        const boton = event.target.closest('button');
+        const textoOriginal = boton.innerHTML;
+
+        // Método 1: Intentar con la API moderna del portapapeles
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(texto).then(() => {
+                mostrarExito(boton, textoOriginal);
+            }).catch(() => {
+                // Si falla la API moderna, intentar método alternativo
+                copiarConMetodoAlterno(elemento, boton, textoOriginal);
+            });
+        } else {
+            // Si no está disponible la API moderna, usar método alterno
+            copiarConMetodoAlterno(elemento, boton, textoOriginal);
+        }
+    }
+
+    function copiarConMetodoAlterno(elemento, boton, textoOriginal) {
+        try {
+            // Seleccionar el texto
+            elemento.select();
+            elemento.setSelectionRange(0, 99999); // Para móviles
+
+            // Copiar al portapapeles con el comando antiguo
+            const exitoso = document.execCommand('copy');
+
+            if (exitoso) {
+                mostrarExito(boton, textoOriginal);
+            } else {
+                mostrarError(boton, textoOriginal);
+            }
+
+            // Deseleccionar
+            window.getSelection().removeAllRanges();
+        } catch (err) {
+            mostrarError(boton, textoOriginal);
+        }
+    }
+
+    function mostrarExito(boton, textoOriginal) {
+        boton.innerHTML = '<span class="material-symbols-outlined text-lg">check</span>';
+        boton.classList.add('bg-green-500');
+        boton.classList.remove('bg-primary');
+        setTimeout(() => {
+            boton.innerHTML = textoOriginal;
+            boton.classList.remove('bg-green-500');
+            boton.classList.add('bg-primary');
+        }, 2000);
+    }
+
+    function mostrarError(boton, textoOriginal) {
+        boton.innerHTML = '<span class="material-symbols-outlined text-lg">error</span>';
+        boton.classList.add('bg-red-500');
+        boton.classList.remove('bg-primary');
+        setTimeout(() => {
+            boton.innerHTML = textoOriginal;
+            boton.classList.remove('bg-red-500');
+            boton.classList.add('bg-primary');
+        }, 2000);
     }
 
     function alternarMostrarContraseña() {
         const input = document.getElementById('passwordInput');
         const icon = document.getElementById('eyeIcon');
-        
+
         if (input.type === 'password') {
             input.type = 'text';
             icon.textContent = 'visibility_off';
