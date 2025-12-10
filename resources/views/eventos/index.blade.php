@@ -3,6 +3,8 @@
     padding-top: 120px;">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
+            
+
             {{-- Header --}}
             <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
