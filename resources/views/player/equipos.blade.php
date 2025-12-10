@@ -74,7 +74,7 @@
                                             Salir del Equipo
                                         </button>
 
-                                    @if($miEquipo->id_lider == $user->id && $eventoEnCurso)
+                                    @if($miEquipo->id_lider == $user->id && ($miEquipo->evento_en_curso ?? false))
                                         @if($tieneProyectoSubido)
                                             <!-- Botón para VER PROYECTO (si ya subió) -->
                                             <a href="{{ route('proyecto.create', $miEquipo) }}"
