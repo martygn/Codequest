@@ -165,56 +165,37 @@
                     </div>
 
                     <!-- Participantes -->
-                    <section class="bg-white dark:bg-zinc-800 rounded-lg shadow border border-gray-200 dark:border-zinc-700 p-6">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Miembros del Equipo ({{ count($equipo->participantes) }})</h3>
+                    <section class="bg-card-dark rounded-xl shadow-lg border border-border-dark p-6">
+                        <h3 class="text-xl font-bold text-text-dark mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">group</span>
+                            Miembros del Equipo ({{ count($equipo->participantes) }})
+                        </h3>
 
                         @if(count($equipo->participantes) > 0)
-                            <div class="overflow-x-auto">
-                                <table class="w-full">
-                                    <thead class="border-b border-gray-200 dark:border-zinc-700">
-                                        <tr>
-                                            <th class="text-left p-3 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Nombre</th>
-                                            <th class="text-left p-3 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Email</th>
-                                            <th class="text-left p-3 text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Posición</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($equipo->participantes as $participante)
-                                        <tr class="border-b border-gray-200 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition">
-                                            <td class="p-3 text-gray-900 dark:text-white font-semibold">{{ $participante->nombre }}</td>
-                                            <td class="p-3 text-gray-600 dark:text-gray-400">{{ $participante->email }}</td>
-                                            <td class="p-3 text-gray-600 dark:text-gray-400">{{ ucfirst($participante->pivot->posicion) }}</td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            @if(count($equipo->participantes) > 0)
-                                <div class="space-y-4">
-                                    @foreach($equipo->participantes as $participante)
-                                    <div class="group flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors border border-transparent hover:border-border-dark">
-                                        <div class="w-10 h-10 rounded-full bg-border-dark flex items-center justify-center text-primary font-bold text-sm shrink-0 border border-primary/20">
-                                            {{ strtoupper(substr($participante->nombre, 0, 2)) }}
-                                        </div>
-                                        
-                                        <div class="overflow-hidden">
-                                            <p class="text-sm font-bold text-text-dark truncate">{{ $participante->nombre }}</p>
-                                            <p class="text-xs text-text-secondary-dark truncate mb-1 opacity-70">{{ $participante->email }}</p>
-                                            <span class="inline-block text-[10px] uppercase font-mono tracking-wider text-primary border border-primary/30 px-1.5 rounded">
-                                                {{ ucfirst($participante->pivot->posicion) }}
-                                            </span>
-                                        </div>
+                            <div class="space-y-4">
+                                @foreach($equipo->participantes as $participante)
+                                <div class="group flex items-start gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors border border-transparent hover:border-border-dark">
+                                    <div class="w-10 h-10 rounded-full bg-border-dark flex items-center justify-center text-primary font-bold text-sm shrink-0 border border-primary/20">
+                                        {{ strtoupper(substr($participante->nombre, 0, 2)) }}
                                     </div>
-                                    @endforeach
+
+                                    <div class="overflow-hidden flex-1">
+                                        <p class="text-sm font-bold text-text-dark truncate">{{ $participante->nombre }}</p>
+                                        <p class="text-xs text-text-secondary-dark truncate mb-1 opacity-70">{{ $participante->correo ?? $participante->email ?? 'Sin correo' }}</p>
+                                        <span class="inline-block text-[10px] uppercase font-mono tracking-wider text-primary border border-primary/30 px-1.5 rounded">
+                                            {{ ucfirst($participante->pivot->posicion ?? 'Miembro') }}
+                                        </span>
+                                    </div>
                                 </div>
-                            @else
-                                <div class="text-center py-8 text-text-secondary-dark">
-                                    <span class="material-symbols-outlined text-4xl mb-2 opacity-30">group_off</span>
-                                    <p class="text-sm">No hay miembros registrados</p>
-                                </div>
-                            @endif
-                        </section>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-8 text-text-secondary-dark">
+                                <span class="material-symbols-outlined text-4xl mb-2 opacity-30">group_off</span>
+                                <p class="text-sm">No hay miembros registrados</p>
+                            </div>
+                        @endif
+                    </section>
                     </div>
 
                 </div>
