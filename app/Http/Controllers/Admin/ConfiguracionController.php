@@ -18,26 +18,26 @@ class ConfiguracionController extends Controller
         $usuario = auth()->user();
 
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) {
-            abort(403, 'Acceso no autorizado.');
-        }
+        abort(403, 'Acceso no autorizado.');
+     }
 
-        // Filtrado por pestañas: 'todos' | 'pendientes' | 'publicados'
-        $status = request()->get('status', 'pendientes');
+    $status = request()->get('status');
+    $status = in_array($status, ['todos', 'pendientes', 'publicados']) ? $status : 'todos';
 
-        $query = \App\Models\Evento::query();
+    $query = \App\Models\Evento::query();
 
-        if ($status === 'pendientes') {
-            $query->where('estado', 'pendiente');
-        } elseif ($status === 'publicados') {
-            $query->where('estado', 'publicado');
-        }
+    if ($status === 'pendientes') {
+        $query->where('estado', 'pendiente');
+    } elseif ($status === 'publicados') {
+        $query->where('estado', 'publicado');
+    }
+    // Si es 'todos' → no aplicamos ningún filtro
 
-        // Usar paginación para la lista de admin
-        $eventos = $query->orderBy('fecha_inicio', 'desc')
-            ->paginate(10)
-            ->withQueryString();
+    $eventos = $query->orderBy('fecha_inicio', 'desc')
+        ->paginate(10)
+        ->withQueryString(); // Mantiene el status en los enlaces de paginación
 
-        return view('admin.eventos', compact('eventos', 'status'));
+    return view('admin.eventos', compact('eventos', 'status'));
     }
 
     /**

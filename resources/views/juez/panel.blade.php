@@ -73,17 +73,15 @@
                 </nav>
             </div>
 
-            <!-- Usuario -->
+            <!-- Logout Button -->
             <div class="pt-6 border-t border-border-dark">
-                <div class="flex items-center gap-3">
-                    <div class="h-10 w-10 rounded-full bg-border-dark border border-primary/20 flex items-center justify-center text-primary font-bold">
-                        {{ substr($juez->nombre, 0, 1) }}
-                    </div>
-                    <div>
-                        <p class="text-sm font-semibold text-text-dark">{{ $juez->nombre }}</p>
-                        <p class="text-xs text-text-secondary-dark">Juez</p>
-                    </div>
-                </div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary-dark hover:text-primary hover:bg-white/5 transition-all">
+                        <span class="material-symbols-outlined">logout</span>
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
         </aside>
 

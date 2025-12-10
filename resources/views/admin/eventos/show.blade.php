@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
     <script>
         tailwind.config = {
-            darkMode: "class",
             theme: {
                 extend: {
                     colors: {
@@ -112,7 +111,7 @@
                 </div>
                 @endif
 
-                <div class="space-y-8">
+                <div class="space-y-6">
                     <!-- Descripción -->
                     <div class="bg-card-dark rounded-xl shadow-lg border border-border-dark overflow-hidden">
                         <div class="px-8 py-6 border-b border-border-dark">
