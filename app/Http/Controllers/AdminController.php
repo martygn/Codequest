@@ -338,13 +338,19 @@ class AdminController extends Controller
             abort(403, 'Acceso no autorizado.');
         }
 
-        // Obtener todos los eventos
-        $eventos = Evento::orderBy('nombre')->get();
+        // Obtener todos los eventos con paginación
+        $eventos = Evento::orderBy('nombre')->paginate(10);
 
         // Obtener eventos ya asignados al juez
         $eventosAsignados = $juez->eventosAsignados()->pluck('id_evento')->toArray();
 
-        return view('admin.jueces.asignar', compact('juez', 'eventos', 'eventosAsignados'));
+        // Para cada evento, contar cuántos jueces tiene asignados
+        $eventosJueces = [];
+        foreach ($eventos as $evento) {
+            $eventosJueces[$evento->id_evento] = $evento->jueces()->count();
+        }
+
+        return view('admin.jueces.asignar', compact('juez', 'eventos', 'eventosAsignados', 'eventosJueces'));
     }
 
     /**
@@ -362,10 +368,23 @@ class AdminController extends Controller
             'eventos.*' => 'exists:eventos,id_evento'
         ]);
 
-        // Sincronizar eventos asignados (solo los seleccionados)
+        // Verificar que los nuevos eventos (no ya asignados) no superen el límite de 3 jueces
         $eventosIds = $validated['eventos'] ?? [];
+        $eventosActuales = $juez->eventosAsignados()->pluck('id_evento')->toArray();
+        $eventosNuevos = array_diff($eventosIds, $eventosActuales);
+
+        foreach ($eventosNuevos as $eventoId) {
+            $evento = Evento::find($eventoId);
+            $juecesActuales = $evento->jueces()->count();
+            
+            if ($juecesActuales >= 3) {
+                return back()->with('error', "❌ El evento '{$evento->nombre}' ya tiene asignados 3 jueces (máximo permitido). No se puede asignar más jueces a este evento.");
+            }
+        }
+
+        // Sincronizar eventos asignados (solo los seleccionados)
         $juez->eventosAsignados()->sync($eventosIds);
 
-        return redirect()->route('admin.jueces')->with('success', 'Eventos asignados al juez correctamente.');
+        return redirect()->route('admin.jueces')->with('success', '✅ Eventos asignados al juez correctamente.');
     }
 }
