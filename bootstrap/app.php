@@ -23,5 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Manejar error de archivos demasiado grandes
+        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            return back()->with('error', '❌ El archivo es demasiado grande. El tamaño máximo permitido es 50MB. Por favor, comprime tu proyecto o reduce el tamaño del archivo.')->withInput();
+        });
     })->create();

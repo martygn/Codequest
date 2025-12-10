@@ -77,10 +77,20 @@ class ProyectoController extends Controller
             return back()->with('error', 'El evento ya ha terminado. No se pueden subir proyectos.');
         }
 
-        $validated = $request->validate([
-            'archivo' => 'required|file|mimes:zip,pdf,pptx|max:10240', // 10MB máximo
-            'comentarios' => 'nullable|string|max:1000',
-        ]);
+        // Validar con mensaje personalizado para archivos grandes
+        try {
+            $validated = $request->validate([
+                'archivo' => 'required|file|mimes:zip,pdf,pptx|max:51200', // 50MB máximo
+                'comentarios' => 'nullable|string|max:1000',
+            ], [
+                'archivo.required' => 'Debes seleccionar un archivo.',
+                'archivo.file' => 'El archivo no es válido.',
+                'archivo.mimes' => 'El archivo debe ser de tipo: ZIP, PDF o PPTX.',
+                'archivo.max' => 'El archivo es demasiado grande. El tamaño máximo permitido es 50MB.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
 
         // Crear o actualizar repositorio
         $repositorio = $equipo->repositorio ?? new Repositorio();

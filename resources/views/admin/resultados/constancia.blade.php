@@ -1,8 +1,39 @@
+@php
+    // Definir colores según la posición
+    $posicion = $posicion ?? 1;
+    $colores = [
+        1 => [
+            'principal' => '#D4AF37', // Oro
+            'secundario' => '#FFC107',
+            'borde' => '#B8860B',
+            'texto' => 'PRIMER LUGAR',
+            'emoji' => '🥇',
+            'numero' => '1°'
+        ],
+        2 => [
+            'principal' => '#C0C0C0', // Plata
+            'secundario' => '#E8E8E8',
+            'borde' => '#A9A9A9',
+            'texto' => 'SEGUNDO LUGAR',
+            'emoji' => '🥈',
+            'numero' => '2°'
+        ],
+        3 => [
+            'principal' => '#CD7F32', // Bronce
+            'secundario' => '#D2691E',
+            'borde' => '#A0522D',
+            'texto' => 'TERCER LUGAR',
+            'emoji' => '🥉',
+            'numero' => '3°'
+        ]
+    ];
+    $config = $colores[$posicion] ?? $colores[1];
+@endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8"/>
-    <title>Constancia de Ganador - {{ $equipo->nombre }}</title>
+    <title>Constancia de {{ $config['texto'] }} - {{ $equipo->nombre }}</title>
     <style>
         @page {
             margin: 8mm;
@@ -25,13 +56,13 @@
         .certificate {
             position: relative;
             padding: 15px;
-            border: 6px solid #1a5490;
+            border: 6px solid {{ $config['borde'] }};
             background: white;
         }
 
         /* Borde decorativo interno */
         .inner-border {
-            border: 2px solid #ffc107;
+            border: 2px solid {{ $config['principal'] }};
             padding: 12px;
         }
 
@@ -39,14 +70,14 @@
         .header {
             text-align: center;
             padding-bottom: 10px;
-            border-bottom: 2px solid #1a5490;
+            border-bottom: 2px solid {{ $config['borde'] }};
             margin-bottom: 12px;
         }
 
         .logo {
             font-size: 28pt;
             font-weight: bold;
-            color: #1a5490;
+            color: {{ $config['borde'] }};
             font-family: 'Georgia', serif;
             letter-spacing: 2px;
         }
@@ -64,15 +95,15 @@
         .award-section {
             text-align: center;
             margin: 12px 0;
-            background: #ffc107;
+            background: {{ $config['secundario'] }};
             padding: 12px;
             border-radius: 8px;
-            border: 2px solid #d4af37;
+            border: 2px solid {{ $config['principal'] }};
         }
 
         .award-icon {
             font-size: 42pt;
-            color: #1a5490;
+            color: {{ $config['borde'] }};
             margin: 0;
             line-height: 1;
             font-weight: bold;
@@ -81,7 +112,7 @@
         .award-text {
             font-size: 16pt;
             font-weight: bold;
-            color: #1a5490;
+            color: {{ $config['borde'] }};
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-top: 5px;
@@ -103,11 +134,11 @@
         .team-name {
             font-size: 22pt;
             font-weight: bold;
-            color: #1a5490;
+            color: {{ $config['borde'] }};
             text-transform: uppercase;
             padding: 8px 25px;
-            border-top: 2px solid #ffc107;
-            border-bottom: 2px solid #ffc107;
+            border-top: 2px solid {{ $config['principal'] }};
+            border-bottom: 2px solid {{ $config['principal'] }};
             display: inline-block;
             margin: 8px 0;
             letter-spacing: 2px;
@@ -146,7 +177,7 @@
             display: table-cell;
             padding: 5px 10px;
             font-weight: bold;
-            color: #1a5490;
+            color: {{ $config['borde'] }};
             width: 30%;
             border-bottom: 1px solid #e0e0e0;
             background: #f0f4f8;
@@ -170,18 +201,18 @@
         .section-title {
             font-size: 14pt;
             font-weight: bold;
-            color: #1a5490;
+            color: {{ $config['borde'] }};
             text-align: center;
             margin-bottom: 12px;
             padding: 8px;
             background: #e8f1f8;
-            border-left: 4px solid #1a5490;
+            border-left: 4px solid {{ $config['borde'] }};
         }
 
         .score-item {
             margin: 8px 0;
             padding: 8px;
-            border-left: 3px solid #1a5490;
+            border-left: 3px solid {{ $config['borde'] }};
             background: white;
         }
 
@@ -198,7 +229,7 @@
             width: 15%;
             text-align: center;
             font-weight: bold;
-            color: #1a5490;
+            color: {{ $config['borde'] }};
             font-size: 11pt;
         }
 
@@ -214,15 +245,15 @@
 
         .score-fill {
             height: 100%;
-            background: #1a5490;
+            background: {{ $config['borde'] }};
             border-radius: 5px;
         }
 
         /* Puntuación final destacada */
         .final-score-box {
             text-align: center;
-            background: #ffc107;
-            color: #1a5490;
+            background: {{ $config['secundario'] }};
+            color: {{ $config['borde'] }};
             padding: 10px;
             margin: 12px 0;
             border-radius: 5px;
@@ -277,8 +308,8 @@
 
             <!-- Premio -->
             <div class="award-section">
-                <div class="award-icon">1°</div>
-                <div class="award-text">Primer Lugar</div>
+                <div class="award-icon">{{ $config['numero'] }}</div>
+                <div class="award-text">{{ $config['texto'] }}</div>
             </div>
 
             <!-- Presentación -->
@@ -286,7 +317,7 @@
                 <p class="presentation-text">Por medio de la presente se certifica que el equipo:</p>
                 <div class="team-name">{{ $equipo->nombre }}</div>
                 <div class="event-info">
-                    <p class="presentation-text">Ha obtenido el <strong>PRIMER LUGAR</strong> en:</p>
+                    <p class="presentation-text">Ha obtenido el <strong>{{ strtoupper($config['texto']) }}</strong> en:</p>
                     <div class="event-name">{{ $evento->nombre }}</div>
                     <p class="event-date">Realizado del {{ $evento->fecha_inicio->format('d/m/Y') }} al {{ $evento->fecha_fin->format('d/m/Y') }}</p>
                 </div>

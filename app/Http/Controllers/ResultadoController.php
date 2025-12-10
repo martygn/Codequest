@@ -73,24 +73,29 @@ class ResultadoController extends Controller
         // Calcular ranking
         $ranking = $calificaciones->groupBy('equipo_id')->map(function ($grupoEquipo) {
             $califs = $grupoEquipo->all();
+            $equipo = $grupoEquipo->first()->equipo;
             return [
-                'equipo' => $grupoEquipo->first()->equipo,
+                'equipo' => $equipo,
                 'puntaje_promedio' => round(collect($califs)->avg('puntaje_final'), 2),
                 'puntajes_jueces' => collect($califs)->pluck('puntaje_final')->toArray(),
                 'calificaciones_count' => count($califs),
                 'desviacion_estandar' => $this->calcularDesviacion(collect($califs)->pluck('puntaje_final')->toArray()),
-                'ganador' => $grupoEquipo->first()->ganador ?? false
+                'posicion_ganador' => $equipo->posicion_ganador // Ahora se obtiene del modelo Equipo
             ];
         })->sortByDesc('puntaje_promedio')->values();
 
-        // Obtener ganador si existe
-        $ganador = $ranking->first();
+        // Obtener ganadores por posición (buscar en ranking el equipo con la posición correcta)
+        $ganadores = [
+            1 => $ranking->firstWhere('posicion_ganador', 1),
+            2 => $ranking->firstWhere('posicion_ganador', 2),
+            3 => $ranking->firstWhere('posicion_ganador', 3)
+        ];
 
-        return view('admin.resultados.show', compact('evento', 'ranking', 'calificaciones', 'ganador'));
+        return view('admin.resultados.show', compact('evento', 'ranking', 'calificaciones', 'ganadores'));
     }
 
     /**
-     * Marcar equipo ganador
+     * Marcar equipo ganador (1er, 2do o 3er lugar)
      */
     public function marcarGanador(Request $request, Evento $evento)
     {
@@ -101,32 +106,58 @@ class ResultadoController extends Controller
         }
 
         $validated = $request->validate([
-            'equipo_id' => 'required|exists:equipos,id_equipo'
+            'equipo_id' => 'required|exists:equipos,id_equipo',
+            'posicion' => 'required|in:0,1,2,3'
         ]);
 
-        // Desmarcar todos los ganadores previos de este evento
-        CalificacionEquipo::where('evento_id', $evento->id_evento)
-            ->update(['ganador' => false]);
+        $posicion = (int)$validated['posicion'];
 
-        // Marcar nuevo ganador
-        CalificacionEquipo::where('evento_id', $evento->id_evento)
-            ->where('equipo_id', $validated['equipo_id'])
-            ->update(['ganador' => true]);
+        $equipo = \App\Models\Equipo::find($validated['equipo_id']);
+
+        // Verificar que el equipo pertenece al evento
+        if ($equipo->id_evento !== $evento->id_evento) {
+            return back()->with('error', '❌ El equipo no pertenece a este evento.');
+        }
+
+        // Si la posición es 0, desmarcar al equipo
+        if ($posicion === 0) {
+            $equipo->posicion_ganador = null;
+            $equipo->save();
+
+            return back()->with('success', '✅ Equipo desmarcado exitosamente.');
+        }
+
+        // Desmarcar el lugar específico (si ya existe otro equipo en esa posición en el mismo evento)
+        \App\Models\Equipo::where('id_evento', $evento->id_evento)
+            ->where('posicion_ganador', $posicion)
+            ->update(['posicion_ganador' => null]);
+
+        // Marcar nuevo ganador en la posición especificada
+        $equipo->posicion_ganador = $posicion;
+        $equipo->save();
 
         // Crear notificación para el líder del equipo ganador
         $equipo = \App\Models\Equipo::find($validated['equipo_id']);
         if ($equipo && $equipo->lider) {
+            $lugares = [
+                1 => ['emoji' => '🥇', 'texto' => 'Primer Lugar'],
+                2 => ['emoji' => '🥈', 'texto' => 'Segundo Lugar'],
+                3 => ['emoji' => '🥉', 'texto' => 'Tercer Lugar']
+            ];
+
+            $lugar = $lugares[$posicion];
+
             $notificacion = new Notificacion();
             $notificacion->usuario_id = $equipo->lider->id;
             $notificacion->tipo = 'ganador';
-            $notificacion->titulo = '🏆 ¡Tu equipo es ganador!';
-            $notificacion->mensaje = 'El equipo "' . $equipo->nombre . '" ha sido marcado como ganador en el evento "' . $evento->nombre . '".';
+            $notificacion->titulo = $lugar['emoji'] . ' ¡' . $lugar['texto'] . '!';
+            $notificacion->mensaje = 'El equipo "' . $equipo->nombre . '" ha obtenido el ' . $lugar['texto'] . ' en el evento "' . $evento->nombre . '".';
             $notificacion->enlace = route('admin.resultados.show', $evento->id_evento);
             $notificacion->leida = false;
             $notificacion->save();
         }
 
-        return back()->with('success', '✅ Ganador marcado exitosamente.');
+        return back()->with('success', '✅ Posición marcada exitosamente.');
     }
 
     /**
@@ -159,7 +190,7 @@ class ResultadoController extends Controller
     }
 
     /**
-     * Generar constancia para equipo ganador
+     * Generar constancia para equipo ganador (1er, 2do o 3er lugar)
      */
     public function generarConstancia(Request $request, Evento $evento)
     {
@@ -169,17 +200,27 @@ class ResultadoController extends Controller
             abort(403, 'Solo administradores pueden generar constancias.');
         }
 
-        // Buscar calificaciones del equipo ganador
-        $calificacionesGanador = CalificacionEquipo::where('evento_id', $evento->id_evento)
-            ->where('ganador', true)
-            ->with(['equipo.lider', 'equipo.participantes'])
-            ->get();
-
-        if ($calificacionesGanador->isEmpty()) {
-            return back()->with('error', '❌ No hay ganador definido para este evento.');
+        // Validar posición solicitada
+        $posicion = $request->input('posicion', 1);
+        if (!in_array($posicion, [1, 2, 3])) {
+            return back()->with('error', '❌ Posición no válida.');
         }
 
-        $equipo = $calificacionesGanador->first()->equipo;
+        // Buscar equipo en la posición solicitada
+        $equipo = \App\Models\Equipo::where('id_evento', $evento->id_evento)
+            ->where('posicion_ganador', $posicion)
+            ->with(['lider', 'participantes'])
+            ->first();
+
+        if (!$equipo) {
+            $lugares = [1 => 'primer', 2 => 'segundo', 3 => 'tercer'];
+            return back()->with('error', '❌ No hay equipo marcado en ' . $lugares[$posicion] . ' lugar.');
+        }
+
+        // Obtener calificaciones del equipo
+        $calificacionesGanador = CalificacionEquipo::where('evento_id', $evento->id_evento)
+            ->where('equipo_id', $equipo->id_equipo)
+            ->get();
 
         // Calcular puntuación final (promedio de todos los jueces)
         $puntaje_final = round($calificacionesGanador->avg('puntaje_final'), 2);
@@ -197,13 +238,14 @@ class ResultadoController extends Controller
                 'equipo',
                 'calificacion',
                 'puntaje_final',
-                'calificaciones_count'
+                'calificaciones_count',
+                'posicion'
             ));
         }
 
         // Si se solicita enviar por correo
         if ($request->has('enviar_correo')) {
-            return $this->enviarConstanciaPorCorreo($evento, $equipo, $calificacion, $puntaje_final, $calificaciones_count);
+            return $this->enviarConstanciaPorCorreo($evento, $equipo, $calificacion, $puntaje_final, $calificaciones_count, $posicion);
         }
 
         // Generar PDF
@@ -212,7 +254,8 @@ class ResultadoController extends Controller
             'equipo',
             'calificacion',
             'puntaje_final',
-            'calificaciones_count'
+            'calificaciones_count',
+            'posicion'
         ));
 
         // Configurar PDF
@@ -240,7 +283,7 @@ class ResultadoController extends Controller
     /**
      * Enviar constancia por correo al líder del equipo
      */
-    private function enviarConstanciaPorCorreo(Evento $evento, $equipo, $calificacion, $puntaje_final, $calificaciones_count)
+    private function enviarConstanciaPorCorreo(Evento $evento, $equipo, $calificacion, $puntaje_final, $calificaciones_count, $posicion = 1)
     {
         try {
             $lider = $equipo->lider;
@@ -255,7 +298,8 @@ class ResultadoController extends Controller
                 'equipo',
                 'calificacion',
                 'puntaje_final',
-                'calificaciones_count'
+                'calificaciones_count',
+                'posicion'
             ));
 
             $pdf->setPaper('a4', 'portrait');
