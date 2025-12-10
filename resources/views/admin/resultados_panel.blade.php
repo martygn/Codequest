@@ -134,10 +134,10 @@
                             </div>
 
                             <div class="p-6">
-                                @if ($resultado['ranking']->count() >= 3)
+                                @if ($resultado['ranking']->count() >= 1)
                                     <div class="mb-10">
                                         <h3 class="text-lg font-bold text-text-dark mb-6 flex items-center gap-2">
-                                            <span class="material-symbols-outlined text-yellow-400">emoji_events</span> Podio de Ganadores
+                                            <span class="material-symbols-outlined text-yellow-400">emoji_events</span> Top 3 Proyectos
                                         </h3>
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             @foreach ($resultado['ranking']->take(3) as $index => $item)
@@ -147,13 +147,31 @@
                                                         ['border' => 'border-gray-400/50', 'bg' => 'bg-gray-400/10', 'text' => 'text-gray-300', 'icon' => '🥈'],
                                                         ['border' => 'border-orange-500/50', 'bg' => 'bg-orange-500/10', 'text' => 'text-orange-400', 'icon' => '🥉'],
                                                     ];
-                                                    $style = $estilos[$index];
+                                                    $style = $estilos[$index] ?? $estilos[0];
                                                 @endphp
                                                 <div class="relative bg-card-dark rounded-xl p-6 border {{ $style['border'] }} shadow-lg flex flex-col items-center text-center transform hover:-translate-y-1 transition-transform duration-300">
                                                     <div class="text-4xl mb-3">{{ $style['icon'] }}</div>
                                                     <h4 class="text-xl font-bold text-text-dark mb-1">{{ $item['equipo']->nombre }}</h4>
-                                                    <p class="text-3xl font-mono font-bold {{ $style['text'] }}">{{ number_format($item['puntaje_promedio'], 2) }}</p>
-                                                    <p class="text-xs text-text-secondary-dark mt-2">Evaluado por {{ $item['calificaciones_count'] }} jueces</p>
+                                                    <p class="text-3xl font-mono font-bold {{ $style['text'] }}">{{ $item['puntaje_total'] }}</p>
+                                                    <p class="text-xs text-text-secondary-dark mt-2">/100 puntos</p>
+                                                    <div class="text-xs text-text-secondary-dark mt-3 space-y-1 w-full">
+                                                        <div class="flex justify-between">
+                                                            <span>Innovación:</span>
+                                                            <span class="text-primary">{{ $item['detalles']['innovacion'] ?? '-' }}</span>
+                                                        </div>
+                                                        <div class="flex justify-between">
+                                                            <span>Funcionalidad:</span>
+                                                            <span class="text-primary">{{ $item['detalles']['funcionalidad'] ?? '-' }}</span>
+                                                        </div>
+                                                        <div class="flex justify-between">
+                                                            <span>Impacto:</span>
+                                                            <span class="text-primary">{{ $item['detalles']['impacto'] ?? '-' }}</span>
+                                                        </div>
+                                                        <div class="flex justify-between">
+                                                            <span>Presentación:</span>
+                                                            <span class="text-primary">{{ $item['detalles']['presentacion'] ?? '-' }}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             @endforeach
                                         </div>
@@ -167,8 +185,11 @@
                                                 <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider">Posición</th>
                                                 <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider">Equipo</th>
                                                 <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Puntuación</th>
-                                                <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Jueces</th>
-                                                <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Estado</th>
+                                                <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Innovación</th>
+                                                <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Funcionalidad</th>
+                                                <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Impacto</th>
+                                                <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Presentación</th>
+                                                <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Calificado</th>
                                                 <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-right">Detalles</th>
                                             </tr>
                                         </thead>
@@ -179,23 +200,24 @@
                                                     <td class="px-6 py-4 font-medium text-text-dark">{{ $item['equipo']->nombre }}</td>
                                                     <td class="px-6 py-4 text-center">
                                                         <span class="inline-block px-3 py-1 bg-primary/10 text-primary font-bold rounded-lg border border-primary/20">
-                                                            {{ number_format($item['puntaje_promedio'], 2) }}
+                                                            {{ $item['puntaje_total'] }}/100
                                                         </span>
                                                     </td>
-                                                    <td class="px-6 py-4 text-center text-text-secondary-dark">{{ $item['calificaciones_count'] }}</td>
-                                                    <td class="px-6 py-4 text-center">
-                                                        @if ($item['ganador'])
-                                                            <span class="text-xs font-bold text-yellow-400 flex items-center justify-center gap-1">
-                                                                <span class="material-symbols-outlined text-sm">trophy</span> GANADOR
-                                                            </span>
-                                                        @else
-                                                            <span class="text-xs text-text-secondary-dark">Participante</span>
-                                                        @endif
+                                                    <td class="px-6 py-4 text-center text-text-secondary-dark text-sm">{{ $item['detalles']['innovacion'] ?? '-' }}/30</td>
+                                                    <td class="px-6 py-4 text-center text-text-secondary-dark text-sm">{{ $item['detalles']['funcionalidad'] ?? '-' }}/30</td>
+                                                    <td class="px-6 py-4 text-center text-text-secondary-dark text-sm">{{ $item['detalles']['impacto'] ?? '-' }}/20</td>
+                                                    <td class="px-6 py-4 text-center text-text-secondary-dark text-sm">{{ $item['detalles']['presentacion'] ?? '-' }}/20</td>
+                                                    <td class="px-6 py-4 text-center text-xs text-text-secondary-dark">
+                                                        {{ isset($item['calificado_en']) ? \Carbon\Carbon::parse($item['calificado_en'])->format('d/m/Y H:i') : 'Sin fecha' }}
                                                     </td>
                                                     <td class="px-6 py-4 text-right">
-                                                        <a href="{{ route('admin.resultados.show', $resultado['evento']->id_evento) }}" class="text-text-secondary-dark hover:text-primary transition-colors text-sm font-medium">
-                                                            Ver Desglose →
-                                                        </a>
+                                                        @if (!empty($item['detalles']['comentarios']))
+                                                            <button class="text-text-secondary-dark hover:text-primary transition-colors text-sm font-medium" onclick="alert('{{ addslashes($item['detalles']['comentarios']) }}')">
+                                                                Ver comentario →
+                                                            </button>
+                                                        @else
+                                                            <span class="text-xs text-text-secondary-dark">-</span>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             @endforeach

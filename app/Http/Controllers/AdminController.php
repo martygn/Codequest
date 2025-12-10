@@ -99,24 +99,32 @@ class AdminController extends Controller
         $usuario = auth()->user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
 
-        // Obtener eventos con calificaciones
-        $eventos = Evento::with(['calificaciones', 'equipos'])->get();
+        // Obtener eventos con repositorios calificados
+        $eventos = Evento::with(['repositorios' => function ($query) {
+            $query->where('calificacion_total', '>', 0)->with('equipo');
+        }])->get();
 
         $resultados = $eventos->map(function ($evento) {
-            $calificaciones = CalificacionEquipo::where('evento_id', $evento->id_evento)->get();
+            // Filtrar solo repositorios con calificación
+            $repositoriosCalificados = $evento->repositorios->filter(function ($repo) {
+                return $repo->calificacion_total > 0;
+            });
             
-            if ($calificaciones->isEmpty()) {
+            if ($repositoriosCalificados->isEmpty()) {
                 return null;
             }
 
-            $ranking = $calificaciones->groupBy('equipo_id')->map(function ($grupoEquipo) {
+            // Crear ranking ordenado por calificación total
+            $ranking = $repositoriosCalificados->map(function ($repositorio) {
+                $detalles = json_decode($repositorio->calificacion_detalle, true) ?? [];
                 return [
-                    'equipo' => $grupoEquipo->first()->equipo,
-                    'puntaje_promedio' => round(collect($grupoEquipo)->avg('puntaje_final'), 2),
-                    'calificaciones_count' => $grupoEquipo->count(),
-                    'ganador' => $grupoEquipo->first()->ganador ?? false
+                    'equipo' => $repositorio->equipo,
+                    'repositorio' => $repositorio,
+                    'puntaje_total' => $repositorio->calificacion_total,
+                    'detalles' => $detalles,
+                    'calificado_en' => $detalles['calificado_en'] ?? null
                 ];
-            })->sortByDesc('puntaje_promedio');
+            })->sortByDesc('puntaje_total');
 
             return [
                 'evento' => $evento,

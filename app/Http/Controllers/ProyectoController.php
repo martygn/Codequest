@@ -249,7 +249,7 @@ class ProyectoController extends Controller
             $notificacion->save();
         }
 
-        return redirect()->route('proyecto.juez.listar-juez', $repositorio->evento)
+        return redirect()->route('proyecto.juez.ver-juez', $repositorio)
             ->with('success', 'Proyecto calificado exitosamente.');
     }
 }

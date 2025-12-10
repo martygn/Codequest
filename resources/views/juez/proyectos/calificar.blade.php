@@ -130,8 +130,6 @@
                     <ol class="flex items-center gap-2 text-sm">
                         <li><a href="{{ route('juez.panel') }}" class="text-text-secondary-dark hover:text-primary transition-colors">Panel</a></li>
                         <li class="text-text-secondary-dark">/</li>
-                        <li><a href="{{ route('proyecto.juez.listar-juez', $repositorio->evento_id) }}" class="text-text-secondary-dark hover:text-primary transition-colors">Proyectos</a></li>
-                        <li class="text-text-secondary-dark">/</li>
                         <li><a href="{{ route('proyecto.juez.ver-juez', $repositorio) }}" class="text-text-secondary-dark hover:text-primary transition-colors">Ver Proyecto</a></li>
                         <li class="text-text-secondary-dark">/</li>
                         <li class="text-primary">Calificar</li>

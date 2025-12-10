@@ -123,7 +123,7 @@
                                         </div>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-[#8892B0] font-mono text-xs">
-                                        {{ $equipo->created_at->format('d/m/Y') }}
+                                        {{ $equipo->created_at->format('d/m/y') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <div class="flex flex-col items-center gap-2">

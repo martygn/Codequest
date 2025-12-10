@@ -143,7 +143,7 @@
                                 </div>
                                 <div>
                                     <p class="text-xs font-mono text-primary uppercase mb-1">Fecha de Creación</p>
-                                    <p class="text-text-secondary-dark">{{ $equipo->created_at->translatedFormat('d \d\e F \d\e Y') }}</p>
+                                    <p class="text-text-secondary-dark">{{ $equipo->created_at->format('d/m/y') }}</p>
                                 </div>
                                 <div>
                                     <p class="text-xs font-mono text-primary uppercase mb-1">Miembros</p>

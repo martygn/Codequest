@@ -168,7 +168,7 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-sm text-text-secondary-dark font-mono text-xs">
-                                    {{ $equipo->created_at->format('d/m/Y') }}
+                                    {{ $equipo->created_at->format('d/m/y') }}
                                 </td>
                                 <td class="px-6 py-4 text-sm font-medium">
                                     <a href="{{ route('admin.equipos.show', $equipo->id_equipo) }}" class="text-primary hover:text-white transition-colors flex items-center gap-1">
