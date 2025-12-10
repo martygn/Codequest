@@ -31,7 +31,7 @@
                 {{-- LISTA DE EQUIPOS --}}
                 <div class="space-y-8">
                     @foreach($misEquipos as $miEquipo)
-                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div style="background-color: #112240;" class="overflow-hidden shadow-sm sm:rounded-lg border border-[#233554]">
                             <div class="p-8">
                                 @php
                                     $estadoColors = [
@@ -44,7 +44,7 @@
                                     $tieneProyectoSubido = $miEquipo->repositorio && $miEquipo->repositorio->estado === 'enviado';
                                 @endphp
 
-                                <div class="md:flex justify-between items-start mb-8 border-b border-gray-100 pb-6">
+                                <div class="md:flex justify-between items-start mb-8 border-b border-[#233554] pb-6">
                                     <div>
                                         <div class="flex items-center gap-3 mb-2">
                                             <h3 class="text-3xl font-bold text-white">{{ $miEquipo->nombre }}</h3>
@@ -59,7 +59,7 @@
                                                 {{ ucfirst($miEquipo->estado ?? 'Activo') }}
                                             </span>
                                         </div>
-                                        <p class="text-gray-500 max-w-2xl">{{ $miEquipo->descripcion ?? 'Sin descripción disponible.' }}</p>
+                                        <p class="text-[#8892B0] max-w-2xl">{{ $miEquipo->descripcion ?? 'Sin descripción disponible.' }}</p>
 
                                         <div class="mt-4 flex items-center gap-2">
                                             <span class="text-xs font-bold text-[#64FFDA] uppercase tracking-wider">Código de Acceso:</span>
@@ -70,7 +70,7 @@
                                     </div>
 
                                     <div class="mt-4 md:mt-0 flex items-center gap-2">
-                                        <button type="button" onclick="openConfirmModal('salirEquipo{{ $miEquipo->id_equipo }}')" class="inline-flex items-center px-4 py-2 bg-red-50 text-red-700 border border-red-200 rounded-md font-semibold text-xs uppercase tracking-widest hover:bg-red-100 focus:outline-none focus:border-red-300 focus:ring ring-red-200 active:bg-red-200 disabled:opacity-25 transition ease-in-out duration-150">
+                                        <button type="button" onclick="openConfirmModal('salirEquipo{{ $miEquipo->id_equipo }}')" class="inline-flex items-center px-4 py-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-md font-semibold text-xs uppercase tracking-widest hover:bg-red-500/20 focus:outline-none transition ease-in-out duration-150">
                                             Salir del Equipo
                                         </button>
 
@@ -156,21 +156,21 @@
                                             <span class="material-symbols-outlined">rocket_launch</span> Proyecto
                                         </h4>
                                         <div class="mb-4">
-                                            <p class="text-sm font-bold text-gray-600">Nombre del Proyecto</p>
-                                            <p class="text-gray-900">{{ $miEquipo->nombre_proyecto ?? 'Aún no definido' }}</p>
+                                            <p class="text-sm font-bold text-[#8892B0]">Nombre del Proyecto</p>
+                                            <p class="text-white">{{ $miEquipo->nombre_proyecto ?? 'Aún no definido' }}</p>
 
                                             <!-- Estado del proyecto -->
                                             @if($tieneProyectoSubido)
                                                 <div class="mt-2">
                                                     @if($miEquipo->repositorio->calificacion_total)
-                                                        <div class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                                                        <div class="inline-flex items-center px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-sm border border-green-500/20">
                                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                             </svg>
                                                             Calificado: {{ $miEquipo->repositorio->calificacion_total }}/100
                                                         </div>
                                                     @else
-                                                        <div class="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+                                                        <div class="inline-flex items-center px-3 py-1 bg-yellow-500/10 text-yellow-400 rounded-full text-sm border border-yellow-500/20">
                                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                             </svg>
@@ -291,23 +291,23 @@
                 </div>
             @else
                 {{-- ESTADO: USUARIO SIN EQUIPOS --}}
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div style="background-color: #112240;" class="overflow-hidden shadow-sm sm:rounded-lg border border-[#233554]">
                     <div class="p-8">
                         <div class="text-center py-16">
-                            <div class="bg-indigo-50 h-24 w-24 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <span class="material-symbols-outlined text-5xl text-indigo-400">groups</span>
+                            <div class="h-24 w-24 rounded-full flex items-center justify-center mx-auto mb-6" style="background-color: #1A3A52;">
+                                <span class="material-symbols-outlined text-5xl text-[#64FFDA]">groups</span>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Aún no tienes equipos!</h3>
-                            <p class="text-gray-500 mb-8 max-w-md mx-auto">
+                            <h3 class="text-2xl font-bold text-white mb-2">¡Aún no tienes equipos!</h3>
+                            <p class="text-[#8892B0] mb-8 max-w-md mx-auto">
                                 Para participar en los hackathons necesitas unirte a un equipo existente o crear el tuyo propio.
                             </p>
 
                             <div class="flex justify-center gap-4">
-                                <a href="{{ route('equipos.index') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-lg transition duration-150 ease-in-out">
+                                <a href="{{ route('equipos.index') }}" class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-[#0A192F] bg-[#64FFDA] hover:opacity-80 shadow-lg transition duration-150 ease-in-out">
                                     <span class="material-symbols-outlined mr-2">search</span>
                                     Buscar Equipo
                                 </a>
-                                <a href="{{ route('equipos.create') }}" class="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition duration-150 ease-in-out">
+                                <a href="{{ route('equipos.create') }}" class="inline-flex items-center px-6 py-3 border border-[#233554] text-base font-medium rounded-md text-[#64FFDA] bg-[#0A192F] hover:bg-[#1A2F47] shadow-sm transition duration-150 ease-in-out">
                                     <span class="material-symbols-outlined mr-2">add</span>
                                     Crear Equipo
                                 </a>

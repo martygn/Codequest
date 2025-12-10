@@ -58,9 +58,9 @@
                 </nav>
             </div>
 
-            <!-- Usuario -->
-            <div class="pt-6 border-t border-border-dark">
-                <div class="flex items-center gap-3">
+            <!-- Usuario y Logout -->
+            <div class="pt-6 space-y-4 border-t border-border-dark">
+                <div class="flex items-center gap-3 px-2">
                     <div class="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-background-dark font-bold">
                         {{ substr($juez->nombre, 0, 1) }}
                     </div>
@@ -69,6 +69,14 @@
                         <p class="text-xs text-text-secondary-dark">Juez</p>
                     </div>
                 </div>
+                
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-2.5 text-text-secondary-dark hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors font-medium text-sm">
+                        <span class="material-symbols-outlined">logout</span>
+                        <span>Cerrar sesión</span>
+                    </button>
+                </form>
             </div>
         </aside>
 
