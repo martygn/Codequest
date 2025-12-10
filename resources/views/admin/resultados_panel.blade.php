@@ -185,9 +185,17 @@
                                                     </td>
                                                     <td class="px-6 py-4 text-center text-text-secondary-dark">{{ $item['calificaciones_count'] }}</td>
                                                     <td class="px-6 py-4 text-center">
-                                                        @if ($item['ganador'])
+                                                        @if ($item['posicion_ganador'] === 1)
                                                             <span class="text-xs font-bold text-yellow-400 flex items-center justify-center gap-1">
-                                                                <span class="material-symbols-outlined text-sm">trophy</span> GANADOR
+                                                                🥇 PRIMER LUGAR
+                                                            </span>
+                                                        @elseif ($item['posicion_ganador'] === 2)
+                                                            <span class="text-xs font-bold text-gray-300 flex items-center justify-center gap-1">
+                                                                🥈 SEGUNDO LUGAR
+                                                            </span>
+                                                        @elseif ($item['posicion_ganador'] === 3)
+                                                            <span class="text-xs font-bold text-orange-400 flex items-center justify-center gap-1">
+                                                                🥉 TERCER LUGAR
                                                             </span>
                                                         @else
                                                             <span class="text-xs text-text-secondary-dark">Participante</span>

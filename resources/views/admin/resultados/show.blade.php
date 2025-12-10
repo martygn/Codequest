@@ -194,9 +194,17 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-center">
-                                            @if ($item['ganador'])
-                                                <span class="inline-block px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full font-semibold">
-                                                    🏆 GANADOR
+                                            @if ($item['posicion_ganador'] === 1)
+                                                <span class="inline-block px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-full font-bold text-lg border-2 border-yellow-500/50">
+                                                    🥇 PRIMER LUGAR
+                                                </span>
+                                            @elseif ($item['posicion_ganador'] === 2)
+                                                <span class="inline-block px-4 py-2 bg-gray-300/20 text-gray-300 rounded-full font-bold text-lg border-2 border-gray-300/50">
+                                                    🥈 SEGUNDO LUGAR
+                                                </span>
+                                            @elseif ($item['posicion_ganador'] === 3)
+                                                <span class="inline-block px-4 py-2 bg-orange-500/20 text-orange-400 rounded-full font-bold text-lg border-2 border-orange-500/50">
+                                                    🥉 TERCER LUGAR
                                                 </span>
                                             @else
                                                 <span class="inline-block px-3 py-1 bg-gray-500/20 text-gray-400 rounded-full">
@@ -205,21 +213,52 @@
                                             @endif
                                         </td>
                                         @if (Auth::user()->esAdmin())
-                                            <td class="px-6 py-4 text-center">
-                                                <form method="POST" action="{{ route('admin.resultados.marcar-ganador', $evento->id_evento) }}" class="inline">
-                                                    @csrf
-                                                    @if (!$item['ganador'])
-                                                        <input type="hidden" name="equipo_id" value="{{ $item['equipo']->id_equipo }}">
-                                                        <button type="submit" class="text-primary hover:text-primary/80 font-semibold transition">
-                                                            Marcar como ganador
-                                                        </button>
-                                                    @else
-                                                        <input type="hidden" name="equipo_id" value="">
-                                                        <button type="submit" class="text-text-secondary-dark hover:text-text-dark font-semibold transition">
-                                                            Desmarcar ganador
-                                                        </button>
+                                            <td class="px-6 py-4">
+                                                <div class="flex flex-col gap-2">
+                                                    @if ($item['posicion_ganador'] !== 1)
+                                                        <form method="POST" action="{{ route('admin.resultados.marcar-ganador', $evento->id_evento) }}" class="inline">
+                                                            @csrf
+                                                            <input type="hidden" name="equipo_id" value="{{ $item['equipo']->id_equipo }}">
+                                                            <input type="hidden" name="posicion" value="1">
+                                                            <button type="submit" class="w-full px-3 py-1.5 bg-yellow-500/10 text-yellow-400 rounded-lg hover:bg-yellow-500/20 border border-yellow-500/30 font-semibold transition text-sm">
+                                                                🥇 1er Lugar
+                                                            </button>
+                                                        </form>
                                                     @endif
-                                                </form>
+
+                                                    @if ($item['posicion_ganador'] !== 2)
+                                                        <form method="POST" action="{{ route('admin.resultados.marcar-ganador', $evento->id_evento) }}" class="inline">
+                                                            @csrf
+                                                            <input type="hidden" name="equipo_id" value="{{ $item['equipo']->id_equipo }}">
+                                                            <input type="hidden" name="posicion" value="2">
+                                                            <button type="submit" class="w-full px-3 py-1.5 bg-gray-300/10 text-gray-300 rounded-lg hover:bg-gray-300/20 border border-gray-300/30 font-semibold transition text-sm">
+                                                                🥈 2do Lugar
+                                                            </button>
+                                                        </form>
+                                                    @endif
+
+                                                    @if ($item['posicion_ganador'] !== 3)
+                                                        <form method="POST" action="{{ route('admin.resultados.marcar-ganador', $evento->id_evento) }}" class="inline">
+                                                            @csrf
+                                                            <input type="hidden" name="equipo_id" value="{{ $item['equipo']->id_equipo }}">
+                                                            <input type="hidden" name="posicion" value="3">
+                                                            <button type="submit" class="w-full px-3 py-1.5 bg-orange-500/10 text-orange-400 rounded-lg hover:bg-orange-500/20 border border-orange-500/30 font-semibold transition text-sm">
+                                                                🥉 3er Lugar
+                                                            </button>
+                                                        </form>
+                                                    @endif
+
+                                                    @if ($item['posicion_ganador'])
+                                                        <form method="POST" action="{{ route('admin.resultados.marcar-ganador', $evento->id_evento) }}" class="inline">
+                                                            @csrf
+                                                            <input type="hidden" name="equipo_id" value="{{ $item['equipo']->id_equipo }}">
+                                                            <input type="hidden" name="posicion" value="0">
+                                                            <button type="submit" class="w-full px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 border border-red-500/30 font-semibold transition text-sm">
+                                                                ✖ Desmarcar
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
                                             </td>
                                         @endif
                                     </tr>
@@ -281,121 +320,232 @@
                 </div>
 
                 <!-- Opciones de admin -->
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <a href="{{ route('admin.resultados.exportar', $evento->id_evento) }}" target="_blank" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
-                        <span class="material-symbols-outlined">picture_as_pdf</span>
-                        <span>Exportar Resultados</span>
-                    </a>
-                    @if ($ganador)
-                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?preview=1" target="_blank" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined">visibility</span>
-                            <span>Ver Constancia</span>
-                        </a>
-                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}" class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
+                <div class="mt-8 space-y-6">
+                    <!-- Exportar resultados generales -->
+                    <div class="bg-card-dark rounded-lg p-6 border border-border-dark">
+                        <h3 class="text-xl font-bold text-text-dark mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-blue-400">picture_as_pdf</span>
+                            Exportar Resultados Generales
+                        </h3>
+                        <a href="{{ route('admin.resultados.exportar', $evento->id_evento) }}" target="_blank" class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition">
                             <span class="material-symbols-outlined">download</span>
-                            <span>Descargar PDF</span>
+                            <span>Descargar PDF de Resultados</span>
                         </a>
-                        <button onclick="openEmailModal()" class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
-                            <span class="material-symbols-outlined">forward_to_inbox</span>
-                            <span>Enviar por Correo</span>
-                        </button>
-                    @endif
+                    </div>
+
+                    <!-- Constancias por posición -->
+                    <div class="bg-card-dark rounded-lg p-6 border border-border-dark">
+                        <h3 class="text-xl font-bold text-text-dark mb-6 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-yellow-400">workspace_premium</span>
+                            Constancias de Ganadores
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Primer Lugar -->
+                            @if ($ganadores[1])
+                                <div class="bg-yellow-500/5 border-2 border-yellow-500/30 rounded-lg p-5">
+                                    <div class="text-center mb-4">
+                                        <div class="text-5xl mb-2">🥇</div>
+                                        <h4 class="text-lg font-bold text-yellow-400">PRIMER LUGAR</h4>
+                                        <p class="text-text-dark font-semibold mt-2">{{ $ganadores[1]['equipo']->nombre }}</p>
+                                        <p class="text-sm text-text-secondary-dark">Puntaje: {{ number_format($ganadores[1]['puntaje_promedio'], 2) }}</p>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?posicion=1&preview=1" target="_blank" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition text-sm">
+                                            <span class="material-symbols-outlined text-lg">visibility</span>
+                                            Ver Constancia
+                                        </a>
+                                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?posicion=1" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition text-sm">
+                                            <span class="material-symbols-outlined text-lg">download</span>
+                                            Descargar PDF
+                                        </a>
+                                        <button onclick="openEmailModal(1)" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-sm">
+                                            <span class="material-symbols-outlined text-lg">forward_to_inbox</span>
+                                            Enviar Correo
+                                        </button>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="bg-gray-500/5 border-2 border-gray-500/30 rounded-lg p-5 text-center">
+                                    <div class="text-5xl mb-2 opacity-30">🥇</div>
+                                    <h4 class="text-lg font-bold text-gray-400">PRIMER LUGAR</h4>
+                                    <p class="text-sm text-text-secondary-dark mt-2">No asignado</p>
+                                </div>
+                            @endif
+
+                            <!-- Segundo Lugar -->
+                            @if ($ganadores[2])
+                                <div class="bg-gray-300/5 border-2 border-gray-300/30 rounded-lg p-5">
+                                    <div class="text-center mb-4">
+                                        <div class="text-5xl mb-2">🥈</div>
+                                        <h4 class="text-lg font-bold text-gray-300">SEGUNDO LUGAR</h4>
+                                        <p class="text-text-dark font-semibold mt-2">{{ $ganadores[2]['equipo']->nombre }}</p>
+                                        <p class="text-sm text-text-secondary-dark">Puntaje: {{ number_format($ganadores[2]['puntaje_promedio'], 2) }}</p>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?posicion=2&preview=1" target="_blank" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition text-sm">
+                                            <span class="material-symbols-outlined text-lg">visibility</span>
+                                            Ver Constancia
+                                        </a>
+                                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?posicion=2" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white font-semibold rounded-lg transition text-sm">
+                                            <span class="material-symbols-outlined text-lg">download</span>
+                                            Descargar PDF
+                                        </a>
+                                        <button onclick="openEmailModal(2)" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-sm">
+                                            <span class="material-symbols-outlined text-lg">forward_to_inbox</span>
+                                            Enviar Correo
+                                        </button>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="bg-gray-500/5 border-2 border-gray-500/30 rounded-lg p-5 text-center">
+                                    <div class="text-5xl mb-2 opacity-30">🥈</div>
+                                    <h4 class="text-lg font-bold text-gray-400">SEGUNDO LUGAR</h4>
+                                    <p class="text-sm text-text-secondary-dark mt-2">No asignado</p>
+                                </div>
+                            @endif
+
+                            <!-- Tercer Lugar -->
+                            @if ($ganadores[3])
+                                <div class="bg-orange-500/5 border-2 border-orange-500/30 rounded-lg p-5">
+                                    <div class="text-center mb-4">
+                                        <div class="text-5xl mb-2">🥉</div>
+                                        <h4 class="text-lg font-bold text-orange-400">TERCER LUGAR</h4>
+                                        <p class="text-text-dark font-semibold mt-2">{{ $ganadores[3]['equipo']->nombre }}</p>
+                                        <p class="text-sm text-text-secondary-dark">Puntaje: {{ number_format($ganadores[3]['puntaje_promedio'], 2) }}</p>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?posicion=3&preview=1" target="_blank" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition text-sm">
+                                            <span class="material-symbols-outlined text-lg">visibility</span>
+                                            Ver Constancia
+                                        </a>
+                                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?posicion=3" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition text-sm">
+                                            <span class="material-symbols-outlined text-lg">download</span>
+                                            Descargar PDF
+                                        </a>
+                                        <button onclick="openEmailModal(3)" class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-sm">
+                                            <span class="material-symbols-outlined text-lg">forward_to_inbox</span>
+                                            Enviar Correo
+                                        </button>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="bg-gray-500/5 border-2 border-gray-500/30 rounded-lg p-5 text-center">
+                                    <div class="text-5xl mb-2 opacity-30">🥉</div>
+                                    <h4 class="text-lg font-bold text-gray-400">TERCER LUGAR</h4>
+                                    <p class="text-sm text-text-secondary-dark mt-2">No asignado</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Modal de confirmación de envío de correo -->
-                @if ($ganador)
-                    <div id="emailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                        <div class="bg-card-light dark:bg-card-dark rounded-lg shadow-2xl max-w-md w-full border border-border-light dark:border-border-dark">
-                            <!-- Header del modal -->
-                            <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 rounded-t-lg">
-                                <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                                    <span class="material-symbols-outlined">forward_to_inbox</span>
-                                    Enviar Constancia por Correo
-                                </h3>
-                            </div>
+                <!-- Modales de confirmación de envío de correo -->
+                @foreach ([1, 2, 3] as $pos)
+                    @if ($ganadores[$pos])
+                        <div id="emailModal{{ $pos }}" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                            <div class="bg-card-dark rounded-lg shadow-2xl max-w-md w-full border border-border-dark">
+                                <!-- Header del modal -->
+                                <div class="bg-gradient-to-r {{ $pos === 1 ? 'from-yellow-600 to-yellow-500' : ($pos === 2 ? 'from-gray-500 to-gray-400' : 'from-orange-600 to-orange-500') }} px-6 py-4 rounded-t-lg">
+                                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                                        <span class="material-symbols-outlined">forward_to_inbox</span>
+                                        Enviar Constancia - {{ $pos === 1 ? '🥇 Primer Lugar' : ($pos === 2 ? '🥈 Segundo Lugar' : '🥉 Tercer Lugar') }}
+                                    </h3>
+                                </div>
 
-                            <!-- Contenido del modal -->
-                            <div class="p-6">
-                                <div class="mb-6">
-                                    <p class="text-text-light dark:text-text-dark mb-4">
-                                        ¿Estás seguro de que deseas enviar la constancia del equipo ganador por correo electrónico?
-                                    </p>
+                                <!-- Contenido del modal -->
+                                <div class="p-6">
+                                    <div class="mb-6">
+                                        <p class="text-text-dark mb-4">
+                                            ¿Estás seguro de que deseas enviar la constancia de {{ $pos === 1 ? 'primer' : ($pos === 2 ? 'segundo' : 'tercer') }} lugar por correo electrónico?
+                                        </p>
 
-                                    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-2">
-                                        <div class="flex items-start gap-2">
-                                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">workspace_premium</span>
-                                            <div class="flex-1">
-                                                <p class="text-sm font-semibold text-blue-900 dark:text-blue-100">Equipo Ganador</p>
-                                                <p class="text-sm text-blue-800 dark:text-blue-200">{{ $ganador['equipo']->nombre }}</p>
+                                        <div class="bg-blue-900/20 border border-blue-800 rounded-lg p-4 space-y-2">
+                                            <div class="flex items-start gap-2">
+                                                <span class="material-symbols-outlined text-blue-400 text-lg">workspace_premium</span>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-semibold text-blue-100">Equipo</p>
+                                                    <p class="text-sm text-blue-200">{{ $ganadores[$pos]['equipo']->nombre }}</p>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div class="flex items-start gap-2">
-                                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">person</span>
-                                            <div class="flex-1">
-                                                <p class="text-sm font-semibold text-blue-900 dark:text-blue-100">Líder del Equipo</p>
-                                                <p class="text-sm text-blue-800 dark:text-blue-200">{{ $ganador['equipo']->lider->nombre_completo ?? 'No especificado' }}</p>
+                                            <div class="flex items-start gap-2">
+                                                <span class="material-symbols-outlined text-blue-400 text-lg">person</span>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-semibold text-blue-100">Líder del Equipo</p>
+                                                    <p class="text-sm text-blue-200">{{ $ganadores[$pos]['equipo']->lider->nombre_completo ?? 'No especificado' }}</p>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div class="flex items-start gap-2">
-                                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">mail</span>
-                                            <div class="flex-1">
-                                                <p class="text-sm font-semibold text-blue-900 dark:text-blue-100">Correo Electrónico</p>
-                                                <p class="text-sm text-blue-800 dark:text-blue-200 break-all">{{ $ganador['equipo']->lider->correo ?? 'No especificado' }}</p>
+                                            <div class="flex items-start gap-2">
+                                                <span class="material-symbols-outlined text-blue-400 text-lg">mail</span>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-semibold text-blue-100">Correo Electrónico</p>
+                                                    <p class="text-sm text-blue-200 break-all">{{ $ganadores[$pos]['equipo']->lider->correo ?? 'No especificado' }}</p>
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div class="flex items-start gap-2 mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
-                                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">emoji_events</span>
-                                            <div class="flex-1">
-                                                <p class="text-sm font-semibold text-blue-900 dark:text-blue-100">Puntuación Final</p>
-                                                <p class="text-sm text-blue-800 dark:text-blue-200">{{ number_format($ganador['puntaje_promedio'], 2) }}/10</p>
+                                            <div class="flex items-start gap-2 mt-3 pt-3 border-t border-blue-800">
+                                                <span class="material-symbols-outlined text-blue-400 text-lg">emoji_events</span>
+                                                <div class="flex-1">
+                                                    <p class="text-sm font-semibold text-blue-100">Puntuación Final</p>
+                                                    <p class="text-sm text-blue-200">{{ number_format($ganadores[$pos]['puntaje_promedio'], 2) }}/100</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <!-- Botones de acción -->
-                                <div class="flex gap-3">
-                                    <button onclick="closeEmailModal()" class="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-semibold rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                                        Cancelar
-                                    </button>
-                                    <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?enviar_correo=1" class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
-                                        <span class="material-symbols-outlined text-lg">send</span>
-                                        Enviar Ahora
-                                    </a>
+                                    <!-- Botones de acción -->
+                                    <div class="flex gap-3">
+                                        <button onclick="closeEmailModal({{ $pos }})" class="flex-1 px-4 py-2 bg-gray-700 text-gray-200 font-semibold rounded-lg hover:bg-gray-600 transition">
+                                            Cancelar
+                                        </button>
+                                        <a href="{{ route('admin.resultados.constancia', $evento->id_evento) }}?posicion={{ $pos }}&enviar_correo=1" class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition text-center flex items-center justify-center gap-2">
+                                            <span class="material-symbols-outlined text-lg">send</span>
+                                            Enviar Ahora
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
+                @endforeach
 
-                    <script>
-                        function openEmailModal() {
-                            document.getElementById('emailModal').classList.remove('hidden');
-                            document.body.style.overflow = 'hidden';
+                <script>
+                    function openEmailModal(posicion) {
+                        document.getElementById('emailModal' + posicion).classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                    }
+
+                    function closeEmailModal(posicion) {
+                        document.getElementById('emailModal' + posicion).classList.add('hidden');
+                        document.body.style.overflow = 'auto';
+                    }
+
+                    // Cerrar modal al hacer clic fuera de él
+                    [1, 2, 3].forEach(pos => {
+                        const modal = document.getElementById('emailModal' + pos);
+                        if (modal) {
+                            modal.addEventListener('click', function(e) {
+                                if (e.target === this) {
+                                    closeEmailModal(pos);
+                                }
+                            });
                         }
+                    });
 
-                        function closeEmailModal() {
-                            document.getElementById('emailModal').classList.add('hidden');
-                            document.body.style.overflow = 'auto';
+                    // Cerrar modal con tecla ESC
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key === 'Escape') {
+                            [1, 2, 3].forEach(pos => {
+                                const modal = document.getElementById('emailModal' + pos);
+                                if (modal && !modal.classList.contains('hidden')) {
+                                    closeEmailModal(pos);
+                                }
+                            });
                         }
-
-                        // Cerrar modal al hacer clic fuera de él
-                        document.getElementById('emailModal')?.addEventListener('click', function(e) {
-                            if (e.target === this) {
-                                closeEmailModal();
-                            }
-                        });
-
-                        // Cerrar modal con tecla ESC
-                        document.addEventListener('keydown', function(e) {
-                            if (e.key === 'Escape') {
-                                closeEmailModal();
-                            }
-                        });
-                    </script>
-                @endif
+                    });
+                </script>
             </div>
         </div>
     </main>

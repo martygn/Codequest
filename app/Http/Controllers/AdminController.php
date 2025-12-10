@@ -104,19 +104,20 @@ class AdminController extends Controller
 
         $resultados = $eventos->map(function ($evento) {
             $calificaciones = CalificacionEquipo::where('evento_id', $evento->id_evento)->get();
-            
+
             if ($calificaciones->isEmpty()) {
                 return null;
             }
 
             $ranking = $calificaciones->groupBy('equipo_id')->map(function ($grupoEquipo) {
+                $equipo = $grupoEquipo->first()->equipo;
                 return [
-                    'equipo' => $grupoEquipo->first()->equipo,
+                    'equipo' => $equipo,
                     'puntaje_promedio' => round(collect($grupoEquipo)->avg('puntaje_final'), 2),
                     'calificaciones_count' => $grupoEquipo->count(),
-                    'ganador' => $grupoEquipo->first()->ganador ?? false
+                    'posicion_ganador' => $equipo->posicion_ganador // Ahora se obtiene del modelo Equipo
                 ];
-            })->sortByDesc('puntaje_promedio');
+            })->sortByDesc('puntaje_promedio')->values(); // Reindexar la colección con índices numéricos
 
             return [
                 'evento' => $evento,
