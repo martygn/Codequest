@@ -115,6 +115,7 @@
                                         <th class="px-6 py-3 text-left text-xs font-mono text-primary uppercase tracking-wider">Equipo Ganador</th>
                                         <th class="px-6 py-3 text-left text-xs font-mono text-primary uppercase tracking-wider">Líder del Equipo</th>
                                         <th class="px-6 py-3 text-left text-xs font-mono text-primary uppercase tracking-wider">Fecha de Envío</th>
+                                        <th class="px-6 py-3 text-left text-xs font-mono text-primary uppercase tracking-wider">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-border-dark">
@@ -140,6 +141,16 @@
                                         </td>
                                         <td class="px-6 py-4 text-sm text-text-secondary-dark">
                                             {{ $constancia->fecha_envio->format('d/m/Y H:i') }}
+                                        </td>
+                                        <td class="px-6 py-4 text-sm">
+                                            @if($constancia->ruta_pdf)
+                                                <a href="{{ route('juez.constancia.descargar', $constancia) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary rounded-lg text-primary hover:bg-primary/20 transition-colors font-medium">
+                                                    <span class="material-symbols-outlined text-lg">download</span>
+                                                    Descargar
+                                                </a>
+                                            @else
+                                                <span class="text-text-secondary-dark text-xs">No disponible</span>
+                                            @endif
                                         </td>
                                     </tr>
                                     @endforeach

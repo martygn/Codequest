@@ -8,6 +8,7 @@ use App\Models\Notificacion;
 use App\Models\Constancia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ResultadoController extends Controller
@@ -261,7 +262,11 @@ class ResultadoController extends Controller
             $pdf->setOption('isRemoteEnabled', true);
 
             // Nombre del archivo PDF
-            $nombreArchivo = 'Constancia_' . str_replace(' ', '_', $equipo->nombre) . '.pdf';
+            $nombreArchivo = 'Constancia_' . str_replace(' ', '_', $equipo->nombre) . '_' . str_replace(' ', '_', $evento->nombre) . '.pdf';
+            
+            // Guardar PDF en storage
+            $rutaPdf = 'constancias/' . date('Y/m/d') . '/' . $nombreArchivo;
+            \Illuminate\Support\Facades\Storage::disk('public')->put($rutaPdf, $pdf->output());
 
             // Enviar correo con PDF adjunto
             \Illuminate\Support\Facades\Mail::send('emails.constancia', compact('equipo', 'evento'), function ($message) use ($lider, $evento, $pdf, $nombreArchivo) {
@@ -284,8 +289,8 @@ class ResultadoController extends Controller
             Constancia::create([
                 'id_evento' => $evento->id_evento,
                 'id_equipo' => $equipo->id_equipo,
-                'id_juez' => Auth::id(),
-                'ruta_pdf' => null,
+                'id_juez' => null,
+                'ruta_pdf' => $rutaPdf,
                 'fecha_envio' => now(),
             ]);
 
@@ -311,5 +316,34 @@ class ResultadoController extends Controller
 
         $varianza = $sumaDesviaciones / count($puntajes);
         return round(sqrt($varianza), 2);
+    }
+
+    /**
+     * Descargar PDF de constancia
+     */
+    public function descargarConstancia(Constancia $constancia)
+    {
+        // Verificar que el usuario tenga acceso (juez del evento o admin)
+        $usuario = Auth::user();
+        
+        if (!$usuario) {
+            abort(401, 'No autenticado.');
+        }
+
+        // Verificar si es admin o juez del evento
+        $esAdmin = $usuario->esAdmin();
+        $eventoAsignado = $usuario->eventosAsignados()->where('id_evento', $constancia->id_evento)->exists();
+
+        if (!$esAdmin && !$eventoAsignado) {
+            abort(403, 'No tienes permiso para descargar esta constancia.');
+        }
+
+        // Verificar que el archivo existe
+        if (!$constancia->ruta_pdf || !Storage::disk('public')->exists($constancia->ruta_pdf)) {
+            return back()->with('error', '❌ El archivo de constancia no existe.');
+        }
+
+        // Descargar el archivo
+        return Storage::disk('public')->download($constancia->ruta_pdf);
     }
 }

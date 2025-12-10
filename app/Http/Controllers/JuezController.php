@@ -56,8 +56,11 @@ class JuezController extends Controller
             abort(403, 'Acceso no autorizado.');
         }
 
-        // Obtener todas las constancias generadas por este juez
-        $constancias = Constancia::where('id_juez', $juez->id)
+        // Obtener los eventos asignados al juez
+        $eventosAsignados = $juez->eventosAsignados()->pluck('id_evento')->toArray();
+
+        // Obtener todas las constancias de los eventos donde este juez está asignado
+        $constancias = Constancia::whereIn('id_evento', $eventosAsignados)
             ->with(['evento', 'equipo', 'equipo.lider'])
             ->orderBy('fecha_envio', 'desc')
             ->get();

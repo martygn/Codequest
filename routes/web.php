@@ -199,6 +199,7 @@ Route::middleware(['auth'])->group(function () {
         // Panel principal
         Route::get('/juez/panel', [JuezController::class, 'panel'])->name('juez.panel');
         Route::get('/juez/constancias', [JuezController::class, 'historialConstancias'])->name('juez.constancias');
+        Route::get('/juez/constancias/{constancia}/descargar', [ResultadoController::class, 'descargarConstancia'])->name('juez.constancia.descargar');
         Route::get('/juez/configuracion', [JuezController::class, 'configuracion'])->name('juez.configuracion');
         Route::put('/juez/updateInfo', [JuezController::class, 'updateInfo'])->name('juez.updateInfo');
         Route::put('/juez/updatePassword', [JuezController::class, 'updatePassword'])->name('juez.updatePassword');
