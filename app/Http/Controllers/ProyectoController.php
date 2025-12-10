@@ -78,7 +78,7 @@ class ProyectoController extends Controller
 
         $validated = $request->validate([
             'archivo' => 'required|file|mimes:zip,pdf,pptx|max:10240', // 10MB máximo
-            'descripcion_entrega' => 'nullable|string|max:1000',
+            'comentarios' => 'nullable|string|max:1000',
         ]);
 
         // Crear o actualizar repositorio
@@ -101,7 +101,7 @@ class ProyectoController extends Controller
             $repositorio->archivo_tamaño = $archivo->getSize();
         }
 
-        $repositorio->descripcion = $validated['descripcion_entrega'];
+        $repositorio->descripcion = $validated['comentarios'] ?? null;
         $repositorio->estado = 'enviado';
         $repositorio->enviado_en = $now;
         $repositorio->save();

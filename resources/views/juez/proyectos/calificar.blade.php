@@ -348,9 +348,10 @@
 
     <script>
         function actualizarValor(criterio, valor) {
-            document.getElementById(`valor${criterio.charAt(0).toUpperCase() + criterio.slice(1)}`).textContent = valor;
-            document.getElementById(`desglose${criterio.charAt(0).toUpperCase() + criterio.slice(1)}`).textContent = valor + '/' +
-                (criterio === 'innovacion' || criterio === 'funcionalidad' ? '30' : '20');
+            const valorFormateado = parseFloat(valor).toFixed(1);
+            document.getElementById(`valor${criterio.charAt(0).toUpperCase() + criterio.slice(1)}`).textContent = valorFormateado;
+            const maxValor = (criterio === 'innovacion' || criterio === 'funcionalidad') ? '30' : '20';
+            document.getElementById(`desglose${criterio.charAt(0).toUpperCase() + criterio.slice(1)}`).textContent = valorFormateado + '/' + maxValor;
         }
 
         function calcularTotal() {
