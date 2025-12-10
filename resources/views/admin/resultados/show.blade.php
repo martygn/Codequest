@@ -350,7 +350,7 @@
                                             <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-lg">emoji_events</span>
                                             <div class="flex-1">
                                                 <p class="text-sm font-semibold text-blue-900 dark:text-blue-100">Puntuación Final</p>
-                                                <p class="text-sm text-blue-800 dark:text-blue-200">{{ number_format($ganador['puntaje_promedio'], 2) }}/10</p>
+                                                <p class="text-sm text-blue-800 dark:text-blue-200">{{ number_format($ganador['puntaje_promedio'], 2) }}/100</p>
                                             </div>
                                         </div>
                                     </div>

@@ -60,13 +60,6 @@
                                             </span>
                                         </div>
                                         <p class="text-[#8892B0] max-w-2xl">{{ $miEquipo->descripcion ?? 'Sin descripción disponible.' }}</p>
-
-                                        <div class="mt-4 flex items-center gap-2">
-                                            <span class="text-xs font-bold text-[#64FFDA] uppercase tracking-wider">Código de Acceso:</span>
-                                            <code class="bg-[#0A192F] px-3 py-1 rounded text-[#CCD6F6] font-mono font-bold border border-[#233554] select-all">
-                                                {{ $miEquipo->codigo ?? 'N/A' }}
-                                            </code>
-                                        </div>
                                     </div>
 
                                     <div class="mt-4 md:mt-0 flex items-center gap-2">
@@ -162,12 +155,12 @@
                                             <!-- Estado del proyecto -->
                                             @if($tieneProyectoSubido && $miEquipo->evento)
                                                 <div class="mt-2">
-                                                    @if($miEquipo->repositorio->calificacion_total)
+                                                    @if($miEquipo->calificacion_promedio)
                                                         <div class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
                                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                             </svg>
-                                                            Calificado: {{ $miEquipo->repositorio->calificacion_total }}/100
+                                                            Calificado: {{ $miEquipo->calificacion_promedio }}/100
                                                         </div>
                                                     @else
                                                         <div class="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">

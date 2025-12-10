@@ -109,8 +109,8 @@ class EquipoController extends Controller
                 'nombre' => $equipo->nombre
             ]);
 
-            return redirect()->route('equipos.show', $equipo->id_equipo)
-                ->with('success', '🎉 ¡Equipo creado exitosamente! Tu equipo está ahora en revisión y será visible después de ser aprobado por un administrador.');
+            return redirect()->route('equipos.index')
+                ->with('success', '✅ ¡Equipo creado exitosamente! Tu equipo está ahora en revisión y será visible después de ser aprobado por un administrador.');
 
         } catch (\Exception $e) {
             \Log::error('Error al crear equipo', [
@@ -800,6 +800,21 @@ public function aprobar(Equipo $equipo)
                 $now = \Carbon\Carbon::now();
                 $equipo->evento_en_curso = $now->between($equipo->evento->fecha_inicio, $equipo->evento->fecha_fin);
                 $equipo->evento_finalizado = $now->greaterThan($equipo->evento->fecha_fin);
+            }
+
+            // Calcular promedio de calificaciones de los 3 jueces
+            $calificaciones = \App\Models\CalificacionEquipo::where('equipo_id', $equipo->id_equipo)
+                ->where('evento_id', $equipo->id_evento)
+                ->get();
+
+            if ($calificaciones->count() > 0) {
+                $promedio = $calificaciones->map(function ($cal) {
+                    return $cal->puntaje_innovacion + $cal->puntaje_funcionalidad + 
+                           $cal->puntaje_impacto + $cal->puntaje_presentacion;
+                })->avg();
+                $equipo->calificacion_promedio = round($promedio, 2);
+            } else {
+                $equipo->calificacion_promedio = null;
             }
         }
 

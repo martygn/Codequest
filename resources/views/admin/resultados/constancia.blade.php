@@ -323,7 +323,7 @@
             <!-- Puntuación Final -->
             @if(isset($calificacion))
             <div class="final-score-box" style="margin-top: 30px;">
-                PUNTUACIÓN FINAL: {{ number_format($puntaje_final, 2) }}/10
+                PUNTUACIÓN FINAL: {{ number_format($puntaje_final, 2) }}/100
             </div>
 
             <p style="text-align: center; font-size: 9pt; color: #666; margin-top: 12px;">
