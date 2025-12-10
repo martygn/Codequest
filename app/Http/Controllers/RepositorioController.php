@@ -87,11 +87,11 @@ class RepositorioController extends Controller
         if ($request->hasFile('archivo')) {
             // Eliminar archivo anterior si existe
             if ($repositorio->archivo_path) {
-                Storage::disk('public')->delete($repositorio->archivo_path);
+                Storage::disk(config('filesystems.default'))->delete($repositorio->archivo_path);
             }
 
             $archivo = $request->file('archivo');
-            $ruta = $archivo->store('repositorios', 'public');
+            $ruta = $archivo->store('repositorios');
             $repositorio->archivo_path = $ruta;
             $repositorio->archivo_nombre = $archivo->getClientOriginalName();
             $repositorio->archivo_tamaño = $archivo->getSize() / 1024;
@@ -120,7 +120,7 @@ class RepositorioController extends Controller
             return back()->with('error', '❌ No hay archivo para descargar.');
         }
 
-        return Storage::disk('public')->download($repositorio->archivo_path, $repositorio->archivo_nombre);
+        return Storage::disk(config('filesystems.default'))->download($repositorio->archivo_path, $repositorio->archivo_nombre);
     }
 
     /**
@@ -134,7 +134,7 @@ class RepositorioController extends Controller
 
         // Eliminar archivo si existe
         if ($repositorio->archivo_path) {
-            Storage::disk('public')->delete($repositorio->archivo_path);
+            Storage::disk(config('filesystems.default'))->delete($repositorio->archivo_path);
         }
 
         $equipoId = $repositorio->equipo_id;

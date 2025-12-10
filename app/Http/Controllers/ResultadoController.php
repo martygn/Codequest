@@ -311,7 +311,7 @@ class ResultadoController extends Controller
             
             // Guardar PDF en storage
             $rutaPdf = 'constancias/' . date('Y/m/d') . '/' . $nombreArchivo;
-            Storage::disk('public')->put($rutaPdf, $pdf->output());
+            Storage::disk(config('filesystems.default'))->put($rutaPdf, $pdf->output());
 
             // Guardar registro de constancia en la BD PRIMERO (antes de enviar correo)
             $constancia = Constancia::create([
@@ -389,11 +389,11 @@ class ResultadoController extends Controller
         }
 
         // Verificar que el archivo existe
-        if (!$constancia->ruta_pdf || !Storage::disk('public')->exists($constancia->ruta_pdf)) {
+        if (!$constancia->ruta_pdf || !Storage::disk(config('filesystems.default'))->exists($constancia->ruta_pdf)) {
             return back()->with('error', '❌ El archivo de constancia no existe.');
         }
 
         // Descargar el archivo
-        return Storage::disk('public')->download($constancia->ruta_pdf);
+        return Storage::disk(config('filesystems.default'))->download($constancia->ruta_pdf);
     }
 }

@@ -214,7 +214,7 @@ class AdminController extends Controller
         }
 
         if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('eventos', 'public');
+            $validated['foto'] = $request->file('foto')->store('eventos');
         }
 
         Evento::create($validated);

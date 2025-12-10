@@ -93,7 +93,7 @@ class EquipoController extends Controller
 
         // Manejar la carga del banner
         if ($request->hasFile('banner')) {
-            $validated['banner'] = $request->file('banner')->store('equipos/banners', 'public');
+            $validated['banner'] = $request->file('banner')->store('equipos/banners');
         }
 
         // Crear el equipo
@@ -224,8 +224,8 @@ class EquipoController extends Controller
         // Caso 1: Si solo hay un miembro (el líder) y es el único
         if ($totalMiembros === 1 && $esLider) {
             // Eliminar el equipo completamente
-            if ($equipo->banner && Storage::disk('public')->exists($equipo->banner)) {
-                Storage::disk('public')->delete($equipo->banner);
+            if ($equipo->banner && Storage::disk(config('filesystems.default'))->exists($equipo->banner)) {
+                Storage::disk(config('filesystems.default'))->delete($equipo->banner);
             }
 
             $equipo->delete();
@@ -566,10 +566,10 @@ public function aprobar(Equipo $equipo)
         ]);
 
         if ($request->hasFile('banner')) {
-            if ($equipo->banner && Storage::disk('public')->exists($equipo->banner)) {
-                Storage::disk('public')->delete($equipo->banner);
+            if ($equipo->banner && Storage::disk(config('filesystems.default'))->exists($equipo->banner)) {
+                Storage::disk(config('filesystems.default'))->delete($equipo->banner);
             }
-            $validated['banner'] = $request->file('banner')->store('equipos/banners', 'public');
+            $validated['banner'] = $request->file('banner')->store('equipos/banners');
         }
 
         $equipo->update($validated);
@@ -587,8 +587,8 @@ public function aprobar(Equipo $equipo)
             abort(403, 'Solo los administradores o el líder del equipo pueden eliminarlo.');
         }
 
-        if ($equipo->banner && Storage::disk('public')->exists($equipo->banner)) {
-            Storage::disk('public')->delete($equipo->banner);
+        if ($equipo->banner && Storage::disk(config('filesystems.default'))->exists($equipo->banner)) {
+            Storage::disk(config('filesystems.default'))->delete($equipo->banner);
         }
 
         $equipo->delete();

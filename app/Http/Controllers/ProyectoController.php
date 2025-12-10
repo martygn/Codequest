@@ -99,8 +99,8 @@ class ProyectoController extends Controller
 
         if ($request->hasFile('archivo')) {
             // Eliminar archivo anterior si existe
-            if ($repositorio->archivo_path && Storage::disk('public')->exists($repositorio->archivo_path)) {
-                Storage::disk('public')->delete($repositorio->archivo_path);
+            if ($repositorio->archivo_path && Storage::disk(config('filesystems.default'))->exists($repositorio->archivo_path)) {
+                Storage::disk(config('filesystems.default'))->delete($repositorio->archivo_path);
             }
 
             $archivo = $request->file('archivo');
@@ -151,7 +151,7 @@ class ProyectoController extends Controller
             abort(403, 'No tienes permiso para descargar este proyecto.');
         }
 
-        return Storage::disk('public')->download($repositorio->archivo_path, $repositorio->archivo_nombre);
+        return Storage::disk(config('filesystems.default'))->download($repositorio->archivo_path, $repositorio->archivo_nombre);
     }
 
     /**

@@ -89,7 +89,7 @@ class EventoController extends Controller
         }
 
         if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('eventos', 'public');
+            $validated['foto'] = $request->file('foto')->store('eventos');
         }
 
         Evento::create($validated);
@@ -219,9 +219,9 @@ class EventoController extends Controller
         if ($request->hasFile('foto')) {
             // Eliminar foto anterior si existe
             if ($evento->foto) {
-                Storage::disk('public')->delete($evento->foto);
+                Storage::disk(config('filesystems.default'))->delete($evento->foto);
             }
-            $validated['foto'] = $request->file('foto')->store('eventos', 'public');
+            $validated['foto'] = $request->file('foto')->store('eventos');
         }
 
         $evento->update($validated);
@@ -237,7 +237,7 @@ class EventoController extends Controller
     {
         // Eliminar foto si existe
         if ($evento->foto) {
-            Storage::disk('public')->delete($evento->foto);
+            Storage::disk(config('filesystems.default'))->delete($evento->foto);
         }
 
         $evento->delete();
