@@ -160,7 +160,7 @@
                                             <p class="text-[#CCD6F6]">{{ $miEquipo->nombre_proyecto ?? 'Aún no definido' }}</p>
 
                                             <!-- Estado del proyecto -->
-                                            @if($tieneProyectoSubido)
+                                            @if($tieneProyectoSubido && $miEquipo->evento)
                                                 <div class="mt-2">
                                                     @if($miEquipo->repositorio->calificacion_total)
                                                         <div class="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">

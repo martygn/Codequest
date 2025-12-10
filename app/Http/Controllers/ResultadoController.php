@@ -288,6 +288,31 @@ class ResultadoController extends Controller
                         ]);
                 });
 
+                // ✅ FINALIZAR EVENTO DEL EQUIPO GANADOR
+                // Obtener todos los miembros del equipo ganador
+                $miembros = $equipo->participantes()->pluck('usuario_id')->toArray();
+                
+                // Agregar al líder
+                if ($equipo->id_lider) {
+                    $miembros[] = $equipo->id_lider;
+                }
+                
+                $miembros = array_unique($miembros);
+
+                // Notificar a todos los miembros que el evento ha terminado
+                foreach ($miembros as $miembroId) {
+                    Notificacion::create([
+                        'usuario_id' => $miembroId,
+                        'titulo' => 'Evento finalizado',
+                        'mensaje' => 'El evento "' . $evento->nombre . '" ha finalizado. El equipo "' . $equipo->nombre . '" ha completado su participación.',
+                        'tipo' => 'evento_finalizado',
+                    ]);
+                }
+
+                // Eliminar el evento del equipo (poner en NULL)
+                $equipo->id_evento = null;
+                $equipo->save();
+
                 // Crear notificación para el líder del equipo
                 Notificacion::create([
                     'usuario_id' => $lider->id,
