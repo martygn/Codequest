@@ -102,7 +102,7 @@
                 <!-- Constancias Card -->
                 <div class="bg-card-dark rounded-xl shadow-lg border border-border-dark overflow-hidden">
                     <div class="px-6 py-4 border-b border-border-dark">
-                        <h3 class="text-lg font-bold text-text-dark">Constancias</h3>
+                        <h3 class="text-lg font-bold text-text-dark">Historial de Constancias Enviadas</h3>
                         <p class="text-sm text-text-secondary-dark">Total: {{ count($constancias) }} constancia(s)</p>
                     </div>
 
@@ -113,12 +113,36 @@
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-mono text-primary uppercase tracking-wider">Evento</th>
                                         <th class="px-6 py-3 text-left text-xs font-mono text-primary uppercase tracking-wider">Equipo Ganador</th>
-                                        <th class="px-6 py-3 text-left text-xs font-mono text-primary uppercase tracking-wider">Fecha</th>
-                                        <th class="px-6 py-3 text-left text-xs font-mono text-primary uppercase tracking-wider">Acciones</th>
+                                        <th class="px-6 py-3 text-left text-xs font-mono text-primary uppercase tracking-wider">Líder del Equipo</th>
+                                        <th class="px-6 py-3 text-left text-xs font-mono text-primary uppercase tracking-wider">Fecha de Envío</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-border-dark">
-                                    {{-- Las constancias se cargarán aquí cuando se implemente la BD --}}
+                                    @foreach($constancias as $constancia)
+                                    <tr class="hover:bg-active-dark transition-colors">
+                                        <td class="px-6 py-4 text-sm text-text-dark">
+                                            <div class="flex items-center gap-2">
+                                                <span class="material-symbols-outlined text-primary text-lg">event</span>
+                                                {{ $constancia->evento->nombre }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-text-dark">
+                                            <div class="flex items-center gap-2">
+                                                <span class="material-symbols-outlined text-primary text-lg">groups</span>
+                                                {{ $constancia->equipo->nombre }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-text-secondary-dark">
+                                            <div class="flex items-center gap-2">
+                                                <span class="material-symbols-outlined text-primary text-lg">person</span>
+                                                {{ $constancia->equipo->lider->nombre_completo ?? 'N/A' }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm text-text-secondary-dark">
+                                            {{ $constancia->fecha_envio->format('d/m/Y H:i') }}
+                                        </td>
+                                    </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>

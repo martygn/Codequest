@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Evento;
 use App\Models\CalificacionEquipo;
 use App\Models\Notificacion;
+use App\Models\Constancia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -109,6 +110,19 @@ class ResultadoController extends Controller
         CalificacionEquipo::where('evento_id', $evento->id_evento)
             ->where('equipo_id', $validated['equipo_id'])
             ->update(['ganador' => true]);
+
+        // Crear notificación para el líder del equipo ganador
+        $equipo = \App\Models\Equipo::find($validated['equipo_id']);
+        if ($equipo && $equipo->lider) {
+            $notificacion = new Notificacion();
+            $notificacion->usuario_id = $equipo->lider->id;
+            $notificacion->tipo = 'ganador';
+            $notificacion->titulo = '🏆 ¡Tu equipo es ganador!';
+            $notificacion->mensaje = 'El equipo "' . $equipo->nombre . '" ha sido marcado como ganador en el evento "' . $evento->nombre . '".';
+            $notificacion->enlace = route('admin.resultados.show', $evento->id_evento);
+            $notificacion->leida = false;
+            $notificacion->save();
+        }
 
         return back()->with('success', '✅ Ganador marcado exitosamente.');
     }
@@ -264,6 +278,15 @@ class ResultadoController extends Controller
                 'titulo' => '¡Constancia de ganador enviada!',
                 'mensaje' => "Se ha enviado la constancia de ganador del evento '{$evento->nombre}' a tu correo {$lider->correo}. ¡Felicidades!",
                 'tipo' => 'success',
+            ]);
+
+            // Guardar registro de constancia en la BD
+            Constancia::create([
+                'id_evento' => $evento->id_evento,
+                'id_equipo' => $equipo->id_equipo,
+                'id_juez' => Auth::id(),
+                'ruta_pdf' => null,
+                'fecha_envio' => now(),
             ]);
 
             return back()->with('success', '✅ Constancia enviada exitosamente al correo: ' . $lider->correo);

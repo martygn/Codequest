@@ -98,8 +98,6 @@
                     <ol class="flex items-center gap-2 text-sm">
                         <li><a href="{{ route('juez.panel') }}" class="text-text-secondary-dark hover:text-primary transition-colors">Panel</a></li>
                         <li class="text-text-secondary-dark">/</li>
-                        <li><a href="{{ route('proyecto.juez.listar-juez', $repositorio->evento_id) }}" class="text-text-secondary-dark hover:text-primary transition-colors">Proyectos</a></li>
-                        <li class="text-text-secondary-dark">/</li>
                         <li class="text-primary">Ver Proyecto</li>
                     </ol>
                 </nav>
@@ -248,10 +246,10 @@
                                     <span class="material-symbols-outlined text-sm mr-2">star</span>
                                     {{ $repositorio->calificacion_total ? 'Editar Calificación' : 'Calificar Proyecto' }}
                                 </a>
-                                <a href="{{ route('proyecto.juez.listar-juez', $repositorio->evento_id) }}"
+                                <a href="{{ route('juez.panel') }}"
                                    class="w-full inline-flex items-center justify-center px-4 py-3 text-sm font-bold rounded-lg bg-card-dark border border-border-dark text-text-secondary-dark hover:text-primary hover:border-primary transition-all">
                                     <span class="material-symbols-outlined text-sm mr-2">arrow_back</span>
-                                    Volver a la lista
+                                    Volver al panel
                                 </a>
                             </div>
                         </div>

@@ -120,7 +120,7 @@
                 </div>
 
                 <!-- Estadísticas de resumen -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="bg-card-dark rounded-lg p-6 border border-border-dark hover:border-primary/50 transition-all duration-200">
                         <p class="text-text-secondary-dark text-sm font-semibold mb-2">Equipos Participantes</p>
                         <p class="text-4xl font-bold text-primary">{{ $ranking->count() }}</p>
@@ -132,10 +132,6 @@
                     <div class="bg-card-dark rounded-lg p-6 border border-border-dark hover:border-primary/50 transition-all duration-200">
                         <p class="text-text-secondary-dark text-sm font-semibold mb-2">Promedio General</p>
                         <p class="text-4xl font-bold text-purple-400">{{ number_format($calificaciones->avg('puntaje_final') ?? 0, 2) }}</p>
-                    </div>
-                    <div class="bg-card-dark rounded-lg p-6 border border-border-dark hover:border-primary/50 transition-all duration-200">
-                        <p class="text-text-secondary-dark text-sm font-semibold mb-2">Equipo Ganador</p>
-                        <p class="text-xl font-bold text-yellow-400">{{ $ganador['equipo']->nombre ?? 'No asignado' }}</p>
                     </div>
                 </div>
 
@@ -239,11 +235,10 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left font-semibold text-text-light dark:text-text-dark">Equipo</th>
                                     <th class="px-4 py-3 text-left font-semibold text-text-light dark:text-text-dark">Juez</th>
-                                    <th class="px-4 py-3 text-center font-semibold text-text-light dark:text-text-dark">🎨 Creatividad</th>
-                                    <th class="px-4 py-3 text-center font-semibold text-text-light dark:text-text-dark">⚙️ Funcionalidad</th>
-                                    <th class="px-4 py-3 text-center font-semibold text-text-light dark:text-text-dark">🎯 Diseño</th>
-                                    <th class="px-4 py-3 text-center font-semibold text-text-light dark:text-text-dark">🎤 Presentación</th>
-                                    <th class="px-4 py-3 text-center font-semibold text-text-light dark:text-text-dark">📚 Documentación</th>
+                                    <th class="px-4 py-3 text-center font-semibold text-text-light dark:text-text-dark">💡 Innovación (0-30)</th>
+                                    <th class="px-4 py-3 text-center font-semibold text-text-light dark:text-text-dark">⚙️ Funcionalidad (0-30)</th>
+                                    <th class="px-4 py-3 text-center font-semibold text-text-light dark:text-text-dark">🚀 Impacto (0-20)</th>
+                                    <th class="px-4 py-3 text-center font-semibold text-text-light dark:text-text-dark">🎤 Presentación (0-20)</th>
                                     <th class="px-4 py-3 text-center font-semibold text-text-light dark:text-text-dark">Promedio</th>
                                 </tr>
                             </thead>
@@ -252,16 +247,15 @@
                                     <tr class="border-b border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-gray-900 transition">
                                         <td class="px-4 py-3 font-semibold text-text-light dark:text-text-dark">{{ $calificacion->equipo->nombre }}</td>
                                         <td class="px-4 py-3 text-text-secondary-light dark:text-text-secondary-dark">{{ $calificacion->juez->nombre }}</td>
-                                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded font-semibold">{{ $calificacion->puntaje_creatividad }}</span></td>
-                                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded font-semibold">{{ $calificacion->puntaje_funcionalidad }}</span></td>
-                                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded font-semibold">{{ $calificacion->puntaje_diseño }}</span></td>
-                                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 rounded font-semibold">{{ $calificacion->puntaje_presentacion }}</span></td>
-                                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded font-semibold">{{ $calificacion->puntaje_documentacion }}</span></td>
+                                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded font-semibold">{{ $calificacion->puntaje_innovacion ?? '-' }}</span></td>
+                                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded font-semibold">{{ $calificacion->puntaje_funcionalidad ?? '-' }}</span></td>
+                                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 rounded font-semibold">{{ $calificacion->puntaje_impacto ?? '-' }}</span></td>
+                                        <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 rounded font-semibold">{{ $calificacion->puntaje_presentacion ?? '-' }}</span></td>
                                         <td class="px-4 py-3 text-center"><span class="px-2 py-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 text-gray-900 dark:text-gray-100 rounded font-bold">{{ number_format($calificacion->puntaje_final, 2) }}</span></td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="px-4 py-6 text-center text-text-secondary-light dark:text-text-secondary-dark">
+                                        <td colspan="7" class="px-4 py-6 text-center text-text-secondary-light dark:text-text-secondary-dark">
                                             No hay calificaciones registradas.
                                         </td>
                                     </tr>

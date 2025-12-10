@@ -38,9 +38,20 @@ class EventoController extends Controller
                         ->paginate(10) // 10 ítems por página
                         ->withQueryString(); // Mantiene los filtros al cambiar de página
 
-        // 5. Retornar vista con los datos y el estado actual para marcar la pestaña activa
+        // 5. Obtener información sobre equipos del usuario en otros eventos
+        $usuario = auth()->user();
+        $equipoEnOtroEvento = null;
+        
+        if ($usuario && $usuario->tipo === 'participante') {
+            // Verificar si el usuario es líder de algún equipo que está inscrito en un evento
+            $equipoEnOtroEvento = Equipo::where('id_lider', $usuario->id)
+                ->whereNotNull('id_evento')
+                ->first();
+        }
+
+        // 6. Retornar vista con los datos y el estado actual para marcar la pestaña activa
         $currentStatus = $status;
-        return view('eventos.index', compact('eventos', 'currentStatus'));
+        return view('eventos.index', compact('eventos', 'currentStatus', 'equipoEnOtroEvento'));
     }
 
     /**
@@ -171,7 +182,15 @@ class EventoController extends Controller
         }
 
         // Si tiene múltiples equipos, mostrar formulario para seleccionar
-        return view('eventos.seleccionar-equipo', compact('evento', 'equiposAprobados'));
+        // Verificar si alguno de los equipos ya está en otro evento
+        $equiposEnOtroEvento = [];
+        foreach ($equiposAprobados as $equipo) {
+            if (!is_null($equipo->id_evento) && $equipo->id_evento != $evento->id_evento) {
+                $equiposEnOtroEvento[$equipo->id_equipo] = $equipo->evento;
+            }
+        }
+
+        return view('eventos.seleccionar-equipo', compact('evento', 'equiposAprobados', 'equiposEnOtroEvento'));
     }
 
     /**

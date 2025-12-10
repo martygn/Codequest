@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Equipo;
 use App\Models\Repositorio;
 use App\Models\Evento;
+use App\Models\CalificacionEquipo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -234,6 +235,22 @@ class ProyectoController extends Controller
         ]);
         $repositorio->save();
 
+        // Guardar también en la tabla de calificaciones para el panel de resultados
+        CalificacionEquipo::updateOrCreate(
+            [
+                'juez_id' => $usuario->id,
+                'equipo_id' => $repositorio->equipo->id_equipo,
+                'evento_id' => $repositorio->evento->id_evento,
+            ],
+            [
+                'puntaje_innovacion' => $validated['puntaje_innovacion'],
+                'puntaje_funcionalidad' => $validated['puntaje_funcionalidad'],
+                'puntaje_impacto' => $validated['puntaje_impacto'],
+                'puntaje_presentacion' => $validated['puntaje_presentacion'],
+                'observaciones' => $validated['comentarios'] ?? '',
+            ]
+        );
+
         // Notificar al líder del equipo
         $lider = $repositorio->equipo->lider;
         if ($lider) {
@@ -249,7 +266,7 @@ class ProyectoController extends Controller
             $notificacion->save();
         }
 
-        return redirect()->route('proyecto.juez.listar-juez', $repositorio->evento)
+        return redirect()->route('proyecto.juez.ver-juez', $repositorio)
             ->with('success', 'Proyecto calificado exitosamente.');
     }
 }

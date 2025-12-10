@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Equipo;
 use App\Models\Evento;
+use App\Models\Constancia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
@@ -55,9 +56,11 @@ class JuezController extends Controller
             abort(403, 'Acceso no autorizado.');
         }
 
-        // Aquí se cargarían las constancias generadas por este juez
-        // Por ahora, devolvemos una lista vacía (se implementará con la BD de constancias)
-        $constancias = [];
+        // Obtener todas las constancias generadas por este juez
+        $constancias = Constancia::where('id_juez', $juez->id)
+            ->with(['evento', 'equipo', 'equipo.lider'])
+            ->orderBy('fecha_envio', 'desc')
+            ->get();
 
         return view('juez.constancias', compact('constancias', 'juez'));
     }

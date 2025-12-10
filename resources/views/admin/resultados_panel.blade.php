@@ -130,7 +130,9 @@
                                         {{ $resultado['evento']->fecha_inicio->format('d/m/Y') }} - {{ $resultado['evento']->fecha_fin->format('d/m/Y') }}
                                     </div>
                                 </div>
-                                <span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold border border-primary/20">FINALIZADO</span>
+                                <a href="{{ route('admin.resultados.show', $resultado['evento']->id_evento) }}" class="text-text-secondary-dark hover:text-primary transition-colors text-sm font-bold px-4 py-2 rounded-lg border border-primary/20 hover:border-primary/50">
+                                    Detalles
+                                </a>
                             </div>
 
                             <div class="p-6">
@@ -169,7 +171,6 @@
                                                 <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Puntuación</th>
                                                 <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Jueces</th>
                                                 <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-center">Estado</th>
-                                                <th class="px-6 py-4 text-xs font-mono text-primary uppercase tracking-wider text-right">Detalles</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-border-dark">
@@ -191,11 +192,6 @@
                                                         @else
                                                             <span class="text-xs text-text-secondary-dark">Participante</span>
                                                         @endif
-                                                    </td>
-                                                    <td class="px-6 py-4 text-right">
-                                                        <a href="{{ route('admin.resultados.show', $resultado['evento']->id_evento) }}" class="text-text-secondary-dark hover:text-primary transition-colors text-sm font-medium">
-                                                            Ver Desglose →
-                                                        </a>
                                                     </td>
                                                 </tr>
                                             @endforeach
