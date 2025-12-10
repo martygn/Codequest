@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
@@ -18,6 +18,7 @@
                         "text-dark": "#CCD6F6",
                         "text-secondary-dark": "#8892B0",
                         "border-dark": "#233554",
+                        "active-dark": "rgba(100, 255, 218, 0.1)",
                     },
                     fontFamily: {
                         display: ["Inter", "sans-serif"],
@@ -26,29 +27,40 @@
             },
         };
     </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0A192F; }
+        ::-webkit-scrollbar-thumb { background: #233554; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64FFDA; }
+    </style>
 </head>
-<body class="font-display bg-background-dark text-text-dark">
-    <div class="flex h-screen">
+<body class="bg-background-dark font-display text-text-dark antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+
         <!-- Sidebar -->
         <aside class="w-64 flex-shrink-0 bg-card-dark border-r border-border-dark p-6 flex flex-col justify-between shadow-xl z-20">
             <div>
-                <h1 class="text-2xl font-bold text-primary mb-8">CodeQuest</h1>
-                <nav class="space-y-2">
+                <div class="flex items-center gap-3 mb-8">
+                    <img src="{{ asset('log.png') }}" alt="CodeQuest Logo" class="h-12 w-auto">
+                    <h1 class="text-xl font-bold text-text-dark tracking-tight">CodeQuest</h1>
+                </div>
+
+                <nav class="space-y-1">
                     <a class="flex items-center gap-3 px-4 py-3 text-text-secondary-dark rounded-lg hover:text-primary hover:bg-white/5 transition-all" href="{{ route('dashboard') }}">
                         <span class="material-symbols-outlined">home</span>
                         <span>Panel de control</span>
                     </a>
-                    <a class="flex items-center gap-3 px-4 py-3 text-primary bg-primary/10 rounded-lg font-semibold shadow-sm" href="{{ route('admin.eventos') }}">
+                    <a class="flex items-center gap-3 px-4 py-3 text-text-secondary-dark rounded-lg hover:text-primary hover:bg-white/5 transition-all" href="{{ route('admin.eventos') }}">
                         <span class="material-symbols-outlined">calendar_today</span>
                         <span>Eventos</span>
                     </a>
                     <a class="flex items-center gap-3 px-4 py-3 text-text-secondary-dark rounded-lg hover:text-primary hover:bg-white/5 transition-all" href="{{ route('admin.equipos') }}">
                         <span class="material-symbols-outlined">groups</span>
                         <span>Equipos</span>
-                    </a>
-                    <a class="flex items-center gap-3 px-4 py-3 text-text-secondary-dark rounded-lg hover:text-primary hover:bg-white/5 transition-all" href="{{ route('admin.resultados-panel') }}">
-                        <span class="material-symbols-outlined">emoji_events</span>
-                        <span>Resultados</span>
                     </a>
                     <a class="flex items-center gap-3 px-4 py-3 text-text-secondary-dark rounded-lg hover:text-primary hover:bg-white/5 transition-all" href="{{ route('admin.configuracion') }}">
                         <span class="material-symbols-outlined">settings</span>
@@ -69,33 +81,30 @@
             </div>
         </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 p-8 overflow-y-auto">
-            <div class="max-w-5xl mx-auto">
-                <!-- Header -->
-                <div class="mb-8">
-                    <a href="{{ route('admin.eventos') }}" class="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors mb-6">
-                        <span class="material-symbols-outlined text-xl">arrow_back</span>
-                        <span class="font-semibold">Volver a Eventos</span>
-                    </a>
+        <!-- Contenido principal -->
+        <main class="flex-1 overflow-y-auto bg-background-dark p-8 relative">
 
-                    <div class="flex items-start justify-between">
-                        <div>
-                            <h1 class="text-4xl font-bold text-text-dark mb-4">{{ $evento->nombre }}</h1>
-                            <div class="flex items-center gap-4">
-                                <span class="inline-flex items-center px-4 py-2 text-sm font-semibold rounded-lg
-                                    {{ $evento->estado === 'publicado' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' }}">
-                                    <span class="material-symbols-outlined text-base mr-2">
-                                        {{ $evento->estado === 'publicado' ? 'check_circle' : 'pending' }}
-                                    </span>
-                                    {{ ucfirst($evento->estado) }}
-                                </span>
-                            </div>
-                        </div>
+            <!-- Efecto de fondo -->
+            <div class="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-5xl mx-auto relative z-10">
+
+                <!-- Header con botón de regreso -->
+                <div class="mb-8">
+                    <a href="{{ route('admin.eventos') }}" class="inline-flex items-center gap-2 text-primary hover:text-[#52d6b3] font-medium transition-colors mb-4">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
+                        Volver a Eventos
+                    </a>
+                    <div class="flex items-center justify-between">
+                        <h1 class="text-4xl font-bold text-text-dark">{{ $evento->nombre }}</h1>
+                        <span class="inline-flex items-center px-4 py-2 text-sm font-bold rounded-xl 
+                            {{ $evento->estado === 'publicado' ? 'bg-green-500/10 text-green-400 border border-green-500/30' : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30' }}">
+                            {{ ucfirst($evento->estado) }}
+                        </span>
                     </div>
                 </div>
 
-                <!-- Event Image -->
+                <!-- Foto del evento -->
                 @if($evento->foto)
                 <div class="mb-8 rounded-xl overflow-hidden shadow-2xl border border-border-dark">
                     <img src="{{ Storage::url($evento->foto) }}" alt="{{ $evento->nombre }}" class="w-full h-96 object-cover">
@@ -104,157 +113,146 @@
 
                 <div class="space-y-6">
                     <!-- Descripción -->
-                    <section class="bg-card-dark rounded-xl shadow-lg border border-border-dark p-6 hover:border-primary/30 transition-all">
-                        <div class="flex items-center gap-3 mb-4">
-                            <span class="material-symbols-outlined text-primary text-2xl">description</span>
-                            <h3 class="text-xl font-bold text-text-dark">Descripción</h3>
+                    <div class="bg-card-dark rounded-xl shadow-lg border border-border-dark overflow-hidden">
+                        <div class="px-8 py-6 border-b border-border-dark">
+                            <h3 class="text-xl font-bold text-text-dark flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">description</span>
+                                Descripción
+                            </h3>
                         </div>
-                        <p class="text-text-secondary-dark leading-relaxed whitespace-pre-line pl-9">
-                            {{ $evento->descripcion ?? 'Sin descripción disponible' }}
-                        </p>
-                    </section>
+                        <div class="px-8 py-6">
+                            <p class="text-text-secondary-dark leading-relaxed whitespace-pre-line">
+                                {{ $evento->descripcion ?? 'Sin descripción disponible' }}
+                            </p>
+                        </div>
+                    </div>
 
                     <!-- Reglas -->
-                    <section class="bg-card-dark rounded-xl shadow-lg border border-border-dark p-6 hover:border-primary/30 transition-all">
-                        <div class="flex items-center gap-3 mb-4">
-                            <span class="material-symbols-outlined text-primary text-2xl">rule</span>
-                            <h3 class="text-xl font-bold text-text-dark">Reglas</h3>
+                    <div class="bg-card-dark rounded-xl shadow-lg border border-border-dark overflow-hidden">
+                        <div class="px-8 py-6 border-b border-border-dark">
+                            <h3 class="text-xl font-bold text-text-dark flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">gavel</span>
+                                Reglas
+                            </h3>
                         </div>
-                        <p class="text-text-secondary-dark leading-relaxed whitespace-pre-line pl-9">
-                            {{ $evento->reglas ?? 'Sin reglas especificadas' }}
-                        </p>
-                    </section>
+                        <div class="px-8 py-6">
+                            <p class="text-text-secondary-dark leading-relaxed whitespace-pre-line">
+                                {{ $evento->reglas ?? 'Sin reglas especificadas' }}
+                            </p>
+                        </div>
+                    </div>
 
                     <!-- Premios -->
-                    <section class="bg-card-dark rounded-xl shadow-lg border border-border-dark p-6 hover:border-primary/30 transition-all">
-                        <div class="flex items-center gap-3 mb-4">
-                            <span class="material-symbols-outlined text-primary text-2xl">emoji_events</span>
-                            <h3 class="text-xl font-bold text-text-dark">Premios</h3>
+                    <div class="bg-card-dark rounded-xl shadow-lg border border-border-dark overflow-hidden">
+                        <div class="px-8 py-6 border-b border-border-dark">
+                            <h3 class="text-xl font-bold text-text-dark flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">emoji_events</span>
+                                Premios
+                            </h3>
                         </div>
-                        <p class="text-text-secondary-dark leading-relaxed whitespace-pre-line pl-9">
-                            {{ $evento->premios ?? 'Sin premios especificados' }}
-                        </p>
-                    </section>
+                        <div class="px-8 py-6">
+                            <p class="text-text-secondary-dark leading-relaxed whitespace-pre-line">
+                                {{ $evento->premios ?? 'Sin premios especificados' }}
+                            </p>
+                        </div>
+                    </div>
 
                     <!-- Otra Información -->
                     @if($evento->otra_informacion)
-                    <section class="bg-card-dark rounded-xl shadow-lg border border-border-dark p-6 hover:border-primary/30 transition-all">
-                        <div class="flex items-center gap-3 mb-4">
-                            <span class="material-symbols-outlined text-primary text-2xl">info</span>
-                            <h3 class="text-xl font-bold text-text-dark">Información Adicional</h3>
+                    <div class="bg-card-dark rounded-xl shadow-lg border border-border-dark overflow-hidden">
+                        <div class="px-8 py-6 border-b border-border-dark">
+                            <h3 class="text-xl font-bold text-text-dark flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">info</span>
+                                Información Adicional
+                            </h3>
                         </div>
-                        <p class="text-text-secondary-dark leading-relaxed whitespace-pre-line pl-9">
-                            {{ $evento->otra_informacion }}
-                        </p>
-                    </section>
+                        <div class="px-8 py-6">
+                            <p class="text-text-secondary-dark leading-relaxed whitespace-pre-line">
+                                {{ $evento->otra_informacion }}
+                            </p>
+                        </div>
+                    </div>
                     @endif
 
                     <!-- Fechas Importantes -->
-                    <section class="bg-card-dark rounded-xl shadow-lg border border-border-dark p-6 hover:border-primary/30 transition-all">
-                        <div class="flex items-center gap-3 mb-6">
-                            <span class="material-symbols-outlined text-primary text-2xl">schedule</span>
-                            <h3 class="text-xl font-bold text-text-dark">Fechas Importantes</h3>
+                    <div class="bg-card-dark rounded-xl shadow-lg border border-border-dark overflow-hidden">
+                        <div class="px-8 py-6 border-b border-border-dark">
+                            <h3 class="text-xl font-bold text-text-dark flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">schedule</span>
+                                Fechas Importantes
+                            </h3>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pl-9">
-                            <div class="bg-background-dark rounded-lg p-4 border border-border-dark">
-                                <p class="text-xs font-bold text-text-secondary-dark uppercase tracking-wide mb-2 flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-sm text-green-400">play_circle</span>
-                                    Inicio del Evento
-                                </p>
-                                <p class="text-text-dark font-semibold text-lg">
-                                    {{ \Carbon\Carbon::parse($evento->fecha_inicio)->translatedFormat('d \d\e F \d\e Y, H:i') }}
-                                </p>
-                            </div>
-                            <div class="bg-background-dark rounded-lg p-4 border border-border-dark">
-                                <p class="text-xs font-bold text-text-secondary-dark uppercase tracking-wide mb-2 flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-sm text-red-400">stop_circle</span>
-                                    Fin del Evento
-                                </p>
-                                <p class="text-text-dark font-semibold text-lg">
-                                    {{ \Carbon\Carbon::parse($evento->fecha_fin)->translatedFormat('d \d\e F \d\e Y, H:i') }}
-                                </p>
+                        <div class="px-8 py-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <p class="text-xs font-bold text-text-secondary-dark uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-primary text-lg">play_circle</span>
+                                        Inicio del Evento
+                                    </p>
+                                    <p class="text-text-dark font-semibold text-lg">
+                                        {{ \Carbon\Carbon::parse($evento->fecha_inicio)->translatedFormat('d \d\e F \d\e Y, H:i') }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-text-secondary-dark uppercase tracking-wider mb-2 flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-primary text-lg">stop_circle</span>
+                                        Fin del Evento
+                                    </p>
+                                    <p class="text-text-dark font-semibold text-lg">
+                                        {{ \Carbon\Carbon::parse($evento->fecha_fin)->translatedFormat('d \d\e F \d\e Y, H:i') }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </section>
+                    </div>
 
                     <!-- Equipos Participantes -->
-                    <section class="bg-card-dark rounded-xl shadow-lg border border-border-dark p-6 hover:border-primary/30 transition-all">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="flex items-center gap-3">
-                                <span class="material-symbols-outlined text-primary text-2xl">groups</span>
-                                <h3 class="text-xl font-bold text-text-dark">Equipos Participantes</h3>
-                            </div>
-                            <span class="px-4 py-2 bg-primary/20 text-primary rounded-lg font-bold border border-primary/30">
-                                {{ count($evento->equipos) }} equipos
-                            </span>
+                    <div class="bg-card-dark rounded-xl shadow-lg border border-border-dark overflow-hidden">
+                        <div class="px-8 py-6 border-b border-border-dark">
+                            <h3 class="text-xl font-bold text-text-dark flex items-center gap-3">
+                                <span class="material-symbols-outlined text-primary">group</span>
+                                Equipos Participantes <span class="text-text-secondary-dark text-lg font-normal">({{ count($evento->equipos) }})</span>
+                            </h3>
                         </div>
-
-                        @if(count($evento->equipos) > 0)
-                            <div class="overflow-x-auto rounded-lg border border-border-dark">
-                                <table class="w-full">
-                                    <thead class="bg-background-dark">
-                                        <tr>
-                                            <th class="text-left p-4 text-xs font-bold text-text-secondary-dark uppercase tracking-wider">
-                                                <span class="flex items-center gap-2">
-                                                    <span class="material-symbols-outlined text-sm">badge</span>
-                                                    Nombre del Equipo
-                                                </span>
-                                            </th>
-                                            <th class="text-left p-4 text-xs font-bold text-text-secondary-dark uppercase tracking-wider">
-                                                <span class="flex items-center gap-2">
-                                                    <span class="material-symbols-outlined text-sm">folder</span>
-                                                    Proyecto
-                                                </span>
-                                            </th>
-                                            <th class="text-left p-4 text-xs font-bold text-text-secondary-dark uppercase tracking-wider">
-                                                <span class="flex items-center gap-2">
-                                                    <span class="material-symbols-outlined text-sm">group</span>
-                                                    Miembros
-                                                </span>
-                                            </th>
-                                            <th class="text-left p-4 text-xs font-bold text-text-secondary-dark uppercase tracking-wider">
-                                                <span class="flex items-center gap-2">
-                                                    <span class="material-symbols-outlined text-sm"></span>
-                                                    Estado
-                                                </span>
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-border-dark">
-                                        @foreach($evento->equipos as $equipo)
-                                        <tr class="hover:bg-background-dark/50 transition-colors">
-                                            <td class="p-4 text-text-dark font-semibold">{{ $equipo->nombre }}</td>
-                                            <td class="p-4 text-text-secondary-dark">{{ $equipo->nombre_proyecto }}</td>
-                                            <td class="p-4 text-text-secondary-dark">
-                                                <span class="inline-flex items-center gap-1">
-                                                    <span class="material-symbols-outlined text-sm">person</span>
-                                                    {{ count($equipo->participantes) }}
-                                                </span>
-                                            </td>
-                                            <td class="p-4">
-                                                <span class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg
-                                                    {{ $equipo->estado === 'aprobado' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
-                                                       ($equipo->estado === 'rechazado' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                                                       'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30') }}">
-                                                    <span class="material-symbols-outlined text-sm">
-                                                        {{ $equipo->estado === 'aprobado' ? 'check_circle' :
-                                                           ($equipo->estado === 'rechazado' ? 'cancel' : 'pending') }}
+                        <div class="px-8 py-6">
+                            @if(count($evento->equipos) > 0)
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead>
+                                            <tr class="border-b border-border-dark">
+                                                <th class="text-left px-4 py-3 text-xs font-bold text-primary uppercase tracking-wider">Nombre del Equipo</th>
+                                                <th class="text-left px-4 py-3 text-xs font-bold text-primary uppercase tracking-wider">Proyecto</th>
+                                                <th class="text-left px-4 py-3 text-xs font-bold text-primary uppercase tracking-wider">Miembros</th>
+                                                <th class="text-left px-4 py-3 text-xs font-bold text-primary uppercase tracking-wider">Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-border-dark">
+                                            @foreach($evento->equipos as $equipo)
+                                            <tr class="hover:bg-active-dark transition-colors">
+                                                <td class="px-4 py-4 text-text-dark font-semibold">{{ $equipo->nombre }}</td>
+                                                <td class="px-4 py-4 text-text-secondary-dark">{{ $equipo->nombre_proyecto }}</td>
+                                                <td class="px-4 py-4 text-text-secondary-dark text-center">{{ count($equipo->participantes) }}/4</td>
+                                                <td class="px-4 py-4">
+                                                    <span class="inline-flex items-center px-3 py-1 text-xs font-bold rounded-lg
+                                                        {{ $equipo->estado === 'aprobado' ? 'bg-green-500/10 text-green-400 border border-green-500/30' : 
+                                                           ($equipo->estado === 'rechazado' ? 'bg-red-500/10 text-red-400 border border-red-500/30' : 
+                                                           'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30') }}">
+                                                        {{ ucfirst($equipo->estado) }}
                                                     </span>
-                                                    {{ ucfirst($equipo->estado) }}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                            <div class="text-center py-12 bg-background-dark rounded-lg border border-border-dark">
-                                <span class="material-symbols-outlined text-6xl text-text-secondary-dark mb-4 block opacity-50">group_off</span>
-                                <p class="text-text-secondary-dark text-lg">No hay equipos participantes en este evento</p>
-                            </div>
-                        @endif
-                    </section>
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center py-12">
+                                    <span class="material-symbols-outlined text-6xl text-text-secondary-dark opacity-30 block mb-4">group</span>
+                                    <p class="text-text-secondary-dark">No hay equipos participantes en este evento</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -273,3 +271,4 @@
     </script>
 </body>
 </html>
+

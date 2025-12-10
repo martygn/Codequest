@@ -8,6 +8,8 @@ use App\Models\Notificacion;
 use App\Models\Constancia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ResultadoController extends Controller
@@ -261,37 +263,46 @@ class ResultadoController extends Controller
             $pdf->setOption('isRemoteEnabled', true);
 
             // Nombre del archivo PDF
-            $nombreArchivo = 'Constancia_' . str_replace(' ', '_', $equipo->nombre) . '.pdf';
+            $nombreArchivo = 'Constancia_' . str_replace(' ', '_', $equipo->nombre) . '_' . str_replace(' ', '_', $evento->nombre) . '.pdf';
+            
+            // Guardar PDF en storage
+            $rutaPdf = 'constancias/' . date('Y/m/d') . '/' . $nombreArchivo;
+            Storage::disk('public')->put($rutaPdf, $pdf->output());
 
-            // Enviar correo con PDF adjunto
-            \Illuminate\Support\Facades\Mail::send('emails.constancia', compact('equipo', 'evento'), function ($message) use ($lider, $evento, $pdf, $nombreArchivo) {
-                $message->to($lider->correo, $lider->nombre_completo)
-                    ->subject('🏆 Constancia de Ganador - ' . $evento->nombre)
-                    ->attachData($pdf->output(), $nombreArchivo, [
-                        'mime' => 'application/pdf',
-                    ]);
-            });
-
-            // Crear notificación para el líder del equipo
-            Notificacion::create([
-                'usuario_id' => $lider->id,
-                'titulo' => '¡Constancia de ganador enviada!',
-                'mensaje' => "Se ha enviado la constancia de ganador del evento '{$evento->nombre}' a tu correo {$lider->correo}. ¡Felicidades!",
-                'tipo' => 'success',
-            ]);
-
-            // Guardar registro de constancia en la BD
-            Constancia::create([
+            // Guardar registro de constancia en la BD PRIMERO (antes de enviar correo)
+            $constancia = Constancia::create([
                 'id_evento' => $evento->id_evento,
                 'id_equipo' => $equipo->id_equipo,
-                'id_juez' => Auth::id(),
-                'ruta_pdf' => null,
+                'id_juez' => null,
+                'ruta_pdf' => $rutaPdf,
                 'fecha_envio' => now(),
             ]);
 
-            return back()->with('success', '✅ Constancia enviada exitosamente al correo: ' . $lider->correo);
+            // Luego intentar enviar correo
+            try {
+                Mail::send('emails.constancia', compact('equipo', 'evento'), function ($message) use ($lider, $evento, $pdf, $nombreArchivo) {
+                    $message->to($lider->correo, $lider->nombre_completo)
+                        ->subject('🏆 Constancia de Ganador - ' . $evento->nombre)
+                        ->attachData($pdf->output(), $nombreArchivo, [
+                            'mime' => 'application/pdf',
+                        ]);
+                });
+
+                // Crear notificación para el líder del equipo
+                Notificacion::create([
+                    'usuario_id' => $lider->id,
+                    'titulo' => '¡Constancia de ganador enviada!',
+                    'mensaje' => "Se ha enviado la constancia de ganador del evento '{$evento->nombre}' a tu correo {$lider->correo}. ¡Felicidades!",
+                    'tipo' => 'success',
+                ]);
+
+                return back()->with('success', '✅ Constancia enviada exitosamente al correo: ' . $lider->correo);
+            } catch (\Exception $mailError) {
+                // Si el correo falla, la constancia ya está guardada en BD
+                return back()->with('warning', '⚠️ Constancia guardada pero hubo un error al enviar el correo: ' . $mailError->getMessage());
+            }
         } catch (\Exception $e) {
-            return back()->with('error', '❌ Error al enviar el correo: ' . $e->getMessage());
+            return back()->with('error', '❌ Error al generar la constancia: ' . $e->getMessage());
         }
     }
 
@@ -311,5 +322,34 @@ class ResultadoController extends Controller
 
         $varianza = $sumaDesviaciones / count($puntajes);
         return round(sqrt($varianza), 2);
+    }
+
+    /**
+     * Descargar PDF de constancia
+     */
+    public function descargarConstancia(Constancia $constancia)
+    {
+        // Verificar que el usuario tenga acceso (juez del evento o admin)
+        $usuario = Auth::user();
+        
+        if (!$usuario) {
+            abort(401, 'No autenticado.');
+        }
+
+        // Verificar si es admin o juez del evento
+        $esAdmin = $usuario->esAdmin();
+        $eventoAsignado = $usuario->eventosAsignados()->where('id_evento', $constancia->id_evento)->exists();
+
+        if (!$esAdmin && !$eventoAsignado) {
+            abort(403, 'No tienes permiso para descargar esta constancia.');
+        }
+
+        // Verificar que el archivo existe
+        if (!$constancia->ruta_pdf || !Storage::disk('public')->exists($constancia->ruta_pdf)) {
+            return back()->with('error', '❌ El archivo de constancia no existe.');
+        }
+
+        // Descargar el archivo
+        return Storage::disk('public')->download($constancia->ruta_pdf);
     }
 }
