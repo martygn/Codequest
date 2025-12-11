@@ -93,7 +93,7 @@ class EquipoController extends Controller
 
         // Manejar la carga del banner
         if ($request->hasFile('banner')) {
-            $validated['banner'] = $request->file('banner')->store('equipos/banners');
+            $validated['banner'] = $request->file('banner')->store('equipos/banners', 'r2');
         }
 
         // Crear el equipo
@@ -566,10 +566,12 @@ public function aprobar(Equipo $equipo)
         ]);
 
         if ($request->hasFile('banner')) {
-            if ($equipo->banner && Storage::disk(config('filesystems.default'))->exists($equipo->banner)) {
-                Storage::disk(config('filesystems.default'))->delete($equipo->banner);
+            if ($equipo->banner) {
+                Storage::disk('r2')->delete($equipo->banner);
             }
-            $validated['banner'] = $request->file('banner')->store('equipos/banners');
+            
+            // Guardar nuevo en R2
+            $validated['banner'] = $request->file('banner')->store('equipos/banners', 'r2');
         }
 
         $equipo->update($validated);
