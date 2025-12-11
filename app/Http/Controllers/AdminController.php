@@ -298,46 +298,35 @@ class AdminController extends Controller
         $usuario = auth()->user();
         if (!$usuario || !method_exists($usuario, 'esAdmin') || !$usuario->esAdmin()) { abort(403, 'Acceso no autorizado.'); }
 
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido_paterno' => 'nullable|string|max:255',
+            'apellido_materno' => 'nullable|string|max:255',
+            'correo' => 'required|email|unique:usuarios,correo'
+        ]);
+
+        $password = Str::random(10);
+
+        $juez = new Usuario();
+        $juez->nombre = $validated['nombre'];
+        $juez->apellido_paterno = $validated['apellido_paterno'] ?? null;
+        $juez->apellido_materno = $validated['apellido_materno'] ?? null;
+        $juez->correo = $validated['correo'];
+        $juez->password = $password; // el mutator del modelo hace el hash
+        $juez->tipo = 'juez';
+        $juez->save();
+
         try {
-            $validated = $request->validate([
-                'nombre' => 'required|string|max:255',
-                'apellido_paterno' => 'nullable|string|max:255',
-                'apellido_materno' => 'nullable|string|max:255',
-                'correo' => 'required|email|unique:usuarios,correo'
-            ]);
-
-            $password = Str::random(10);
-
-            $juez = new Usuario();
-            $juez->nombre = $validated['nombre'];
-            $juez->apellido_paterno = $validated['apellido_paterno'] ?? null;
-            $juez->apellido_materno = $validated['apellido_materno'] ?? null;
-            $juez->correo = $validated['correo'];
-            $juez->password = $password; // el mutator del modelo hace el hash
-            $juez->tipo = 'juez';
-            $juez->save();
-
-            $emailEnviado = false;
-
-            // Intentar enviar correo solo si está configurado
-            if (config('mail.default') && config('mail.default') !== 'log') {
-                try {
-                    Mail::send('emails.juez_credentials', ['juez' => $juez, 'password' => $password], function ($m) use ($juez) {
-                        $m->to($juez->correo, $juez->nombre_completo)->subject('Tus credenciales como Juez - CodeQuest');
-                    });
-                    $emailEnviado = true;
-                } catch (\Exception $e) {
-                    // No fallar si el correo no se puede enviar
-                    \Log::warning('No se pudo enviar correo al juez: ' . $e->getMessage());
-                }
-            }
-
-            // Mostrar las credenciales en una vista de confirmación
-            return view('admin.jueces.credentials', compact('juez', 'password', 'emailEnviado'));
+            Mail::send('emails.juez_credentials', ['juez' => $juez, 'password' => $password], function ($m) use ($juez) {
+                $m->to($juez->correo, $juez->nombre_completo)->subject('Tus credenciales como Juez - CodeQuest');
+            });
+            $emailEnviado = true;
         } catch (\Exception $e) {
-            \Log::error('Error al crear juez: ' . $e->getMessage());
-            return back()->with('error', '❌ Error al crear el juez: ' . $e->getMessage())->withInput();
+            $emailEnviado = false;
         }
+
+        // Mostrar las credenciales en una vista de confirmación
+        return view('admin.jueces.credentials', compact('juez', 'password', 'emailEnviado'));
     }
 
     /**
