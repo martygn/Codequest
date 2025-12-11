@@ -182,55 +182,54 @@
         @if($equiposDestacados->count() > 0)
             <div class="relative">
                 <!-- Duplicamos el contenido para efecto infinito -->
-                <div class="flex animate-infinite-scroll gap-10">
+                <div class="flex animate-infinite-scroll gap-8">
                     @foreach($equiposDestacados->merge($equiposDestacados)->merge($equiposDestacados) as $equipo)
-                        <div class="flex-none w-80 group">
-                            <div class="relative bg-gradient-to-br from-[#112240]/90 to-[#1a2a44] rounded-3xl overflow-hidden border border-[#233554] 
-                                        hover:border-[#64FFDA] hover:shadow-2xl hover:shadow-[#64FFDA]/20 
-                                        transition-all duration-500 hover:-translate-y-6">
-                                
-                                <!-- Efecto neón en el borde -->
-                                <div class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 
-                                            bg-gradient-to-br from-[#64FFDA]/10 blur-xl transition"></div>
+                        <div class="flex-none w-96 group">
+                            <div class="relative bg-gradient-to-br from-[#112240] to-[#0A192F] rounded-2xl overflow-hidden border border-[#233554]
+                                        hover:border-[#64FFDA] hover:shadow-2xl hover:shadow-[#64FFDA]/20
+                                        transition-all duration-500 hover:-translate-y-2 h-full flex flex-col">
 
-                                <!-- Avatar grande con brillo -->
-                                <div class="relative z-10 flex justify-center -mt-16 mb-6">
-                                    <div class="relative">
-                                        <div class="w-32 h-32 rounded-full bg-gradient-to-br from-[#64FFDA] to-[#00D4AA] p-1 
-                                                    shadow-2xl shadow-[#64FFDA]/30 group-hover:scale-110 transition">
-                                            <div class="w-full h-full rounded-full bg-[#0A192F] flex items-center justify-center 
-                                                        text-5xl font-black text-[#64FFDA] border-4 border-[#112240]">
-                                                {{ strtoupper(substr($equipo->nombre, 0, 2)) }}
-                                            </div>
-                                        </div>
-                                        <!-- Halo neón -->
-                                        <div class="absolute inset-0 rounded-full bg-[#64FFDA] blur-2xl opacity-30 
-                                                    group-hover:opacity-60 transition"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Contenido -->
-                                <div class="relative z-10 px-8 pb-8 text-center">
-                                    <h3 class="text-2xl font-bold text-[#CCD6F6] mb-2 group-hover:text-[#64FFDA] transition">
-                                        {{ $equipo->nombre }}
-                                    </h3>
-                                    <p class="text-[#64FFDA] font-bold text-lg mb-4">
-                                        {{ $equipo->participantes_count ?? $equipo->participantes->count() }} Miembros
-                                    </p>
-
-                                    @if($equipo->evento)
-                                        <div class="inline-flex items-center gap-2 bg-[#64FFDA]/10 text-[#64FFDA] px-4 py-2 
-                                                    rounded-full text-sm font-bold mb-6 border border-[#64FFDA]/30">
-                                            <span class="material-symbols-outlined text-base">trophy</span>
-                                            {{ Str::limit($equipo->evento->nombre, 20) }}
+                                <!-- Banner del equipo -->
+                                <div class="relative h-48 bg-gradient-to-br from-[#233554] to-[#112240] overflow-hidden">
+                                    @if($equipo->banner)
+                                        <img src="{{ config('filesystems.disks.r2.url') . '/' . $equipo->banner }}"
+                                             alt="Banner {{ $equipo->nombre }}"
+                                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                             onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'w-full h-full bg-gradient-to-br from-[#64FFDA]/20 to-[#00D4AA]/20 flex items-center justify-center\'><span class=\'material-symbols-outlined text-[#64FFDA] text-7xl\'>groups</span></div>';">
+                                    @else
+                                        <div class="w-full h-full bg-gradient-to-br from-[#64FFDA]/20 to-[#00D4AA]/20 flex items-center justify-center">
+                                            <span class="material-symbols-outlined text-[#64FFDA] text-7xl">groups</span>
                                         </div>
                                     @endif
+                                    <!-- Overlay gradiente -->
+                                    <div class="absolute inset-0 bg-gradient-to-t from-[#112240] via-transparent to-transparent"></div>
+
+                                    <!-- Badge del evento -->
+                                    @if($equipo->evento)
+                                        <div class="absolute top-4 right-4 bg-[#64FFDA]/90 backdrop-blur-sm text-[#0A192F] px-3 py-1.5 rounded-full text-xs font-bold border border-[#64FFDA] shadow-lg flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-sm">trophy</span>
+                                            {{ Str::limit($equipo->evento->nombre, 15) }}
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <!-- Contenido del equipo -->
+                                <div class="relative flex-1 p-6 flex flex-col">
+                                    <h3 class="text-2xl font-bold text-[#CCD6F6] mb-3 group-hover:text-[#64FFDA] transition line-clamp-1">
+                                        {{ $equipo->nombre }}
+                                    </h3>
+
+                                    <div class="flex items-center gap-2 text-[#8892B0] mb-6">
+                                        <span class="material-symbols-outlined text-[#64FFDA]">group</span>
+                                        <span class="font-bold text-[#64FFDA]">{{ $equipo->participantes_count ?? $equipo->participantes->count() }}</span>
+                                        <span>Miembros</span>
+                                    </div>
 
                                     <a href="{{ route('equipos.show', $equipo->id_equipo) }}"
-                                       class="inline-flex items-center gap-3 px-8 py-4 mt-6 bg-gradient-to-r from-[#64FFDA] to-[#00D4AA] 
-                                              text-[#0A192F] rounded-2xl font-black text-lg hover:shadow-xl hover:shadow-[#64FFDA]/40 
-                                              transition-all duration-300 transform hover:scale-105">
-                                        <span class="material-symbols-outlined text-2xl">visibility</span>
+                                       class="mt-auto w-full text-center py-3 bg-gradient-to-r from-[#64FFDA] to-[#00D4AA]
+                                              text-[#0A192F] rounded-xl font-bold hover:shadow-lg hover:shadow-[#64FFDA]/40
+                                              transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2">
+                                        <span class="material-symbols-outlined">visibility</span>
                                         Ver Perfil
                                     </a>
                                 </div>
