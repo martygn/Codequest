@@ -96,10 +96,10 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 xl:gap-12">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-10">
 
                     {{-- Columna Izquierda: Info --}}
-                    <div class="xl:col-span-2 space-y-10 order-2 xl:order-1">
+                    <div class="lg:col-span-2 space-y-10 order-2 lg:order-1">
                         
                         {{-- Proyecto --}}
                         <div class="bg-gradient-to-br from-[#64FFDA]/5 to-transparent p-8 rounded-2xl border border-[#64FFDA]/20">
@@ -140,7 +140,7 @@
                     </div>
 
                     {{-- Columna Derecha: Miembros y Solicitudes --}}
-                    <div class="space-y-10 order-1 xl:order-2">
+                    <div class="space-y-10 order-1 lg:order-2">
                         
                         {{-- Miembros --}}
                         <div>
