@@ -118,7 +118,7 @@
     <div class="relative group">
         <div class="overflow-hidden rounded-2xl">
             <div class="flex animate-scroll hover:pause">
-                @foreach($eventosProximos->concat($eventosProximos)->take(12) as $evento)
+                @foreach($eventosProximos as $evento)
                     <div class="flex-none w-96 px-4">
                         <div class="bg-gradient-to-br from-[#112240] to-[#0A192F] rounded-2xl overflow-hidden border border-[#233554] shadow-2xl hover:shadow-[#64FFDA]/20 transition-all hover:scale-105">
                             <div class="relative">
@@ -146,16 +146,6 @@
                 @endforeach
             </div>
         </div>
-
-        <!-- Flechas (opcional) -->
-        <button class="absolute left-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-r-xl backdrop-blur-sm opacity-0 group-hover:opacity-100 transition">
-            <span class="material-symbols-outlined">chevron_left</span>
-        </button>
-        <button class="absolute right-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-l-xl backdrop-blur-sm opacity-0 group-hover:opacity-100 transition">
-            <span class="material-symbols-outlined">chevron_right</span>
-        </button>
-    </div>
-</div>
 
 <style>
     @keyframes scroll {

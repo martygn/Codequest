@@ -223,3 +223,10 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('repositorios', RepositorioController::class)->except(['index', 'create']);
     Route::resource('resultados', ResultadoController::class)->only(['index', 'show']);
 });
+
+// ==========================================
+//    RUTA FALLBACK - 404 PERSONALIZADO
+// ==========================================
+Route::fallback(function () {
+    return response()->view('errors.404', [], 404);
+});

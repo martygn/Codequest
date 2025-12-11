@@ -50,9 +50,8 @@ class DashboardController extends Controller
             return redirect()->route('juez.panel');
         }
 
-        // Obtener próximos eventos
-        $eventosProximos = Evento::where('fecha_inicio', '>=', Carbon::now())
-            ->orderBy('fecha_inicio', 'asc')
+        // Obtener todos los eventos (sin filtro de estado)
+        $eventosProximos = Evento::orderBy('fecha_inicio', 'desc') // Ordenar por más recientes primero
             ->take(12) // más eventos = carrusel más lleno
             ->get();
 
