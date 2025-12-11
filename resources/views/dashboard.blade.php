@@ -122,10 +122,17 @@
                     <div class="flex-none w-96 px-4">
                         <div class="bg-gradient-to-br from-[#112240] to-[#0A192F] rounded-2xl overflow-hidden border border-[#233554] shadow-2xl hover:shadow-[#64FFDA]/20 transition-all hover:scale-105">
                             <div class="relative">
-                                <img src="{{ $evento->imagen ? Storage::disk('r2')->url($evento->imagen) : asset('images/event-default.jpg') }}"
-                                     alt="{{ $evento->nombre }}"
-                                     class="w-full h-64 object-cover">
-                                <div class="absolute top-4 right-4 bg-[#64FF6B6B]/90 text-white px-4 py-2 rounded-full font-bold text-sm backdrop-blur-sm">
+                                @if($evento->foto)
+                                    <img src="{{ config('filesystems.disks.r2.url') . '/' . $evento->foto }}"
+                                         alt="{{ $evento->nombre }}"
+                                         class="w-full h-64 object-cover"
+                                         onerror="this.onerror=null; this.src='{{ asset('images/event-default.jpg') }}';">
+                                @else
+                                    <div class="w-full h-64 bg-gradient-to-br from-[#112240] to-[#0A192F] flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-[#64FFDA] text-8xl">event</span>
+                                    </div>
+                                @endif
+                                <div class="absolute top-4 right-4 bg-[#64FFDA]/90 text-white px-4 py-2 rounded-full font-bold text-sm backdrop-blur-sm">
                                     {{ $evento->fecha_inicio->format('d M Y') }}
                                 </div>
                             </div>
