@@ -76,7 +76,11 @@ Route::middleware(['auth'])->group(function () {
     // Mis eventos
     Route::get('/mis-eventos', [EventoController::class, 'misEventos'])->name('player.eventos');
     Route::get('/eventos/disponibles', [EventoController::class, 'disponibles'])->name('eventos.disponibles');
-
+    // Ruta para que el jugador vea su proyecto subido
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/mis-equipos/proyecto/{repositorio}/ver', [App\Http\Controllers\ProyectoController::class, 'verPlayer'])
+            ->name('proyecto.ver-player');
+    });
     // ==========================================
     //       GESTIÓN DE EVENTOS
     // ==========================================
@@ -106,7 +110,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/equipos/{equipo}/salir', [EquipoController::class, 'salir'])->name('equipos.salir');
     Route::post('/equipos/{equipo}/quitar-evento', [EquipoController::class, 'quitarEvento'])->name('equipos.quitar-evento');
     Route::patch('/equipos/{equipo}/update-status', [EquipoController::class, 'updateStatus'])->name('equipos.update-status');
-
+    
     // ==========================================
     //    PROYECTOS / REPOSITORIOS
     // ==========================================

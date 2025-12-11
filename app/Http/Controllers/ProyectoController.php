@@ -279,4 +279,16 @@ class ProyectoController extends Controller
         return redirect()->route('proyecto.juez.ver-juez', $repositorio)
             ->with('success', 'Proyecto calificado exitosamente.');
     }
+        /**
+     * Vista del proyecto subido para el jugador (iframe + botón descargar)
+     */
+    public function verPlayer(Repositorio $repositorio)
+    {
+        // Verificar que el usuario pertenece al equipo
+        if (!auth()->user()->equipos->contains($repositorio->equipo)) {
+            abort(403, 'No tienes permiso para ver este proyecto.');
+        }
+
+        return view('player.proyecto.ver', compact('repositorio'));
+    }
 }
