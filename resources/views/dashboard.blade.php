@@ -108,132 +108,161 @@
             }
         </script>
 
-        {{-- Próximos Eventos Carrusel --}}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-    <div class="flex items-center justify-between mb-8">
-        <h2 class="text-3xl font-bold text-[#CCD6F6]">Próximos Eventos</2>
-        <div class="h-px flex-1 bg-[#233554] ml-6"></div>
-    </div>
+        <!-- Próximos Eventos - Carrusel Infinito -->
+<div class="mb-16">
+    <h2 class="text-4xl font-bold text-[#CCD6F6] mb-8 flex items-center gap-4">
+        <span class="material-symbols-outlined text-[#64FFDA] text-5xl">event</span>
+        Próximos Eventos
+    </h2>
 
-    <div class="relative">
-        @if(count($proximosEventos) > 0)
-        <style>
-            @keyframes carouselSlide { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-            .carousel-track { animation: carouselSlide 40s linear infinite; }
-            .carousel-track:hover { animation-play-state: paused; }
-        </style>
-        
-        <div class="overflow-hidden py-4">
-            <div class="carousel-track flex gap-8">
-                @foreach($proximosEventos->merge($proximosEventos) as $evento)
-                <div class="flex-shrink-0 w-96 bg-[#112240] rounded-2xl shadow-xl border border-[#233554] overflow-hidden hover:border-[#64FFDA] transition-all group hover:-translate-y-2">
-                    <div class="h-48 bg-[#0A192F] relative overflow-hidden">
-                        @if($evento->foto)
-                            <img src="{{ Storage::disk('r2')->url($evento->foto) }}"
-                                 alt="{{ $evento->nombre }}"
-                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1F63E1]/20 to-[#64FFDA]/20">
-                                <span class="text-5xl font-bold text-[#64FFDA]/50">{{ Str::upper(substr($evento->nombre, 0, 2)) }}</span>
+    <div class="relative group">
+        <div class="overflow-hidden rounded-2xl">
+            <div class="flex animate-scroll hover:pause">
+                @foreach($eventosProximos->concat($eventosProximos)->take(12) as $evento)
+                    <div class="flex-none w-96 px-4">
+                        <div class="bg-gradient-to-br from-[#112240] to-[#0A192F] rounded-2xl overflow-hidden border border-[#233554] shadow-2xl hover:shadow-[#64FFDA]/20 transition-all hover:scale-105">
+                            <div class="relative">
+                                <img src="{{ $evento->imagen ? Storage::disk('r2')->url($evento->imagen) : asset('images/event-default.jpg') }}"
+                                     alt="{{ $evento->nombre }}"
+                                     class="w-full h-64 object-cover">
+                                <div class="absolute top-4 right-4 bg-[#64FF6B6B]/90 text-white px-4 py-2 rounded-full font-bold text-sm backdrop-blur-sm">
+                                    {{ $evento->fecha_inicio->format('d M Y') }}
+                                </div>
                             </div>
-                        @endif
-                        <div class="absolute top-4 right-4 bg-[#0A192F]/90 backdrop-blur text-[#64FFDA] text-xs font-mono py-2 px-4 rounded border border-[#64FFDA]/30 shadow-lg">
-                            {{ \Carbon\Carbon::parse($evento->fecha_inicio)->format('d M Y') }}
+                            <div class="p-6">
+                                <h3 class="text-2xl font-bold text-[#64FFDA] mb-2">{{ $evento->nombre }}</h3>
+                                <p class="text-[#8892B0] mb-4 line-clamp-2">{{ $evento->descripcion }}</p>
+                                <div class="flex items-center gap-2 text-sm text-[#64FFDA] mb-4">
+                                    <span class="material-symbols-outlined text-lg">location_on</span>
+                                    <span>{{ $evento->ubicacion ?? 'Virtual' }}</span>
+                                </div>
+                                <a href="{{ route('eventos.show', $evento) }}"
+                                   class="block w-full text-center py-3 bg-[#64FFDA] text-[#0A192F] rounded-xl font-bold hover:bg-[#52d6b3] transition-all shadow-lg">
+                                    Ver Detalles
+                                </a>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl text-[#CCD6F6] mb-2 truncate group-hover:text-[#64FFDA] transition-colors">
-                            {{ $evento->nombre }}
-                        </h3>
-                        @if($evento->lugar)
-                        <p class="text-[#8892B0] text-sm mb-4 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-base">location_on</span>
-                            {{ Str::limit($evento->lugar, 30) }}
-                        </p>
-                        @endif
-                        <a href="{{ route('eventos.show', $evento->id_evento) }}"
-                           class="block w-full text-center py-3 rounded-lg border border-[#233554] text-[#64FFDA font-bold hover:bg-[#64FFDA] hover:text-[#0A192F] transition-all">
-                            Ver Detalles
-                        </a>
-                    </div>
-                </div>
                 @endforeach
             </div>
         </div>
-        @else
-        <div class="text-center py-16 bg-[#112240] rounded-2xl border border-dashed border-[#233554]">
-            <span class="material-symbols-outlined text-6xl text-[#233554] mb-4">event_busy</span>
-            <p class="text-[#8892B0] text-lg">No hay eventos próximos disponibles</p>
-        </div>
-        @endif
+
+        <!-- Flechas (opcional) -->
+        <button class="absolute left-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-r-xl backdrop-blur-sm opacity-0 group-hover:opacity-100 transition">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button class="absolute right-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-3 rounded-l-xl backdrop-blur-sm opacity-0 group-hover:opacity-100 transition">
+            <span class="material-symbols-outlined">chevron_right</span>
+        </button>
     </div>
 </div>
 
-        {{-- Equipos Destacados Carrusel --}}
-<div class="bg-[#0D1B2A] py-16 border-t border-[#233554]">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-3xl font-bold text-[#CCD6F6]">Equipos Destacados</h2>
-            <div class="h-px flex-1 bg-[#233554 ml-6"></div>
+<style>
+    @keyframes scroll {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+    .animate-scroll {
+        display: flex;
+        width: max-content;
+        animation: scroll 30s linear infinite;
+    }
+    .hover\:pause:hover {
+        animation-play-state: paused;
+    }
+</style>
+
+        {{-- Equipos Destacados - CARRUSEL NEÓN INFINITO (versión definitiva) --}}
+<div class="bg-gradient-to-b from-[#0A192F] via-[#0D1B2A] to-[#0A192F] py-20 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+            <h2 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#64FFDA] to-[#00D4AA] mb-4">
+                Equipos Destacados
+            </h2>
+            <p class="text-[#8892B0] text-lg">Los más activos y creativos del hackatón</p>
         </div>
 
-        <div class="relative" id="equiposCarouselWrapper">
-            @if(count($equiposDestacados) > 0)
-            <style>
-                @keyframes equiposCarouselSlide {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(calc(-384px * {{ count($equiposDestacados) }})); }
-                }
-                .equipos-carousel-track { animation: equiposCarouselSlide 35s linear infinite; }
-                .equipos-carousel-track:hover { animation-play-state: paused; }
-            </style>
-            
-            <div class="overflow-hidden py-4">
-                <div class="equipos-carousel-track flex gap-8">
-                    @foreach($equiposDestacados->merge($equiposDestacados) as $equipo) {{-- Duplicamos para efecto infinito --}}
-                    <div class="flex-shrink-0 w-80 bg-[#112240] rounded-2xl shadow-lg border border-[#233554] p-6 hover:border-[#64FFDA] transition-all duration-300 group hover:-translate-y-2">
-                        <div class="flex justify-center -mt-12 mb-4">
-                            <div class="w-24 h-24 rounded-full border-4 border-[#0D1B2A] bg-[#0A192F] overflow-hidden flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                @if($equipo->banner)
-                                    <img src="{{ Storage::disk('r2')->url($equipo->banner) }}"
-                                         alt="{{ $equipo->nombre }}"
-                                         class="w-full h-full object-cover">
-                                @else
-                                    <span class="text-3xl font-bold text-[#64FFDA]">
-                                        {{ strtoupper(substr($equipo->nombre, 0, 2)) }}
-                                    </span>
-                                @endif
+        @if($equiposDestacados->count() > 0)
+            <div class="relative">
+                <!-- Duplicamos el contenido para efecto infinito -->
+                <div class="flex animate-infinite-scroll gap-10">
+                    @foreach($equiposDestacados->merge($equiposDestacados)->merge($equiposDestacados) as $equipo)
+                        <div class="flex-none w-80 group">
+                            <div class="relative bg-gradient-to-br from-[#112240]/90 to-[#1a2a44] rounded-3xl overflow-hidden border border-[#233554] 
+                                        hover:border-[#64FFDA] hover:shadow-2xl hover:shadow-[#64FFDA]/20 
+                                        transition-all duration-500 hover:-translate-y-6">
+                                
+                                <!-- Efecto neón en el borde -->
+                                <div class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 
+                                            bg-gradient-to-br from-[#64FFDA]/10 blur-xl transition"></div>
+
+                                <!-- Avatar grande con brillo -->
+                                <div class="relative z-10 flex justify-center -mt-16 mb-6">
+                                    <div class="relative">
+                                        <div class="w-32 h-32 rounded-full bg-gradient-to-br from-[#64FFDA] to-[#00D4AA] p-1 
+                                                    shadow-2xl shadow-[#64FFDA]/30 group-hover:scale-110 transition">
+                                            <div class="w-full h-full rounded-full bg-[#0A192F] flex items-center justify-center 
+                                                        text-5xl font-black text-[#64FFDA] border-4 border-[#112240]">
+                                                {{ strtoupper(substr($equipo->nombre, 0, 2)) }}
+                                            </div>
+                                        </div>
+                                        <!-- Halo neón -->
+                                        <div class="absolute inset-0 rounded-full bg-[#64FFDA] blur-2xl opacity-30 
+                                                    group-hover:opacity-60 transition"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Contenido -->
+                                <div class="relative z-10 px-8 pb-8 text-center">
+                                    <h3 class="text-2xl font-bold text-[#CCD6F6] mb-2 group-hover:text-[#64FFDA] transition">
+                                        {{ $equipo->nombre }}
+                                    </h3>
+                                    <p class="text-[#64FFDA] font-bold text-lg mb-4">
+                                        {{ $equipo->participantes_count ?? $equipo->participantes->count() }} Miembros
+                                    </p>
+
+                                    @if($equipo->evento)
+                                        <div class="inline-flex items-center gap-2 bg-[#64FFDA]/10 text-[#64FFDA] px-4 py-2 
+                                                    rounded-full text-sm font-bold mb-6 border border-[#64FFDA]/30">
+                                            <span class="material-symbols-outlined text-base">trophy</span>
+                                            {{ Str::limit($equipo->evento->nombre, 20) }}
+                                        </div>
+                                    @endif
+
+                                    <a href="{{ route('equipos.show', $equipo->id_equipo) }}"
+                                       class="inline-flex items-center gap-3 px-8 py-4 mt-6 bg-gradient-to-r from-[#64FFDA] to-[#00D4AA] 
+                                              text-[#0A192F] rounded-2xl font-black text-lg hover:shadow-xl hover:shadow-[#64FFDA]/40 
+                                              transition-all duration-300 transform hover:scale-105">
+                                        <span class="material-symbols-outlined text-2xl">visibility</span>
+                                        Ver Perfil
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-center">
-                            <h3 class="font-bold text-xl text-[#CCD6F6] mb-1 group-hover:text-[#64FFDA] transition-colors">
-                                {{ $equipo->nombre }}
-                            </h3>
-                            <p class="text-[#8892B0] text-sm mb-4">
-                                {{ $equipo->participantes_count ?? 0 }} Miembros
-                            </p>
-                            @if($equipo->evento)
-                            <span class="inline-block bg-[#0A192F] text-[#8892B0] text-xs px-3 py-1 rounded-full mb-4 border border-[#233554]">
-                                {{ Str::limit($equipo->evento->nombre, 20) }}
-                            </span>
-                            @endif
-                            <a href="{{ route('equipos.show', $equipo->id_equipo) }}"
-                               class="block w-full py-2 rounded-lg bg-[#0A192F] text-[#CCD6F6] text-sm font-bold hover:bg-[#64FFDA] hover:text-[#0A192F] transition-all duration-300">
-                                Ver Perfil
-                            </a>
-                        </div>
-                    </div>
                     @endforeach
                 </div>
             </div>
-            @else
-            <div class="text-center py-16 bg-[#112240] rounded-2xl border border-dashed border-[#233554]">
-                <span class="material-symbols-outlined text-6xl text-[#233554] mb-4">groups_3</span>
-                <p class="text-[#8892B0] text-lg">No hay equipos destacados disponibles</p>
+
+            <!-- CSS del carrusel infinito -->
+            <style>
+                @keyframes infinite-scroll {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(-50%); }
+                }
+                .animate-infinite-scroll {
+                    animation: infinite-scroll 40s linear infinite;
+                }
+                .animate-infinite-scroll:hover {
+                    animation-play-state: paused;
+                }
+            </style>
+        @else
+            <div class="text-center py-20">
+                <span class="material-symbols-outlined text-9xl text-[#233554] opacity-20 mb-8 block">emoji_events</span>
+                <p class="text-2xl text-[#8892B0]">Aún no hay equipos destacados</p>
+                <p class="text-[#64FFDA] mt-4">¡Sé el primero en brillar!</p>
             </div>
-            @endif
-        </div>
+        @endif
     </div>
 </div>
     </div>
