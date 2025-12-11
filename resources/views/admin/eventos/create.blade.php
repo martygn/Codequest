@@ -157,14 +157,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-xs font-mono text-primary mb-2 uppercase tracking-wide">Fecha de Inicio</label>
-                            <input type="datetime-local" name="fecha_inicio" value="{{ old('fecha_inicio') }}" 
-                                min="{{ now()->format('Y-m-d\TH:i') }}" required
+                            <input type="datetime-local" name="fecha_inicio" value="{{ old('fecha_inicio') }}" required
                                 class="w-full px-4 py-2.5 rounded-lg bg-background-dark border border-border-dark text-text-dark focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all [color-scheme:dark]">
                         </div>
                         <div>
                             <label class="block text-xs font-mono text-primary mb-2 uppercase tracking-wide">Fecha de Fin</label>
-                            <input type="datetime-local" name="fecha_fin" value="{{ old('fecha_fin') }}" 
-                                min="{{ now()->format('Y-m-d\TH:i') }}" required
+                            <input type="datetime-local" name="fecha_fin" value="{{ old('fecha_fin') }}" required
                                 class="w-full px-4 py-2.5 rounded-lg bg-background-dark border border-border-dark text-text-dark focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all [color-scheme:dark]">
                         </div>
                     </div>
