@@ -109,175 +109,132 @@
         </script>
 
         {{-- Próximos Eventos Carrusel --}}
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-            <div class="flex items-center justify-between mb-8">
-                <h2 class="text-3xl font-bold text-[#CCD6F6]">Próximos Eventos</h2>
-                <div class="h-px flex-1 bg-[#233554] ml-6"></div>
-            </div>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+    <div class="flex items-center justify-between mb-8">
+        <h2 class="text-3xl font-bold text-[#CCD6F6]">Próximos Eventos</2>
+        <div class="h-px flex-1 bg-[#233554] ml-6"></div>
+    </div>
 
-            <div class="relative" id="carouselWrapper">
-                @if(count($proximosEventos) > 0)
-                <style>
-                    @keyframes carouselSlide {
-                        0% { transform: translateX(0); }
-                        100% { transform: translateX(calc(-400px * 5)); } /* Ajustado para suavidad */
-                    }
-                    .carousel-track { animation: carouselSlide 40s linear infinite; }
-                    .carousel-track:hover { animation-play-state: paused; }
-                </style>
-                
-                <div class="overflow-hidden py-4">
-                    <div class="carousel-track flex gap-8">
-                        @foreach($proximosEventos as $evento)
-                        <div class="flex-shrink-0 w-96 bg-[#112240] rounded-2xl shadow-xl border border-[#233554] overflow-hidden hover:border-[#64FFDA] transition-all duration-300 group hover:-translate-y-2">
-                            
-                            <div class="h-48 bg-[#0A192F] relative overflow-hidden">
-                                @if($evento->foto)
-                                    <img src="{{ asset('storage/' . $evento->foto) }}" alt="{{ $evento->nombre }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center bg-[#0D1B2A]">
-                                        <span class="text-4xl font-bold text-[#233554]">{{ Str::upper(substr($evento->nombre, 0, 2)) }}</span>
-                                    </div>
-                                @endif
-                                <div class="absolute top-4 right-4 bg-[#0A192F]/80 backdrop-blur text-[#64FFDA] text-xs font-mono py-1 px-3 rounded border border-[#64FFDA]/30 shadow-lg">
-                                    {{ \Carbon\Carbon::parse($evento->fecha_inicio)->format('d M Y') }}
-                                </div>
+    <div class="relative">
+        @if(count($proximosEventos) > 0)
+        <style>
+            @keyframes carouselSlide { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+            .carousel-track { animation: carouselSlide 40s linear infinite; }
+            .carousel-track:hover { animation-play-state: paused; }
+        </style>
+        
+        <div class="overflow-hidden py-4">
+            <div class="carousel-track flex gap-8">
+                @foreach($proximosEventos->merge($proximosEventos) as $evento)
+                <div class="flex-shrink-0 w-96 bg-[#112240] rounded-2xl shadow-xl border border-[#233554] overflow-hidden hover:border-[#64FFDA] transition-all group hover:-translate-y-2">
+                    <div class="h-48 bg-[#0A192F] relative overflow-hidden">
+                        @if($evento->foto)
+                            <img src="{{ Storage::disk('r2')->url($evento->foto) }}"
+                                 alt="{{ $evento->nombre }}"
+                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1F63E1]/20 to-[#64FFDA]/20">
+                                <span class="text-5xl font-bold text-[#64FFDA]/50">{{ Str::upper(substr($evento->nombre, 0, 2)) }}</span>
                             </div>
+                        @endif
+                        <div class="absolute top-4 right-4 bg-[#0A192F]/90 backdrop-blur text-[#64FFDA] text-xs font-mono py-2 px-4 rounded border border-[#64FFDA]/30 shadow-lg">
+                            {{ \Carbon\Carbon::parse($evento->fecha_inicio)->format('d M Y') }}
+                        </div>
+                    </div>
 
-                            <div class="p-6">
-                                <h3 class="font-bold text-xl text-[#CCD6F6] mb-2 truncate group-hover:text-[#64FFDA] transition-colors">
-                                    {{ $evento->nombre }}
-                                </h3>
-                                @if($evento->lugar)
-                                <p class="text-[#8892B0] text-sm mb-4 flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-base">location_on</span>
-                                    {{ Str::limit($evento->lugar, 30) }}
-                                </p>
-                                @endif
-                                <a href="{{ route('eventos.show', $evento->id_evento) }}" class="block w-full text-center py-3 rounded-lg border border-[#233554] text-[#64FFDA] font-bold hover:bg-[#64FFDA] hover:text-[#0A192F] transition-all duration-300">
-                                    Ver Detalles
-                                </a>
-                            </div>
-                        </div>
-                        @endforeach
-                        
-                        {{-- Duplicado para efecto infinito --}}
-                        @foreach($proximosEventos as $evento)
-                        <div class="flex-shrink-0 w-96 bg-[#112240] rounded-2xl shadow-xl border border-[#233554] overflow-hidden hover:border-[#64FFDA] transition-all duration-300 group hover:-translate-y-2">
-                            <div class="h-48 bg-[#0A192F] relative overflow-hidden">
-                                @if($evento->foto)
-                                    <img src="{{ asset('storage/' . $evento->foto) }}" alt="{{ $evento->nombre }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                                @else
-                                    <div class="w-full h-full flex items-center justify-center bg-[#0D1B2A]">
-                                        <span class="text-4xl font-bold text-[#233554]">{{ Str::upper(substr($evento->nombre, 0, 2)) }}</span>
-                                    </div>
-                                @endif
-                                <div class="absolute top-4 right-4 bg-[#0A192F]/80 backdrop-blur text-[#64FFDA] text-xs font-mono py-1 px-3 rounded border border-[#64FFDA]/30 shadow-lg">
-                                    {{ \Carbon\Carbon::parse($evento->fecha_inicio)->format('d M Y') }}
-                                </div>
-                            </div>
-                            <div class="p-6">
-                                <h3 class="font-bold text-xl text-[#CCD6F6] mb-2 truncate group-hover:text-[#64FFDA] transition-colors">{{ $evento->nombre }}</h3>
-                                @if($evento->lugar)
-                                <p class="text-[#8892B0] text-sm mb-4 flex items-center gap-2"><span class="material-symbols-outlined text-base">location_on</span> {{ Str::limit($evento->lugar, 30) }}</p>
-                                @endif
-                                <a href="{{ route('eventos.show', $evento->id_evento) }}" class="block w-full text-center py-3 rounded-lg border border-[#233554] text-[#64FFDA] font-bold hover:bg-[#64FFDA] hover:text-[#0A192F] transition-all duration-300">Ver Detalles</a>
-                            </div>
-                        </div>
-                        @endforeach
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl text-[#CCD6F6] mb-2 truncate group-hover:text-[#64FFDA] transition-colors">
+                            {{ $evento->nombre }}
+                        </h3>
+                        @if($evento->lugar)
+                        <p class="text-[#8892B0] text-sm mb-4 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base">location_on</span>
+                            {{ Str::limit($evento->lugar, 30) }}
+                        </p>
+                        @endif
+                        <a href="{{ route('eventos.show', $evento->id_evento) }}"
+                           class="block w-full text-center py-3 rounded-lg border border-[#233554] text-[#64FFDA font-bold hover:bg-[#64FFDA] hover:text-[#0A192F] transition-all">
+                            Ver Detalles
+                        </a>
                     </div>
                 </div>
-                @else
-                <div class="text-center py-16 bg-[#112240] rounded-2xl border border-dashed border-[#233554]">
-                    <span class="material-symbols-outlined text-6xl text-[#233554] mb-4">event_busy</span>
-                    <p class="text-[#8892B0] text-lg">No hay eventos próximos disponibles</p>
-                    <a href="{{ route('eventos.create') }}" class="mt-4 inline-block text-[#64FFDA] hover:underline font-medium">Crear un evento →</a>
-                </div>
-                @endif
+                @endforeach
             </div>
         </div>
+        @else
+        <div class="text-center py-16 bg-[#112240] rounded-2xl border border-dashed border-[#233554]">
+            <span class="material-symbols-outlined text-6xl text-[#233554] mb-4">event_busy</span>
+            <p class="text-[#8892B0] text-lg">No hay eventos próximos disponibles</p>
+        </div>
+        @endif
+    </div>
+</div>
 
         {{-- Equipos Destacados Carrusel --}}
-        <div class="bg-[#0D1B2A] py-16 border-t border-[#233554]">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-3xl font-bold text-[#CCD6F6]">Equipos Destacados</h2>
-                    <div class="h-px flex-1 bg-[#233554] ml-6"></div>
-                </div>
+<div class="bg-[#0D1B2A] py-16 border-t border-[#233554]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-3xl font-bold text-[#CCD6F6]">Equipos Destacados</h2>
+            <div class="h-px flex-1 bg-[#233554 ml-6"></div>
+        </div>
 
-                <div class="relative" id="equiposCarouselWrapper">
-                    @if(count($equiposDestacados) > 0)
-                    <style>
-                        @keyframes equiposCarouselSlide {
-                            0% { transform: translateX(0); }
-                            100% { transform: translateX(calc(-384px * 5)); }
-                        }
-                        .equipos-carousel-track { animation: equiposCarouselSlide 35s linear infinite; }
-                        .equipos-carousel-track:hover { animation-play-state: paused; }
-                    </style>
-                    
-                    <div class="overflow-hidden py-4">
-                        <div class="equipos-carousel-track flex gap-8">
-                            @foreach($equiposDestacados as $equipo)
-                            <div class="flex-shrink-0 w-80 bg-[#112240] rounded-2xl shadow-lg border border-[#233554] p-6 hover:border-[#64FFDA] transition-all duration-300 group hover:-translate-y-2">
-                                <div class="flex justify-center -mt-12 mb-4">
-                                    <div class="w-24 h-24 rounded-full border-4 border-[#0D1B2A] bg-[#0A192F] overflow-hidden flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                        @if($equipo->banner)
-                                            <img src="{{ asset('storage/' . $equipo->banner) }}" alt="{{ $equipo->nombre }}" class="w-full h-full object-cover">
-                                        @else
-                                            <span class="text-3xl font-bold text-[#64FFDA]">{{ strtoupper(substr($equipo->nombre, 0, 1)) }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="text-center">
-                                    <h3 class="font-bold text-xl text-[#CCD6F6] mb-1 group-hover:text-[#64FFDA] transition-colors">{{ $equipo->nombre }}</h3>
-                                    <p class="text-[#8892B0] text-sm mb-4">
-                                        {{ $equipo->participantes_count ?? 0 }} Miembros
-                                    </p>
-                                    @if($equipo->evento)
-                                    <span class="inline-block bg-[#0A192F] text-[#8892B0] text-xs px-3 py-1 rounded-full mb-4 border border-[#233554]">
-                                        {{ Str::limit($equipo->evento->nombre, 20) }}
+        <div class="relative" id="equiposCarouselWrapper">
+            @if(count($equiposDestacados) > 0)
+            <style>
+                @keyframes equiposCarouselSlide {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(calc(-384px * {{ count($equiposDestacados) }})); }
+                }
+                .equipos-carousel-track { animation: equiposCarouselSlide 35s linear infinite; }
+                .equipos-carousel-track:hover { animation-play-state: paused; }
+            </style>
+            
+            <div class="overflow-hidden py-4">
+                <div class="equipos-carousel-track flex gap-8">
+                    @foreach($equiposDestacados->merge($equiposDestacados) as $equipo) {{-- Duplicamos para efecto infinito --}}
+                    <div class="flex-shrink-0 w-80 bg-[#112240] rounded-2xl shadow-lg border border-[#233554] p-6 hover:border-[#64FFDA] transition-all duration-300 group hover:-translate-y-2">
+                        <div class="flex justify-center -mt-12 mb-4">
+                            <div class="w-24 h-24 rounded-full border-4 border-[#0D1B2A] bg-[#0A192F] overflow-hidden flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                                @if($equipo->banner)
+                                    <img src="{{ Storage::disk('r2')->url($equipo->banner) }}"
+                                         alt="{{ $equipo->nombre }}"
+                                         class="w-full h-full object-cover">
+                                @else
+                                    <span class="text-3xl font-bold text-[#64FFDA]">
+                                        {{ strtoupper(substr($equipo->nombre, 0, 2)) }}
                                     </span>
-                                    @endif
-                                    <a href="{{ route('equipos.show', $equipo->id_equipo) }}" class="block w-full py-2 rounded-lg bg-[#0A192F] text-[#CCD6F6] text-sm font-bold hover:bg-[#64FFDA] hover:text-[#0A192F] transition-all duration-300">
-                                        Ver Perfil
-                                    </a>
-                                </div>
+                                @endif
                             </div>
-                            @endforeach
-                            
-                            {{-- Duplicado --}}
-                            @foreach($equiposDestacados as $equipo)
-                            <div class="flex-shrink-0 w-80 bg-[#112240] rounded-2xl shadow-lg border border-[#233554] p-6 hover:border-[#64FFDA] transition-all duration-300 group hover:-translate-y-2">
-                                <div class="flex justify-center -mt-12 mb-4">
-                                    <div class="w-24 h-24 rounded-full border-4 border-[#0D1B2A] bg-[#0A192F] overflow-hidden flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                                        @if($equipo->banner)
-                                            <img src="{{ asset('storage/' . $equipo->banner) }}" alt="{{ $equipo->nombre }}" class="w-full h-full object-cover">
-                                        @else
-                                            <span class="text-3xl font-bold text-[#64FFDA]">{{ strtoupper(substr($equipo->nombre, 0, 1)) }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="text-center">
-                                    <h3 class="font-bold text-xl text-[#CCD6F6] mb-1 group-hover:text-[#64FFDA] transition-colors">{{ $equipo->nombre }}</h3>
-                                    <p class="text-[#8892B0] text-sm mb-4">{{ $equipo->participantes_count ?? 0 }} Miembros</p>
-                                    @if($equipo->evento)
-                                    <span class="inline-block bg-[#0A192F] text-[#8892B0] text-xs px-3 py-1 rounded-full mb-4 border border-[#233554]">{{ Str::limit($equipo->evento->nombre, 20) }}</span>
-                                    @endif
-                                    <a href="{{ route('equipos.show', $equipo->id_equipo) }}" class="block w-full py-2 rounded-lg bg-[#0A192F] text-[#CCD6F6] text-sm font-bold hover:bg-[#64FFDA] hover:text-[#0A192F] transition-all duration-300">Ver Perfil</a>
-                                </div>
-                            </div>
-                            @endforeach
+                        </div>
+                        <div class="text-center">
+                            <h3 class="font-bold text-xl text-[#CCD6F6] mb-1 group-hover:text-[#64FFDA] transition-colors">
+                                {{ $equipo->nombre }}
+                            </h3>
+                            <p class="text-[#8892B0] text-sm mb-4">
+                                {{ $equipo->participantes_count ?? 0 }} Miembros
+                            </p>
+                            @if($equipo->evento)
+                            <span class="inline-block bg-[#0A192F] text-[#8892B0] text-xs px-3 py-1 rounded-full mb-4 border border-[#233554]">
+                                {{ Str::limit($equipo->evento->nombre, 20) }}
+                            </span>
+                            @endif
+                            <a href="{{ route('equipos.show', $equipo->id_equipo) }}"
+                               class="block w-full py-2 rounded-lg bg-[#0A192F] text-[#CCD6F6] text-sm font-bold hover:bg-[#64FFDA] hover:text-[#0A192F] transition-all duration-300">
+                                Ver Perfil
+                            </a>
                         </div>
                     </div>
-                    @else
-                    <div class="text-center py-16 bg-[#112240] rounded-2xl border border-dashed border-[#233554]">
-                        <span class="material-symbols-outlined text-6xl text-[#233554] mb-4">groups_3</span>
-                        <p class="text-[#8892B0] text-lg">No hay equipos destacados disponibles</p>
-                    </div>
-                    @endif
+                    @endforeach
                 </div>
             </div>
+            @else
+            <div class="text-center py-16 bg-[#112240] rounded-2xl border border-dashed border-[#233554]">
+                <span class="material-symbols-outlined text-6xl text-[#233554] mb-4">groups_3</span>
+                <p class="text-[#8892B0] text-lg">No hay equipos destacados disponibles</p>
+            </div>
+            @endif
         </div>
+    </div>
+</div>
     </div>
 </x-app-layout>
