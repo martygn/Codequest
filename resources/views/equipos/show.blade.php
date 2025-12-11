@@ -1,6 +1,6 @@
 <x-app-layout>
 <div class="py-12 bg-[#0A192F] min-h-screen text-[#8892B0] font-sans" style="padding-top: 120px;">
-    <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 
         {{-- Banner del equipo (CORREGIDO PARA R2) --}}
         <div class="mb-8 rounded-3xl overflow-hidden shadow-2xl border border-[#233554] relative group">
