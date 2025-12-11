@@ -50,19 +50,20 @@ class DashboardController extends Controller
             return redirect()->route('juez.panel');
         }
 
-        // Obtener próximos eventos (ordenados por fecha)
-        $proximosEventos = Evento::where('fecha_inicio', '>=', Carbon::now())
+        // Obtener próximos eventos
+        $eventosProximos = Evento::where('fecha_inicio', '>=', Carbon::now())
             ->orderBy('fecha_inicio', 'asc')
-            ->take(3)
+            ->take(12) // más eventos = carrusel más lleno
             ->get();
 
-        // Obtener equipos destacados (con más miembros)
+        // Obtener equipos destacados
         $equiposDestacados = Equipo::withCount('participantes')
             ->orderBy('participantes_count', 'desc')
-            ->take(3)
+            ->orderByDesc('created_at')
+            ->take(15)
             ->get();
 
-        return view('dashboard', compact('proximosEventos', 'equiposDestacados'));
+        return view('dashboard', compact('eventosProximos', 'equiposDestacados'));
     }
 
     /**
