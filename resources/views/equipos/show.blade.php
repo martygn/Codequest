@@ -6,7 +6,7 @@
         <div class="mb-8 rounded-3xl overflow-hidden shadow-2xl border border-[#233554] relative group">
             @if($equipo->banner)
                 <div class="absolute inset-0 bg-gradient-to-t from-[#0A192F] to-transparent opacity-70 z-10"></div>
-                <img src="{{ Storage::disk('r2')->url($equipo->banner) }}"
+                <img src="{{ config('filesystems.disks.r2.url') . '/' . $equipo->banner }}"
                      alt="Banner del equipo {{ $equipo->nombre }}"
                      class="w-full h-80 object-cover transition-transform duration-1000 group-hover:scale-110"
                      onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -96,10 +96,10 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                    
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 xl:gap-12">
+
                     {{-- Columna Izquierda: Info --}}
-                    <div class="lg:col-span-2 space-y-10">
+                    <div class="xl:col-span-2 space-y-10 order-2 xl:order-1">
                         
                         {{-- Proyecto --}}
                         <div class="bg-gradient-to-br from-[#64FFDA]/5 to-transparent p-8 rounded-2xl border border-[#64FFDA]/20">
@@ -140,7 +140,7 @@
                     </div>
 
                     {{-- Columna Derecha: Miembros y Solicitudes --}}
-                    <div class="space-y-10">
+                    <div class="space-y-10 order-1 xl:order-2">
                         
                         {{-- Miembros --}}
                         <div>
